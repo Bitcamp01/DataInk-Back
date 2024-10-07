@@ -15,4 +15,4 @@ jobs:
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
             "text": "${{ github.actor }}님이 develop 브랜치(백엔드)에 머지했습니다. PR 제목: ${{ github.event.pull_request.title }}"
-          }' ${{ secrets.SLACK_WEBHOOK_URL }}
+          }' ${{ secrets.SLACK_WEBHOOK_URL_BACK }}
