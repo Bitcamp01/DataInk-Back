@@ -1,4 +1,4 @@
 package com.bit.datainkback.entity;
 
-public class LabelTask {
+public class Reject {
 }
