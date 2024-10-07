@@ -20,7 +20,8 @@ src/main/java
             ├── controller            // REST API 컨트롤러
             │   ├── UserController.java           // 사용자 관련 API
             │   ├── ProjectController.java        // 프로젝트 관련 API
-            │   ├── LabelTaskController.java      // 검수 작업 및 반려 사유 통합 처리 API
+            │   ├── LabelTaskController.java      // 라벨링 작업 관련 API
+            │   ├── LabelReviewController.java    // 검수 작업 관련 API
             │   ├── NoticeController.java         // 공지사항 관련 API
             │   ├── CommentController.java        // 댓글 관련 API
             │   ├── TempTaskController.java       // 임시 저장 관련 API
@@ -31,6 +32,7 @@ src/main/java
             │   ├── UserDTO.java
             │   ├── ProjectDTO.java
             │   ├── LabelTaskDTO.java
+            │   ├── LabelReviewDTO.java
             │   ├── TempTaskDTO.java
             │   ├── NotificationDTO.java
             │   ├── ChatMessageDTO.java
@@ -41,16 +43,19 @@ src/main/java
             │   ├── UserProject.java
             │   ├── LabelField.java
             │   ├── LabelTask.java
+            │   ├── LabelReview.java
             │   ├── Notice.java
             │   ├── Comment.java
             │   ├── TempTask.java
             │   ├── SourceData.java
-            │   └── UserDetail.java
+            │   ├── UserDetail.java
+            │   └── Reject.java
             ├── exception             // 예외 처리 관련
             ├── repository            // JPA 및 MongoDB 레포지토리 (데이터 접근 계층)
             │   ├── UserRepository.java
             │   ├── ProjectRepository.java
             │   ├── LabelTaskRepository.java
+            │   ├── LabelReviewRepository.java
             │   ├── NoticeRepository.java
             │   ├── CommentRepository.java
             │   ├── TempTaskRepository.java
@@ -64,6 +69,7 @@ src/main/java
             │   ├── UserService.java
             │   ├── ProjectService.java
             │   ├── LabelTaskService.java
+            │   ├── LabelReviewService.java
             │   ├── NoticeService.java
             │   ├── CommentService.java
             │   ├── TempTaskService.java
