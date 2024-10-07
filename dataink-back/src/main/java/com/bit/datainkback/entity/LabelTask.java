@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "LABEL_TASK")
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -36,26 +35,20 @@ public class LabelTask {
 
     @Enumerated(EnumType.STRING)
     private TaskLevel level;
-
     private String comment;
 
     @Column(name = "rejection_reason")
     private String rejectReason;
-
     private LocalDateTime create;
-
     private LocalDateTime update;
-
     private LocalDateTime submit;
-
     private LocalDateTime review;
-
     private LocalDateTime approve;
 
-//    @OneToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "source_id")
-//    private SourceData sourceData;
-//
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "source_id")
+    private SourceData sourceData;
+
 //    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 //    @JoinColumn(name = "field_id")
 //    private LabelField labelField;
@@ -74,7 +67,7 @@ public class LabelTask {
                 .submit(this.submit)
                 .review(this.review)
                 .approve(this.approve)
-//                .sourceDataId(this.sourceData.getSourceId())
+                .sourceDataId(this.sourceData.getSourceId())
 //                .labelFieldId(this.labelField.getFieldId())
                 .build();
     }
