@@ -45,8 +45,6 @@ public class Project {
 
     @Column(name = "mongo_data_id", length = 255)
     private String mongoDataId;
-
-
     public ProjectDto toDto() {
         return ProjectDto.builder().projectId(this.projectId).userId(this.owner.getUserId())
                 .startDate(this.startDate).endDate(this.endDate).description(this.description)
