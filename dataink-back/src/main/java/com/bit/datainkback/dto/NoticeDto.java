@@ -18,7 +18,6 @@ public class NoticeDto {
     private String content; // 내용
     private Long userId; // 작성자 ID
     private Timestamp created; // 작성 시간
-    private String uploadFile; // 업로드 파일
 
     public Notice toEntity(User user) {
         return Notice.builder()
@@ -27,7 +26,6 @@ public class NoticeDto {
                 .content(this.content)
                 .user(user)
                 .created(this.created)
-                .uploadFile(this.uploadFile)
                 .build();
     }
 
