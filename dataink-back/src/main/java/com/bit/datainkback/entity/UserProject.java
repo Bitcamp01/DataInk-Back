@@ -28,7 +28,7 @@ public class UserProject {
     private User user; // User와의 관계 설정
 
     @ManyToOne
-    @JoinColumn(name = "project_id", referencedColumnName = "prject_id", nullable = false)
+    @JoinColumn(name = "project_id", referencedColumnName = "project_id", nullable = false)
     private Project project;
 
     private Enum role;

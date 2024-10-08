@@ -24,11 +24,11 @@ public class LabelTaskDto {
     private TaskLevel level;
     private String comment;
     private String rejectionReason;
-    private Timestamp create;
-    private Timestamp update;
-    private Timestamp submit;
-    private Timestamp review;
-    private Timestamp approve;
+    private Timestamp created;
+    private Timestamp updated;
+    private Timestamp submitted;
+    private Timestamp reviewed;
+    private Timestamp approved;
     private Long sourceDataId;
     private Long labelFieldId;
 
