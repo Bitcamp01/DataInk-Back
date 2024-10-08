@@ -1,5 +1,6 @@
 package com.bit.datainkback.entity;
 
+import com.bit.datainkback.dto.NoticeDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,9 +24,9 @@ public class Notice {
             strategy = GenerationType.SEQUENCE,
             generator = "noticeSeqGenerator"
     )
-    @Column(name = "notice_id", unique = true, nullable = false)
-    private int noticeId;
-
+    @Column(name = "notice_id")
+    private Long noticeId;
+    @Column(nullable = false)
     private String title;
     private String content;
 
@@ -33,8 +34,8 @@ public class Notice {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     private User user; // User 엔티티와의 관계 설정
 
+    @Column(nullable = false)
     private Timestamp created;
-
     @Column(name = "upload_file")
     private String uploadFile;
 
@@ -42,7 +43,10 @@ public class Notice {
         return NoticeDto.builder()
                 .noticeId(this.noticeId)
                 .title(this.title)
-                .cnotent(this.content)
-                .user(this.getUser())
+                .content(this.content)
+                .userId(this.user.getUserId())
+                .created(this.created)
+                .uploadFile(this.uploadFile)
+                .build();
     }
 }
