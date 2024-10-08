@@ -28,7 +28,7 @@ public class Project {
     private Long projectId;
 
     @ManyToOne
-    @JoinColumn(name = "owner", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
     @Column(name = "name", nullable = false, length = 255)
@@ -45,6 +45,8 @@ public class Project {
 
     @Column(name = "mongo_data_id", length = 255)
     private String mongoDataId;
+
+
     public ProjectDto toDto() {
         return ProjectDto.builder().projectId(this.projectId).userId(this.owner.getUserId())
                 .startDate(this.startDate).endDate(this.endDate).description(this.description)
