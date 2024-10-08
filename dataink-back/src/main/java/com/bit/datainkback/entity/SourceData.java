@@ -4,7 +4,7 @@ import com.bit.datainkback.dto.SourceDataDto;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "SOURCE_DATA")
@@ -22,7 +22,10 @@ import java.time.LocalDateTime;
 public class SourceData {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "source_data_seq_generator")
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "source_data_seq_generator"
+    )
     @Column(name = "source_id")
     private Long sourceId;
 
@@ -36,7 +39,7 @@ public class SourceData {
     private String fileName;
 
     @Column(name = "upload_time", nullable = false)
-    private LocalDateTime uploadTime;
+    private Timestamp uploadTime;
 
     // toDto() 메서드
     public SourceDataDto toDto() {

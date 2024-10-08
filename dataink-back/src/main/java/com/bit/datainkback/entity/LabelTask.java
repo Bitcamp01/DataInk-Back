@@ -6,9 +6,15 @@ import com.bit.datainkback.enums.TaskStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Entity
+@SequenceGenerator(
+        name = "labelTaskSeqGenerator",
+        sequenceName = "LABELTASK_SEQ",
+        initialValue = 1,
+        allocationSize = 1
+)
 @Table(name = "LABEL_TASK")
 @Getter
 @Setter
@@ -18,17 +24,20 @@ import java.time.LocalDateTime;
 public class LabelTask {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "labelTaskSeqGenerator"
+    )
     @Column(name = "task_id")
     private Long taskId;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "project_id")
-//    private Project project;
-//
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id")
-//    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
@@ -39,24 +48,24 @@ public class LabelTask {
 
     @Column(name = "rejection_reason")
     private String rejectReason;
-    private LocalDateTime create;
-    private LocalDateTime update;
-    private LocalDateTime submit;
-    private LocalDateTime review;
-    private LocalDateTime approve;
+    private Timestamp create;
+    private Timestamp update;
+    private Timestamp submit;
+    private Timestamp review;
+    private Timestamp approve;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_id")
     private SourceData sourceData;
 
-//    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "field_id")
-//    private LabelField labelField;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "field_id")
+    private LabelField labelField;
 
     public LabelTaskDto toDto() {
         return LabelTaskDto.builder()
                 .taskId(this.taskId)
-//                .projectId(this.project.getProjectId())
+                .projectId(this.project.getProjectId())
 //                .userId(this.user.getUserId())
                 .status(this.status)
                 .level(this.level)
@@ -68,7 +77,7 @@ public class LabelTask {
                 .review(this.review)
                 .approve(this.approve)
                 .sourceDataId(this.sourceData.getSourceId())
-//                .labelFieldId(this.labelField.getFieldId())
+                .labelFieldId(this.labelField.getFieldId())
                 .build();
     }
 

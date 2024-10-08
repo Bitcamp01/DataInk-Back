@@ -8,7 +8,7 @@ import com.bit.datainkback.enums.TaskLevel;
 import com.bit.datainkback.enums.TaskStatus;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -24,11 +24,11 @@ public class LabelTaskDto {
     private TaskLevel level;
     private String comment;
     private String rejectionReason;
-    private LocalDateTime create;
-    private LocalDateTime update;
-    private LocalDateTime submit;
-    private LocalDateTime review;
-    private LocalDateTime approve;
+    private Timestamp create;
+    private Timestamp update;
+    private Timestamp submit;
+    private Timestamp review;
+    private Timestamp approve;
     private Long sourceDataId;
     private Long labelFieldId;
 
