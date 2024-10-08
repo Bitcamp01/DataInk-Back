@@ -28,7 +28,7 @@ public class Project {
     private Long projectId;
 
     @ManyToOne
-    @JoinColumn(name = "owner", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
     @Column(name = "name", nullable = false, length = 255)
