@@ -15,11 +15,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SequenceGenerator(
+        name = "projectSeqGenerator",
+        sequenceName = "PROJECT_SEQ",
+        initialValue = 1,
+        allocationSize = 1
+)
 public class Project {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator ="projectSeqGenerator")
     @Column(name = "project_id")
-    private int projectId;
+    private Long projectId;
 
     @ManyToOne
     @JoinColumn(name = "owner", nullable = false)

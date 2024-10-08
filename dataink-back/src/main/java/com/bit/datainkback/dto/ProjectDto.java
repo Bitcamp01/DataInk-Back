@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ProjectDto {
-    private int projectId;
-    private int userId;
+    private Long projectId;
+    private Long userId;
     private String name;
     private String description;
     private LocalDateTime startDate;
