@@ -25,20 +25,27 @@ public class User {
             strategy = GenerationType.SEQUENCE,
             generator = "userSeqGenerator"
     )
-    @Column(name = "user_id", unique = true, nullable = false)
-    private int userId;
+    @Column(name = "user_id")
+    private Long userId;
     @Column(unique = true, nullable = false)
     private String id;
+    @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
     private String name;
     @Column(unique = true, nullable = false)
     private String email;
     @Column(unique = true, nullable = false)
     private String tel;
+    @Column(nullable = false)
     private Date birth;
+    @Column(nullable = false)
     private String dep;
+    @Column(nullable = false)
     private Enum authen;
+    @Column(nullable = false)
     private Timestamp regdate;
+    @Column(nullable = false)
     private String status;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserDetail userDetail;
@@ -56,6 +63,11 @@ public class User {
                 .authen(this.authen)
                 .regdate(this.regdate)
                 .status(this.status)
+                .userDetailDto(
+                    userDetail != null
+                            ? userDetail.toDto()
+                            : null
+                )
                 .build();
     }
 

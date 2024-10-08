@@ -1,5 +1,6 @@
 package com.bit.datainkback.entity;
 
+import com.bit.datainkback.dto.UserDetailDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,10 +25,8 @@ public class UserDetail {
             generator = "userDetailSeqGenerator"
     )
     @OneToOne
-    @MapsId
-    @Column(name = "user_id")
-    @JoinColumn(name = "userId", referencedColumnName = "userId")
-    private User user;
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user; // User와의 관계 설정
 
     private String addr;
     @Column(name = "profile_intro")
@@ -46,7 +45,7 @@ public class UserDetail {
 
     public UserDetailDto toDto() {
         return UserDetailDto.builder()
-                .userId(this.getUser())
+                .userId(this.user.getUserId())
                 .addr(this.addr)
                 .profileIntro(this.profileIntro)
                 .profilePicture(this.profilePicture)
