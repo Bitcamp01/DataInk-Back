@@ -3,7 +3,7 @@ package com.bit.datainkback.dto;
 import com.bit.datainkback.entity.SourceData;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
@@ -16,9 +16,8 @@ public class SourceDataDto {
     private Long projectId;
     private String fileUrl;
     private String fileName;
-    private LocalDateTime uploadTime;
+    private Timestamp uploadTime;
 
-    // toEntity() 메서드
     public SourceData toEntity() {
         return SourceData.builder()
                 .sourceId(this.sourceId)

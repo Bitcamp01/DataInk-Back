@@ -5,6 +5,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@SequenceGenerator(
+        name = "labelFieldSeqGenerator",
+        sequenceName = "LABELFIELD_SEQ",
+        initialValue = 1,
+        allocationSize = 1
+)
 @Table(name = "LABEL_FIELD")
 @Getter
 @Setter
@@ -13,7 +19,10 @@ import lombok.*;
 @Builder
 public class LabelField {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "labelFieldSeqGenerator"
+    )
     @Column(name = "field_id")
     private Long fieldId;
 
