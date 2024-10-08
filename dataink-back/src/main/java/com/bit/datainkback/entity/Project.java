@@ -34,7 +34,7 @@ public class Project {
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    @Column(name = "desc", length = 255)
+    @Column(name = "description", length = 255)
     private String description;
 
     @Column(name = "start_date", nullable = false)

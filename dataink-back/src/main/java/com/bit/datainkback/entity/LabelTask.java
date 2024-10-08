@@ -48,11 +48,11 @@ public class LabelTask {
 
     @Column(name = "rejection_reason")
     private String rejectReason;
-    private Timestamp create;
-    private Timestamp update;
-    private Timestamp submit;
-    private Timestamp review;
-    private Timestamp approve;
+    private Timestamp created;
+    private Timestamp updated;
+    private Timestamp submitted;
+    private Timestamp reviewed;
+    private Timestamp approved;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_id")
@@ -71,11 +71,11 @@ public class LabelTask {
                 .level(this.level)
                 .comment(this.comment)
                 .rejectionReason(this.rejectReason)
-                .create(this.create)
-                .update(this.update)
-                .submit(this.submit)
-                .review(this.review)
-                .approve(this.approve)
+                .created(this.created)
+                .updated(this.updated)
+                .submitted(this.submitted)
+                .reviewed(this.reviewed)
+                .approved(this.approved)
                 .sourceDataId(this.sourceData.getSourceId())
                 .labelFieldId(this.labelField.getFieldId())
                 .build();
