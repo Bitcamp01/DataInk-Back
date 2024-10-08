@@ -36,8 +36,7 @@ public class Notice {
 
     @Column(nullable = false)
     private Timestamp created;
-    @Column(name = "upload_file")
-    private String uploadFile;
+
 
     public NoticeDto toDto() {
         return NoticeDto.builder()
@@ -46,7 +45,6 @@ public class Notice {
                 .content(this.content)
                 .userId(this.user.getUserId())
                 .created(this.created)
-                .uploadFile(this.uploadFile)
                 .build();
     }
 }
