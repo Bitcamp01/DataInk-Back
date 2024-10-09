@@ -5,6 +5,7 @@ import com.bit.datainkback.entity.User;
 import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -33,18 +34,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto join(UserDto userDto) {
-        User user = User.builder()
-                .id(userDto.getId())
-                .password(userDto.getPassword())
-                .name(userDto.getName())
-                .build();
+//        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        User savedUser = userRepository.save(user);
+        UserDto joinedUserDto = userRepository.save(userDto.toEntity()).toDto();
 
-        return UserDto.builder()
-                .id(savedUser.getId())
-                .name(savedUser.getName())
-                .build();
+        joinedUserDto.setPassword("");
+
+        return joinedUserDto;
     }
 
     @Override
