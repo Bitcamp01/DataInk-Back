@@ -1,6 +1,7 @@
 package com.bit.datainkback.entity;
 
 import com.bit.datainkback.dto.UserDto;
+import com.bit.datainkback.enums.AuthenType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,7 +43,8 @@ public class User {
     @Column(nullable = false)
     private String dep;
     @Column(nullable = false)
-    private Enum authen;
+    @Enumerated(EnumType.STRING)
+    private AuthenType authen;
     @Column(nullable = false)
     private Timestamp regdate;
     @Column(nullable = false)
