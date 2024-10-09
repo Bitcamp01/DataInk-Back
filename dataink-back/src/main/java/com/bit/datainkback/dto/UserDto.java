@@ -2,6 +2,7 @@ package com.bit.datainkback.dto;
 
 import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.UserDetail;
+import com.bit.datainkback.enums.AuthenType;
 import lombok.*;
 
 import java.sql.Date;
@@ -22,13 +23,13 @@ public class UserDto {
     private String tel;
     private Date birth;
     private String dep;
-    private Enum authen;
+    private AuthenType authen;
     private Timestamp regdate;
     private String status;
     private UserDetailDto userDetailDto;
 
-    public User toEntity(User user) {
-        return User.builder()
+    public User toEntity() {
+        User user = User.builder()
                 .userId(this.userId)
                 .id(this.id)
                 .password(this.password)
@@ -37,16 +38,15 @@ public class UserDto {
                 .tel(this.tel)
                 .birth(this.birth)
                 .dep(this.dep)
-                .authen(this.authen) // Enum 타입 그대로 사용
+                .authen(this.authen)
                 .regdate(this.regdate)
                 .status(this.status)
-                .userDetail(
-                        userDetailDto != null
-                            ? userDetailDto.toEntity(user)
-                            : null
-                )
                 .build();
 
+        if (userDetailDto != null) {
+            user.setUserDetail(userDetailDto.toEntity(user)); // User 객체 전달
+        }
 
+        return user;
     }
 }
