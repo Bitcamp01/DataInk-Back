@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RequestMapping("/project")
 public class ProjectController {
-    private final ProjectService projectService;
+//    private final ProjectService projectService;
 
 
     // 프로젝트 정보가 아니고 전체 프로젝트 구조 정보를 가져오는 메소드

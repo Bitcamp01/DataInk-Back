@@ -17,6 +17,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Map<String, String> idCheck(String id) {
@@ -34,7 +35,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto join(UserDto userDto) {
-//        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         UserDto joinedUserDto = userRepository.save(userDto.toEntity()).toDto();
 
@@ -45,23 +47,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto login(UserDto userDto) {
-        Optional<User> userOptional = userRepository.findById(userDto.getId());
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (user.getPassword().equals(userDto.getPassword())) {
-                return UserDto.builder()
-                        .id(user.getId())
-                        .name(user.getName())
-                        .build();
-            } else {
-                throw new RuntimeException("Invalid password.");
-            }
-        } else {
-            throw new RuntimeException("User not found.");
+        User user = userRepository.findById(userDto.getId()).orElseThrow(
+                () -> new RuntimeException("Id not exist")
+        );
+
+        if (!userDto.getPassword().equals(user.getPassword())) {
+            throw new RuntimeException("wrong password");
         }
+
+        UserDto loginUserDto = user.toDto();
+        loginUserDto.setPassword("");
+
+        return loginUserDto;
     }
 
     @Override
     public void logout() {
+
     }
 }
