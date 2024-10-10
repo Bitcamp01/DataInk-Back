@@ -9,5 +9,4 @@ public interface UserService {
     UserDto join(UserDto userDto);
 
     UserDto login(UserDto userDto);
-    void logout();
 }
