@@ -1,4 +1,2 @@
-package com.bit.datainkback.repository;
-
-public class NoticeRepository {
+package com.bit.datainkback.repository;public interface NoticeRepository {
 }
