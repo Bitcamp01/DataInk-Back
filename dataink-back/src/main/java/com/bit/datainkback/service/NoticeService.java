@@ -8,4 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface NoticeService {
 
    Page<NoticeDto> post(NoticeDto noticeDto, MultipartFile uploadFiles, Long userId, Pageable pageable);
+
+   Page<NoticeDto> findAll(String searchCondition, String searchKeyword, Pageable pageale);
+
 }

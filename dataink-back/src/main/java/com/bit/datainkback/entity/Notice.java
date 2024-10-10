@@ -1,10 +1,12 @@
 package com.bit.datainkback.entity;
 
 import com.bit.datainkback.dto.NoticeDto;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @SequenceGenerator(
@@ -36,6 +38,8 @@ public class Notice {
 
     @Column(nullable = false)
     private Timestamp created;
+    @JsonManagedReference
+    private List<NoticeFile> noticeFileList;
 
 
     public NoticeDto toDto() {

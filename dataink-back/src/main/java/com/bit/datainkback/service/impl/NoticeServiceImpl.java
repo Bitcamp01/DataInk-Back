@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
@@ -22,7 +21,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 @Slf4j
 
-public class NoticeServieImpl implements NoticeService {
+public class NoticeServiceImpl implements NoticeService {
     private final NoticeRepository noticeRepository;
     private final FileUtils fileUtils;
 
@@ -34,8 +33,8 @@ public class NoticeServieImpl implements NoticeService {
 
         if (uploadFiles != null) {
             Arrays.stream(uploadFiles).forEach(multipartFile -> {
-               if(multipartFile.getFileOriginName() != null &&
-               !multipartFile.getFileOriginName().equalsIgnoreCase("")){
+               if(multipartFile.getOriginalFilename() != null &&
+               !multipartFile.getOriginalFilename().equalsIgnoreCase("")){
 
                    NoticeFileDto noticeFileDto = fileUtils.parserFileInfo(multipartFile,"notice/");
 
@@ -43,14 +42,18 @@ public class NoticeServieImpl implements NoticeService {
                }
            });
        }
-        AbstractRedisAsyncCommands<Object, Object> noticeRepository;
+
         noticeRepository.save(notice);
 
        return noticeRepository.findAll(pageable).map(Notice::toDto);
     }
 
     @Override
-    public Page<NoticeDto> findAll(String searchCondition, String searchKeyword, Pageable pageale) {
-        return null;
+    public Page<NoticeDto> findAll(String searchCondition, String searchKeyword, Pageable pageable) {
+        return noticeRepository
+                .searchAll(searchCondition, searchKeyword, pageable)
+                .map(Notice::toDto);
     }
+
+
 }

@@ -56,31 +56,34 @@ public class NoticeController {
 
     }
 
-//    @GetMapping
-//    public ResponseEntity<?> getBoards(@RequestParam("searchCOndition") String searchCondition,
-//                                       @RequestParam("searchKeyword") String searchKeyword,
-//
-//                                       @PageableDefault(page=0, size=15) Pageable pageale){
-//        ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
-//
-//        try{
-//            Page<NoticeDto> noticeDtoList = noticeService.findAll(searchCondition, searchKeyword, pageale);
-//
-//            responseDto.setPageItems(noticeDtoList);
-//            responseDto.setItem(NoticeDto.builder()
-//                            .searchCondition(searchCondition)
-//                            .searchKeyword(searchKeyword)
-//                            .build());
-//            responseDto.setStatusCode(HttpStatus.OK.value());
-//            responseDto.setStatusMessage("ok");
-//            return ResponseEntity.ok(responseDto);
-//
-//
-//        }catch(Exception e){
-//
-//
-//        }
-//    }
-    
+    @GetMapping
+    public ResponseEntity<?> getBoards(@RequestParam("searchCondition") String searchCondition,
+                                       @RequestParam("searchKeyword") String searchKeyword,
+
+                                       @PageableDefault(page=0, size=15) Pageable pageale){
+        ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
+
+        try{
+            Page<NoticeDto> noticeDtoList = noticeService.findAll(searchCondition, searchKeyword, pageale);
+
+            responseDto.setPageItems(noticeDtoList);
+            responseDto.setItem(NoticeDto.builder()
+                            .searchCondition(searchCondition)
+                            .searchKeyword(searchKeyword)
+                            .build());
+            responseDto.setStatusCode(HttpStatus.OK.value());
+            responseDto.setStatusMessage("ok");
+
+            return ResponseEntity.ok(responseDto);
+        }catch(Exception e){
+            log.error("getBoards error: {}", e.getMessage());
+            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseDto.setStatusMessage(e.getMessage());
+            return ResponseEntity.internalServerError().body(responseDto);
+
+
+        }
+    }
+
 
 }
