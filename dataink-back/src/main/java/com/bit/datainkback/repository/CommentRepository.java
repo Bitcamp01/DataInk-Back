@@ -1,4 +1,4 @@
 package com.bit.datainkback.repository;
 
-public class CommentRepository {
+public interface CommentRepository {
 }

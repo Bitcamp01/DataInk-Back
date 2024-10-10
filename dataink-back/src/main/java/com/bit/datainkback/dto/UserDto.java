@@ -27,6 +27,7 @@ public class UserDto {
     private Timestamp regdate;
     private String status;
     private UserDetailDto userDetailDto;
+    private String token;
 
     public User toEntity() {
         User user = User.builder()

@@ -8,8 +8,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -32,7 +35,7 @@ public class UserController {
 
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
-            log.error("username-check error: {}", e.getMessage());
+            log.error("id-check error: {}", e.getMessage());
             responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             responseDto.setStatusMessage(e.getMessage());
             return ResponseEntity.internalServerError().body(responseDto);
@@ -64,7 +67,9 @@ public class UserController {
         ResponseDto<UserDto> responseDto = new ResponseDto<>();
 
         try {
+            log.info("login userDto: {}", userDto.toString());
             UserDto loginUserDto = userService.login(userDto);
+
             responseDto.setStatusCode(HttpStatus.OK.value());
             responseDto.setStatusMessage("ok");
             responseDto.setItem(loginUserDto);
@@ -83,10 +88,17 @@ public class UserController {
         ResponseDto<Map<String, String>> responseDto = new ResponseDto<>();
 
         try {
-            userService.logout();
+            Map<String, String> logoutMsgMap = new HashMap<>();
+
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            securityContext.setAuthentication(null);
+            SecurityContextHolder.setContext(securityContext);
+
+            logoutMsgMap.put("logoutMsg", "logout success");
+
             responseDto.setStatusCode(HttpStatus.OK.value());
             responseDto.setStatusMessage("ok");
-            responseDto.setItem(Map.of("message", "logout success"));
+            responseDto.setItem(logoutMsgMap);
 
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
