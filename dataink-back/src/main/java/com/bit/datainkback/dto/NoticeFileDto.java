@@ -22,9 +22,9 @@ public class NoticeFileDto {
     private String fileNewName;
 
     public NoticeFile toEntity(Notice notice) {
-        return NoticeFileDto.builder()
+        return NoticeFile.builder()
             .fileId(this.fileId)
-            .noticeId(this.noticeId)
+            .notice(notice)
             .fileName(this.fileName)
             .fileOriginName(this.fileOriginName)
             .filePath(filePath)

@@ -1,6 +1,7 @@
 package com.bit.datainkback.dto;
 
 import com.bit.datainkback.entity.Notice;
+import com.bit.datainkback.entity.User;
 import lombok.*;
 
 import java.sql.Timestamp;
@@ -23,7 +24,7 @@ public class NoticeDto {
     private String searchCondition;
     private List<NoticeFileDto> noticeFileDtoList;
 
-    public Notice toEntity(Long user) {
+    public Notice toEntity(User user) {
         return Notice.builder()
                 .noticeId(this.noticeId)
                 .title(this.title)
