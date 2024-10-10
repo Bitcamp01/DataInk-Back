@@ -7,5 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface NoticeService {
 
-   Page<NoticeDto> post(NoticeDto noticeDto, MultipartFile uploadFiles, Long userId, Pageable pageable);
+   Page<NoticeDto> post(NoticeDto noticeDto, MultipartFile[] uploadFiles, Long userId, Pageable pageable);
+
+//   Page<NoticeDto> findAll(String searchCondition, String searchKeyword, Pageable pageale);
+
+   NoticeDto modify(NoticeDto noticeDto, MultipartFile[] uploadFiles, MultipartFile[] changeFiles, String originFiles, Long userId);
+
+   void deleteById(Long noticeId);
 }
