@@ -3,6 +3,7 @@ package com.bit.datainkback.controller;
 import com.bit.datainkback.dto.ResponseDto;
 import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.service.UserService;
+import com.bit.datainkback.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,7 @@ public class UserController {
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody UserDto userDto) {
         ResponseDto<UserDto> responseDto = new ResponseDto<>();
+
 
         try {
             UserDto joinedUserDto = userService.join(userDto);

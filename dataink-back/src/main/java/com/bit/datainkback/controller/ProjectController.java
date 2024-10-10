@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RequestMapping("/project")
 public class ProjectController {
-    private final ProjectService projectService;
+//    private final ProjectService projectService;
 
 }
