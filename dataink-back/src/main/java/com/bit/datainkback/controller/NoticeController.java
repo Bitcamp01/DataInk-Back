@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.util.Arrays;
 
 
 @RestController
@@ -31,7 +32,7 @@ public class NoticeController {
     @PostMapping
 //    multipartFile이 추가된 데이터는 @RequestPart로 받아준다.
     public ResponseEntity<?> post(@RequestPart("NoticeDto") NoticeDto noticeDto,
-                                  @RequestPart(value="uploadFiles", required=false) MultipartFile uploadFiles,
+                                  @RequestPart(value="uploadFiles", required=false) MultipartFile[] uploadFiles,
                                   @AuthenticationPrincipal User user,
                                   @PageableDefault(page =0, size =15) Pageable pageable) {
         ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
@@ -56,32 +57,90 @@ public class NoticeController {
 
     }
 
-    @GetMapping
-    public ResponseEntity<?> getBoards(@RequestParam("searchCondition") String searchCondition,
-                                       @RequestParam("searchKeyword") String searchKeyword,
+//    @GetMapping
+//    public ResponseEntity<?> getBoards(@RequestParam("searchCondition") String searchCondition,
+//                                       @RequestParam("searchKeyword") String searchKeyword,
+//
+//                                       @PageableDefault(page=0, size=15) Pageable pageale){
+//        ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
+//
+//        try{
+//            Page<NoticeDto> noticeDtoList = noticeService.findAll(searchCondition, searchKeyword, pageale);
+//
+//            responseDto.setPageItems(noticeDtoList);
+//            responseDto.setItem(NoticeDto.builder()
+//                            .searchCondition(searchCondition)
+//                            .searchKeyword(searchKeyword)
+//                            .build());
+//            responseDto.setStatusCode(HttpStatus.OK.value());
+//            responseDto.setStatusMessage("ok");
+//
+//            return ResponseEntity.ok(responseDto);
+//        }catch(Exception e){
+//            log.error("getBoards error: {}", e.getMessage());
+//            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+//            responseDto.setStatusMessage(e.getMessage());
+//            return ResponseEntity.internalServerError().body(responseDto);
+//
+//
+//        }
+//    }
 
-                                       @PageableDefault(page=0, size=15) Pageable pageale){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
         ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
 
-        try{
-            Page<NoticeDto> noticeDtoList = noticeService.findAll(searchCondition, searchKeyword, pageale);
+        try {
+            log.info("deleteById id: {}", id);
 
-            responseDto.setPageItems(noticeDtoList);
-            responseDto.setItem(NoticeDto.builder()
-                            .searchCondition(searchCondition)
-                            .searchKeyword(searchKeyword)
-                            .build());
+            noticeService.deleteById(id);
+
+            responseDto.setStatusCode(HttpStatus.NO_CONTENT.value());
+            responseDto.setStatusMessage("no content");
+
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            log.error("deleteById error: {}", e.getMessage());
+            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseDto.setStatusMessage(e.getMessage());
+            return ResponseEntity.internalServerError().body(responseDto);
+        }
+    }
+
+    @PatchMapping
+    public ResponseEntity<?> modify(@RequestPart("noticeDto" )NoticeDto noticeDto,
+                                    @RequestPart(value="uploadFiles", required = false) MultipartFile[] uploadFiles,
+                                    @RequestPart(value="changeFiles", required = false) MultipartFile[] changeFiles,
+                                    @RequestPart(value="originFiles", required = false) String originFiles,
+                                    @AuthenticationPrincipal User user){
+        ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
+
+        try {
+            log.info("modify noticeDto: {}", noticeDto);
+
+            if (uploadFiles != null && uploadFiles.length > 0)
+                Arrays.stream(uploadFiles).forEach(file ->
+                        log.info("modify uploadFile: {}", file.getOriginalFilename()));
+
+            if (changeFiles != null && changeFiles.length > 0)
+                Arrays.stream(uploadFiles).forEach(file ->
+                        log.info("modify changeFile: {}", file.getOriginalFilename()));
+
+            log.info("modify originFile: {}", originFiles);
+
+            NoticeDto modifiedNoticeDto = noticeService.modify(noticeDto, uploadFiles,
+                    changeFiles, originFiles, user.getUserId());
+
+            responseDto.setItem(modifiedNoticeDto);
             responseDto.setStatusCode(HttpStatus.OK.value());
             responseDto.setStatusMessage("ok");
 
             return ResponseEntity.ok(responseDto);
-        }catch(Exception e){
-            log.error("getBoards error: {}", e.getMessage());
+            }catch(Exception e){
+            log.error("modify error: {}", e.getMessage());
             responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             responseDto.setStatusMessage(e.getMessage());
             return ResponseEntity.internalServerError().body(responseDto);
-
-
         }
     }
 

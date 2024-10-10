@@ -38,6 +38,8 @@ public class Notice {
 
     @Column(nullable = false)
     private Timestamp created;
+    private Timestamp moddate;
+    @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<NoticeFile> noticeFileList;
 
@@ -49,6 +51,7 @@ public class Notice {
                 .content(this.content)
                 .userId(this.user.getUserId())
                 .created(this.created)
+                .moddate(this.moddate)
                 .build();
     }
 }

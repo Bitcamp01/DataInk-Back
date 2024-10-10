@@ -46,9 +46,9 @@ import java.util.UUID;
         }
 
         public NoticeFileDto parserFileInfo(MultipartFile multipartFile, String directory) {
-            String bucketName = "bitcamp-67";
+            String bucketName = "bitcamp-62";
 
-            NoticeFileDto boardFileDto = new NoticeFileDto();
+            NoticeFileDto noticeFileDto = new NoticeFileDto();
 
             // 다른 사용자가 같은 파일명의 파일을 업로드 했을 때
             // 덮어써지는 것을 방지하기 위해서 파일명을 랜덤값_날짜시간_파일명으로 지정
@@ -89,23 +89,23 @@ import java.util.UUID;
 
             if(!type.equals("")) {
                 if(type.startsWith("image")) {
-                    noticeFileDto.setFiletype("image");
+                    noticeFileDto.setFileType("image");
                 } else {
-                    noticeFileDto.setFiletype("etc");
+                    noticeFileDto.setFileType("etc");
                 }
             } else {
-                noticeFileDto.setFiletype("etc");
+                noticeFileDto.setFileType("etc");
             }
 
-            boardFileDto.setFileName(fileName);
-            boardFileDto.setFileOriginName(multipartFile.getOriginalFilename());
-            boardFileDto.setFilePath(directory);
+            noticeFileDto.setFileName(fileName);
+            noticeFileDto.setFileOriginName(multipartFile.getOriginalFilename());
+            noticeFileDto.setFilePath(directory);
 
-            return boardFileDto;
+            return noticeFileDto;
         }
 
         public void deleteFile(String directory, String fileName) {
-            String bucketName = "bitcamp-67";
+            String bucketName = "bitcamp-62";
 
             s3.deleteObject(new DeleteObjectRequest(bucketName, directory + fileName));
         }
