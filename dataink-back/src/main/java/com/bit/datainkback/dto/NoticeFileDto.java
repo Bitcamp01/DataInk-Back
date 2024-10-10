@@ -2,6 +2,7 @@ package com.bit.datainkback.dto;
 
 
 import com.bit.datainkback.entity.Notice;
+import com.bit.datainkback.entity.NoticeFile;
 import lombok.*;
 
 @Getter
@@ -20,7 +21,7 @@ public class NoticeFileDto {
     private String fileStatus;
     private String fileNewName;
 
-    public NoticeFileDto toEntity(Notice notice) {
+    public NoticeFile toEntity(Notice notice) {
         return NoticeFileDto.builder()
             .fileId(this.fileId)
             .noticeId(this.noticeId)
