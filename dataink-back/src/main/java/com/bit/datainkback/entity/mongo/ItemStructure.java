@@ -1,4 +1,4 @@
-package com.bit.datainkback.entity;
+package com.bit.datainkback.entity.mongo;
 
 import lombok.Getter;
 import lombok.Setter;

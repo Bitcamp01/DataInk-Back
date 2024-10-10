@@ -1,4 +1,4 @@
-package com.bit.datainkback.entity;
+package com.bit.datainkback.entity.mongo;
 
 
 import lombok.Getter;
@@ -26,4 +26,5 @@ public class ProjectStructure {
     private LocalDateTime lastModifiedDate;
     private boolean isFolder;
     private String parentId;
+    private boolean finished;
 }

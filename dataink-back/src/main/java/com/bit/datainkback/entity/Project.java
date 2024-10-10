@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "PROJECT")
@@ -31,6 +32,9 @@ public class Project {
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
+    @ManyToOne
+    @JoinColumn(name = "project_id", referencedColumnName = "project_id", nullable = false)
+    private List<UserProject> userProjects;
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
