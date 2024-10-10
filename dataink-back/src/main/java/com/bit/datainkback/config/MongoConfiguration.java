@@ -1,4 +1,4 @@
 package com.bit.datainkback.config;
 
-public class RedisConfig {
+public class MongoConfiguration {
 }
