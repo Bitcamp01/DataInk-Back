@@ -20,8 +20,13 @@ public class ProjectDto {
     private String mongoDataId;
 
     public Project toEntity(User user) {
-        return Project.builder().projectId(this.projectId).owner(user)
-                .startDate(this.startDate).endDate(this.endDate).description(this.description)
+        return Project.builder()
+                .projectId(this.projectId)
+                .user(user)
+                .name(this.name)
+                .startDate(this.startDate)
+                .endDate(this.endDate)
+                .description(this.description)
                 .mongoDataId(this.mongoDataId).build();
     }
 }
