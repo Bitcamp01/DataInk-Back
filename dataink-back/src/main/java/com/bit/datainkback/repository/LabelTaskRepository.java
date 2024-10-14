@@ -1,4 +1,4 @@
 package com.bit.datainkback.repository;
 
-public class LabelTaskRepository {
+public interface LabelTaskRepository {
 }

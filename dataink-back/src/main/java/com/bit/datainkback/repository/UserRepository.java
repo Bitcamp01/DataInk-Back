@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findById(String id);
+    Optional<User> findById(String id);  // String 타입의 id로 검색
+
+    Long countById(String id);
 }

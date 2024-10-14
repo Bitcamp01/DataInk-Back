@@ -5,6 +5,7 @@ import com.bit.datainkback.common.FileUtils;
 import com.bit.datainkback.dto.NoticeDto;
 import com.bit.datainkback.dto.NoticeFileDto;
 import com.bit.datainkback.entity.Notice;
+import com.bit.datainkback.entity.User;
 import com.bit.datainkback.repository.NoticeFileRepository;
 import com.bit.datainkback.repository.NoticeRepository;
 import com.bit.datainkback.service.NoticeService;
@@ -35,10 +36,10 @@ public class NoticeServiceImpl implements NoticeService {
     private final NoticeFileRepository noticeFileRepository;
 
     @Override
-    public Page<NoticeDto> post(NoticeDto noticeDto, MultipartFile[] uploadFiles, Long userId, Pageable pageable) {
+    public Page<NoticeDto> post(NoticeDto noticeDto, MultipartFile[] uploadFiles, User user, Pageable pageable) {
         noticeDto.setCreated(new Timestamp(System.currentTimeMillis()));
 
-        Notice notice = noticeDto.toEntity(userId);
+        Notice notice = noticeDto.toEntity(user);
 
         if (uploadFiles != null) {
             Arrays.stream(uploadFiles).forEach(multipartFile -> {

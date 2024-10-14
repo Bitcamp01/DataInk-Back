@@ -43,9 +43,9 @@ public class NoticeFile {
     @Column(name = "file_type")
     private String fileType;
     @Transient
-    private String file_status;
+    private String fileStatus;
     @Transient
-    private String file_new_name;
+    private String fileNewName;
 
     public NoticeFileDto toDto(){
         return NoticeFileDto.builder()
@@ -55,8 +55,8 @@ public class NoticeFile {
                 .fileOriginName(this.fileOriginName)
                 .filePath(filePath)
                 .fileType(fileType)
-                .fileStatus(file_status)
-                .fileNewName(file_new_name)
+                .fileStatus(fileStatus)
+                .fileNewName(fileNewName)
                 .build();
     }
 
