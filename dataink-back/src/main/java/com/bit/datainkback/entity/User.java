@@ -40,7 +40,7 @@ public class User {
     private String tel;
     @Column(nullable = false)
     private Date birth;
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String dep;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
