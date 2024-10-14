@@ -42,6 +42,23 @@ public class UserController {
         }
     }
 
+    @PostMapping("/tel-check")
+    public ResponseEntity<?> telCheck(@RequestBody UserDto userDto) {
+        ResponseDto<Map<String, String>> responseDto = new ResponseDto<>();
+        try {
+            Map<String, String> map = userService.telCheck(userDto.getTel());
+            responseDto.setStatusCode(HttpStatus.OK.value());
+            responseDto.setStatusMessage("ok");
+            responseDto.setItem(map);
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            log.error("tel-check error: {}", e.getMessage());
+            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseDto.setStatusMessage(e.getMessage());
+            return ResponseEntity.internalServerError().body(responseDto);
+        }
+    }
+
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody UserDto userDto) {
         ResponseDto<UserDto> responseDto = new ResponseDto<>();

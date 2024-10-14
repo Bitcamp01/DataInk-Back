@@ -38,6 +38,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Map<String, String> telCheck(String tel) {
+        Map<String, String> telCheckMsgMap = new HashMap<>();
+        long telCheck = userRepository.findByTel(tel);
+
+        if(telCheck == 0)
+            telCheckMsgMap.put("telCheckMsg", "available tel");
+        else
+            telCheckMsgMap.put("telCheckMsg", "invalid tel");
+
+        return telCheckMsgMap;
+    }
+
+    @Override
     public UserDto join(UserDto userDto) {
         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         userDto.setAuthen(AuthenType.ROLE_USER);
