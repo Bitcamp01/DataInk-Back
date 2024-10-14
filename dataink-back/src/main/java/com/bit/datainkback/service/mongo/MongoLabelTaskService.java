@@ -1,6 +1,6 @@
 package com.bit.datainkback.service.mongo;
 
-import com.bit.datainkback.entity.mongo.MongoLabelTask;
+import com.bit.datainkback.entity.mongo.MongoLabelTasks;
 import com.bit.datainkback.repository.MongoLabelTaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,17 +14,17 @@ public class MongoLabelTaskService {
     private MongoLabelTaskRepository mongoLabelTaskRepository;
 
     // 데이터 저장
-    public MongoLabelTask saveTask(MongoLabelTask task) {
+    public MongoLabelTasks saveTask(MongoLabelTasks task) {
         return mongoLabelTaskRepository.save(task);
     }
 
     // 모든 작업 가져오기
-    public List<MongoLabelTask> getAllTasks() {
+    public List<MongoLabelTasks> getAllTasks() {
         return mongoLabelTaskRepository.findAll();
     }
 
     // 작업 ID로 특정 작업 가져오기
-    public MongoLabelTask getTaskById(String id) {
+    public MongoLabelTasks getTaskById(String id) {
         return mongoLabelTaskRepository.findById(id).orElse(null);
     }
 

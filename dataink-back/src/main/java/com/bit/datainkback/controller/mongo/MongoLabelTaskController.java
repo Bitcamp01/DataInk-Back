@@ -1,6 +1,6 @@
 package com.bit.datainkback.controller.mongo;
 
-import com.bit.datainkback.entity.mongo.MongoLabelTask;
+import com.bit.datainkback.entity.mongo.MongoLabelTasks;
 import com.bit.datainkback.service.mongo.MongoLabelTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -8,24 +8,24 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/mongo/tasks")
+@RequestMapping("/mongo/tasks")
 public class MongoLabelTaskController {
 
     @Autowired
     private MongoLabelTaskService mongoLabelTaskService;
 
     @GetMapping
-    public List<MongoLabelTask> getAllTasks() {
+    public List<MongoLabelTasks> getAllTasks() {
         return mongoLabelTaskService.getAllTasks();
     }
 
     @PostMapping
-    public MongoLabelTask createTask(@RequestBody MongoLabelTask task) {
+    public MongoLabelTasks createTask(@RequestBody MongoLabelTasks task) {
         return mongoLabelTaskService.saveTask(task);
     }
 
     @GetMapping("/{id}")
-    public MongoLabelTask getTaskById(@PathVariable String id) {
+    public MongoLabelTasks getTaskById(@PathVariable String id) {
         return mongoLabelTaskService.getTaskById(id);
     }
 
