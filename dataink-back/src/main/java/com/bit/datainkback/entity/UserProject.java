@@ -1,37 +1,24 @@
 package com.bit.datainkback.entity;
 
+import com.bit.datainkback.dto.UserProjectDto;
+import com.bit.datainkback.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Timestamp;
 
 @Entity
-@SequenceGenerator(
-        name = "userProjectSeqGenerator",
-        sequenceName = "USERPROJECT_SEQ",
-        initialValue = 1,
-        allocationSize = 1
-)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class UserProject {
-    @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "userProjectSeqGenerator"
-    )
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    private User user; // User와의 관계 설정
+    @EmbeddedId
+    private UserProjectId id;
 
-    @ManyToOne
-    @JoinColumn(name = "project_id", referencedColumnName = "project_id", nullable = false)
-    private Project project;
-
-    private Enum role;
+    @Enumerated(EnumType.STRING)
+    private UserRole role; // 역할 Enum
 
     @Column(name = "user_worknt")
     private int userWorkcnt; // 작업 유형
@@ -45,8 +32,15 @@ public class UserProject {
     @Column(name = "completed_inspection")
     private int completedInspection; // 완료된 검사 수
 
-    @Column(name = "end_date")
-    private Timestamp endDate; // 종료 날짜
-
-
+    public UserProjectDto toDto() {
+        return UserProjectDto.builder()
+                .userId(this.id.getUser().getUserId())  // userId는 Long 타입
+                .projectId(this.id.getProject().getProjectId())
+                .role(this.role)
+                .userWorkcnt(this.userWorkcnt)
+                .totalWorkcnt(this.totalWorkcnt)
+                .pendingInspection(this.pendingInspection)
+                .completedInspection(this.completedInspection)
+                .build();
+    }
 }
