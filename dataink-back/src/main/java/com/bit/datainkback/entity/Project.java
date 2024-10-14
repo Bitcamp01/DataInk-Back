@@ -33,8 +33,8 @@ public class Project {
     private User owner;
 
     @ManyToOne
-    @JoinColumn(name = "project_id", referencedColumnName = "project_id", nullable = false)
-    private List<UserProject> userProjects;
+    @JoinColumn(name = "project_id", insertable = false, updatable = false,referencedColumnName = "project_id", nullable = false)
+    private UserProject userProjects;
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
