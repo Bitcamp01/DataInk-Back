@@ -30,7 +30,7 @@ public class Project {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User owner;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "project_id", insertable = false, updatable = false,referencedColumnName = "project_id", nullable = false)
@@ -50,8 +50,13 @@ public class Project {
     @Column(name = "mongo_data_id", length = 255)
     private String mongoDataId;
     public ProjectDto toDto() {
-        return ProjectDto.builder().projectId(this.projectId).userId(this.owner.getUserId())
-                .startDate(this.startDate).endDate(this.endDate).description(this.description)
+        return ProjectDto.builder()
+                .projectId(this.projectId)
+                .userId(this.user.getUserId())
+                .name(this.name)
+                .startDate(this.startDate)
+                .endDate(this.endDate)
+                .description(this.description)
                 .mongoDataId(this.mongoDataId).build();
     }
 }

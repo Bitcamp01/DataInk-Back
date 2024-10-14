@@ -68,4 +68,21 @@ public class UserServiceImpl implements UserService {
         return loginUserDto;
     }
 
+
+//    @Override
+//    public WorkoutPlanDto addWorkoutPlan(List<WorkoutRoutineDto> workoutRoutineDtoList) {
+//        // set루틴리스트 할건데 매개변수가 루틴Dto리스트라 엔터티로 변환 해줘서 담아야함.
+//        // 하나씩 변환하고 루틴리스트에 add해서 -> set루틴리스트 하기
+//        WorkoutPlanDto workoutPlanDto = new WorkoutPlanDto();
+//        List<WorkoutRoutine> workoutRoutineList = new ArrayList<>();
+//
+//        for (WorkoutRoutineDto workoutRoutineDto : workoutRoutineDtoList) {
+//            workoutRoutineRepository.save(workoutRoutineDto.toEntity(workoutRepository.findByWorkoutId(workoutRoutineDto.getWorkoutId()).toEntity())); // 루틴 DB에 저장 //
+//            workoutRoutineList.add(workoutRoutineDto.toEntity(workoutRepository.findByWorkoutId(workoutRoutineDto.getWorkoutId()).toEntity())); // 값 찍어보기
+//        }
+//        workoutPlanDto.setWorkoutRoutineList(workoutRoutineList);
+//        workoutPlanRepository.save(workoutPlanDto.toEntity(userRepository.findByUserId(workoutPlanDto.getUser_id()))); // 플랜 DB에 저장 //
+//
+//        return workoutPlanDto;
+//    }
 }
