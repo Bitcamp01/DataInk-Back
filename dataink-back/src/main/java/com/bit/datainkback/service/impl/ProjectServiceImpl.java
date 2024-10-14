@@ -7,11 +7,15 @@ import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
