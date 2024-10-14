@@ -32,9 +32,10 @@ public class Project {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "project_id", insertable = false, updatable = false,referencedColumnName = "project_id", nullable = false)
-    private UserProject userProjects;
+    // Project와 UserProject는 일대다 관계
+    @OneToMany(mappedBy = "id.project", cascade = CascadeType.ALL)
+    private List<UserProject> userProjects;
+
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
