@@ -18,7 +18,7 @@ public class FolderService {
     }
 
     // 특정 폴더 조회
-    public Folder getFolderById(String id) {
+    public Folder getFolderById(Long id) {
         return folderRepository.findById(id).orElse(null);
     }
 
@@ -28,16 +28,17 @@ public class FolderService {
     }
 
     // 폴더 삭제
-    public void deleteFolder(String id) {
+    public void deleteFolder(Long id) {
         folderRepository.deleteById(id);
     }
 
-    // 폴더의 fields 업데이트
-//    public Folder updateFolderFields(String folderId, List<Field> fields) {
-//        Folder folder = folderRepository.findById(folderId)
-//                .orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
-//        folder.setFields(fields);
-//        return folderRepository.save(folder);
-//    }
+    // 폴더의 itemId 업데이트
+    public Folder updateFolderFields(Long folderId, String itemId) {
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
+        folder.setItemId(itemId);
+        return folderRepository.save(folder);
+    }
 }
+
 

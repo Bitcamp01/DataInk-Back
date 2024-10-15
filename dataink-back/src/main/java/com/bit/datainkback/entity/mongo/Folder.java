@@ -16,17 +16,12 @@ import java.util.List;
 @AllArgsConstructor
 public class Folder {
     @Id
-    private String id;
-    private String label;
-    private String itemId;  // 폴더일 경우 null, 파일(Task)일 경우 Task ID
+    private Long id;
+    private String label; // 폴더/파일 이름
+    private String itemId;  // 폴더일 경우 null, 파일(Task)일 경우 항목 ID
     private String lastModifiedUserId;
     private String lastModifiedDate;
     private boolean isFolder;  // 폴더 또는 파일(Task) 여부
     private List<Folder> children;  // 하위 폴더 및 파일(Task) 통합
-    private List<Field> fields;  // 폴더 단위로 fields를 저장
-}
-
-class Field {
-    private String fieldName;
-    private String fieldValue;
+    private String workstatus;
 }

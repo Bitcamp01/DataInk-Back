@@ -5,6 +5,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface FolderRepository extends MongoRepository<Folder, String> {
+public interface FolderRepository extends MongoRepository<Folder, Long> {
     // 폴더 데이터를 처리하는 기본적인 CRUD 기능 제공
 }

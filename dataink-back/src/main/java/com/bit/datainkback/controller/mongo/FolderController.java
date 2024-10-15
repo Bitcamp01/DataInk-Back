@@ -21,7 +21,7 @@ public class FolderController {
 
     // 특정 폴더 조회
     @GetMapping("/{id}")
-    public Folder getFolderById(@PathVariable String id) {
+    public Folder getFolderById(@PathVariable Long id) {
         return folderService.getFolderById(id);
     }
 
@@ -33,7 +33,7 @@ public class FolderController {
 
     // 폴더 삭제
     @DeleteMapping("/{id}")
-    public void deleteFolder(@PathVariable String id) {
+    public void deleteFolder(@PathVariable Long id) {
         folderService.deleteFolder(id);
     }
 
