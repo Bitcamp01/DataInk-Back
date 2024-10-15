@@ -1,24 +1,24 @@
 package com.bit.datainkback.entity.mongo;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.List;
 
-@Document(collection = "task_details")
+@Document(collection = "fields")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskDetails {
+public class Field {
     @Id
-    private String id;  // 고유 Task ID
-    private String category1;
-    private String category2;
-    private String category3;
-    private String workname;
-    private String workstatus;
+    private String id;  // MongoDB에서 생성된 고유 ID
+    private String fieldName;  // 항목 이름
+    private boolean isParentField;  // 상위 항목 여부 구분
+    private List<Field> subFields;  // 하위 항목 리스트
 }
