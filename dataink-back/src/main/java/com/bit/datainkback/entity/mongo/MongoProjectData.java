@@ -18,6 +18,6 @@ public class MongoProjectData {
     @Id
     private String id;  // MongoDB에서 자동 생성된 프로젝트 ID
     private Long projectId;  // RDBMS의 Project ID를 연동
-    private List<Folder> folders;
+    private List<String> folders; // Folder ID 리스트
 }
 
