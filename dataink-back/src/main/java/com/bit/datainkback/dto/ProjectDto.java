@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class ProjectDto {
     private Long projectId;
     private Long userId;
@@ -20,7 +21,6 @@ public class ProjectDto {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private String mongoDataId;
-
     // MongoDB용 폴더 구조를 포함한 필드
     private List<Folder> folders;
 

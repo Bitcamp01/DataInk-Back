@@ -11,4 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Long countById(String id);
 
     Long findByTel(String tel);
+
+    Optional<User> findByName(String userId);
 }
