@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +24,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private UserRepository userRepository;  // 프로젝트 소유자를 저장하기 위한 UserRepository
 
-    public ProjectDto createProject(ProjectDto projectDto) {
-        User user = userRepository.findById(projectDto.getUserId())
+    public ProjectDto createProject(ProjectDto projectDto, Long userId) {
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         projectDto.setStartDate(LocalDateTime.now());  // 생성일자 설정
@@ -32,5 +34,10 @@ public class ProjectServiceImpl implements ProjectService {
         Project savedProject = projectRepository.save(projectDto.toEntity(user));
 
         return savedProject.toDto();
+    }
+
+    @Override
+    public List<ProjectDto> getProjectByUser(Long id) {
+        return List.of();
     }
 }
