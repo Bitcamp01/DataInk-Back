@@ -22,6 +22,7 @@ public class Folder {
     private String lastModifiedUserId;
     private String lastModifiedDate;
     private boolean isFolder;  // 폴더 또는 파일(Task) 여부
+    private boolean finished; // 하위 작업 완료 여부
     private List<Folder> children;  // 하위 폴더 및 파일(Task) 통합
     private String workstatus;
 }

@@ -16,15 +16,13 @@ public class MongoProjectDataService {
     private MongoProjectDataRepository mongoProjectDataRepository;
 
     // MongoDB에 프로젝트 데이터 생성
-    public String createMongoProjectData(Long projectId, List<Folder> folders) {
+    public void createMongoProjectData(Long projectId) {
         // MongoDB에 프로젝트 데이터 저장
         MongoProjectData mongoProjectData = new MongoProjectData();
         mongoProjectData.setProjectId(projectId);
-        mongoProjectData.setFolders(folders);  // 폴더 구조 포함
+        mongoProjectData.setFolders(List.of());  // 폴더 구조 포함
 
-        MongoProjectData savedData = mongoProjectDataRepository.save(mongoProjectData); // MongoDB에 저장
-
-        return savedData.getId();  // 저장된 MongoDB ID 반환
+        mongoProjectDataRepository.save(mongoProjectData); // MongoDB에 저장
     }
 
     // 특정 프로젝트의 폴더와 라벨링 데이터 가져오기
