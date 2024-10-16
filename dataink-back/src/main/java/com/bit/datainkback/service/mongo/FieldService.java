@@ -68,17 +68,17 @@ public class FieldService {
 
         Folder targetFolder = optionalFolder.get();
 
-        // Task일 경우 (isFolder = false) 필드 추가
-        if (!targetFolder.isFolder()) {
+        // 폴더일 경우 (isFolder = true) 필드 추가
+        if (targetFolder.isFolder()) {
             for (Field field : fields) {
                 fieldRepository.save(field);  // 필드 저장
                 targetFolder.setItemId(field.getId().toString());  // itemId로 필드 연결
             }
         } else {
-            throw new IllegalArgumentException("폴더가 아닌 Task에만 필드를 추가할 수 있습니다.");
+            throw new IllegalArgumentException("폴더가 아니면 항목을 추가할 수 없습니다.");
         }
 
-        folderRepository.save(targetFolder);  // 변경된 폴더(Task) 저장
+        folderRepository.save(targetFolder);  // 변경된 폴더 저장
     }
 
     // 특정 필드 조회
