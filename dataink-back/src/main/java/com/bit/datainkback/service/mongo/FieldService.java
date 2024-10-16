@@ -68,17 +68,26 @@ public class FieldService {
 
         Folder targetFolder = optionalFolder.get();
 
-        // Task일 경우 (isFolder = false) 필드 추가
-        if (!targetFolder.isFolder()) {
+        // 폴더일 경우 (isFolder = true) 필드 추가
+        if (targetFolder.isFolder()) {
+            // 현재 folder의 itemId 리스트 가져오기 (배열로 처리)
+            List<String> itemIds = targetFolder.getItemIds();
+            if (itemIds == null) {
+                itemIds = new ArrayList<>();
+            }
+
+            // 각 필드를 저장하고 itemIds 리스트에 추가
             for (Field field : fields) {
                 fieldRepository.save(field);  // 필드 저장
-                targetFolder.setItemId(field.getId().toString());  // itemId로 필드 연결
+                itemIds.add(field.getId().toString());  // itemId로 필드 연결
             }
+
+            targetFolder.setItemIds(itemIds);  // 업데이트된 itemId 리스트 설정
         } else {
-            throw new IllegalArgumentException("폴더가 아닌 Task에만 필드를 추가할 수 있습니다.");
+            throw new IllegalArgumentException("폴더가 아니면 항목을 추가할 수 없습니다.");
         }
 
-        folderRepository.save(targetFolder);  // 변경된 폴더(Task) 저장
+        folderRepository.save(targetFolder);  // 변경된 폴더 저장
     }
 
     // 특정 필드 조회

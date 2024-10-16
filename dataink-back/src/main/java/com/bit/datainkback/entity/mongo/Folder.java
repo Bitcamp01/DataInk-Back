@@ -20,7 +20,7 @@ public class Folder {
     @Id
     private String id;  // MongoDB의 ObjectId를 사용하여 ID 생성
     private String label; // 폴더/파일 이름
-    private String itemId;  // 항목 ID (파일일 경우)
+    private List<String> itemIds;  // 항목 ID (파일일 경우)
     private String lastModifiedUserId;
     private String lastModifiedDate;
     @JsonProperty("isFolder")  // JSON에서 받는 속성과 매핑
