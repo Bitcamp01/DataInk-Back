@@ -33,10 +33,10 @@ public class FolderService {
     }
 
     // 폴더의 itemId 업데이트
-    public Folder updateFolderFields(String folderId, String itemId) {
+    public Folder updateFolderFields(String folderId, List<String> itemIds) {
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
-        folder.setItemId(itemId);
+        folder.setItemIds(itemIds);
         return folderRepository.save(folder);
     }
 }

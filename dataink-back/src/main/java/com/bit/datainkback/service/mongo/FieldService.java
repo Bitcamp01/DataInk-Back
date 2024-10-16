@@ -70,10 +70,19 @@ public class FieldService {
 
         // 폴더일 경우 (isFolder = true) 필드 추가
         if (targetFolder.isFolder()) {
+            // 현재 folder의 itemId 리스트 가져오기 (배열로 처리)
+            List<String> itemIds = targetFolder.getItemIds();
+            if (itemIds == null) {
+                itemIds = new ArrayList<>();
+            }
+
+            // 각 필드를 저장하고 itemIds 리스트에 추가
             for (Field field : fields) {
                 fieldRepository.save(field);  // 필드 저장
-                targetFolder.setItemId(field.getId().toString());  // itemId로 필드 연결
+                itemIds.add(field.getId().toString());  // itemId로 필드 연결
             }
+
+            targetFolder.setItemIds(itemIds);  // 업데이트된 itemId 리스트 설정
         } else {
             throw new IllegalArgumentException("폴더가 아니면 항목을 추가할 수 없습니다.");
         }
