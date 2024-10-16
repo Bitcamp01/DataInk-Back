@@ -4,14 +4,20 @@ import com.bit.datainkback.entity.mongo.Field;
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.repository.mongo.FieldRepository;
 import com.bit.datainkback.repository.mongo.FolderRepository;
-import com.bit.datainkback.repository.mongo.MongoProjectDataRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Criteria;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Slf4j
 public class FieldService {
 
     @Autowired
@@ -21,36 +27,62 @@ public class FieldService {
     private FolderRepository folderRepository;
 
     @Autowired
-    private MongoProjectDataRepository mongoProjectDataRepository;
+    private MongoTemplate mongoTemplate;
 
-    // 폴더에 필드 추가
-    public void addFieldsToTask(String folderId, List<Field> fields) {
-        Folder folder = folderRepository.findById(folderId)
-                .orElseThrow(() -> new RuntimeException("Folder not found"));
-
-        // Task일 경우 (isFolder = false) 필드 추가
-        if (!folder.isFolder()) {
-            for (Field field : fields) {
-                fieldRepository.save(field);  // 필드 저장
-                folder.setItemId(field.getId().toString());  // itemId로 필드 연결
-            }
-            folder.setWorkstatus("진행중");  // 상태 설정
-        } else {
-            throw new IllegalArgumentException("폴더가 아닌 Task에만 필드를 추가할 수 있습니다.");  // 예외 처리
+    public Optional<Folder> findFolderById(String folderId, List<Folder> folders) {
+        // folders가 null인 경우 빈 리스트로 초기화
+        if (folders == null) {
+            folders = new ArrayList<>();
         }
 
-        folderRepository.save(folder);  // 변경된 폴더(Task) 저장
+        for (Folder folder : folders) {
+            // folder가 null인지 체크
+            if (folder == null) {
+                continue; // null인 경우 다음 폴더로 넘어감
+            }
+
+            // 현재 폴더의 ID와 비교
+            if (folder.getId() != null && folder.getId().equals(folderId)) {
+                return Optional.of(folder);
+            }
+
+            // 자식 폴더 탐색
+            Optional<Folder> found = findFolderById(folderId, folder.getChildren());
+            if (found.isPresent()) {
+                return found; // 자식 폴더에서 발견
+            }
+        }
+        return Optional.empty(); // 발견하지 못함
     }
 
 
 
+    public void addFieldsToTask(String folderId, List<Field> fields) {
+        // 자식 폴더 찾기
+        Optional<Folder> optionalFolder = findFolderById(folderId, folderRepository.findAll());
 
+        // 폴더가 발견되지 않은 경우 예외 처리
+        if (!optionalFolder.isPresent()) {
+            throw new RuntimeException("Folder not found");
+        }
+
+        Folder targetFolder = optionalFolder.get();
+
+        // Task일 경우 (isFolder = false) 필드 추가
+        if (!targetFolder.isFolder()) {
+            for (Field field : fields) {
+                fieldRepository.save(field);  // 필드 저장
+                targetFolder.setItemId(field.getId().toString());  // itemId로 필드 연결
+            }
+        } else {
+            throw new IllegalArgumentException("폴더가 아닌 Task에만 필드를 추가할 수 있습니다.");
+        }
+
+        folderRepository.save(targetFolder);  // 변경된 폴더(Task) 저장
+    }
 
     // 특정 필드 조회
     public Field getFieldById(Long id) {
         return fieldRepository.findById(id).orElse(null);
     }
 }
-
-
-

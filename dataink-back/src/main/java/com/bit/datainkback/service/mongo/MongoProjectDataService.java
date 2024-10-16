@@ -5,12 +5,13 @@ import com.bit.datainkback.entity.mongo.MongoProjectData;
 import com.bit.datainkback.enums.TaskStatus;
 import com.bit.datainkback.repository.mongo.FolderRepository;
 import com.bit.datainkback.repository.mongo.MongoProjectDataRepository;
-import org.bson.types.ObjectId;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class MongoProjectDataService {
 
@@ -63,6 +64,8 @@ public class MongoProjectDataService {
         // 하위 폴더(children)가 있으면 재귀적으로 ID를 할당
         if (folder.getChildren() != null) {
             for (Folder child : folder.getChildren()) {
+                // 자식의 isFolder 값을 요청에서 받은 값으로 설정
+                child.setFolder(child.isFolder());  // 직접 설정
                 assignIdToFolderAndChildren(child);  // 하위 폴더에도 ID 할당
             }
         }

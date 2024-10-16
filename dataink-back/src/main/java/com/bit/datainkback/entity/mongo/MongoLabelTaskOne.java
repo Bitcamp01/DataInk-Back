@@ -17,5 +17,5 @@ import java.util.List;
 public class MongoLabelTaskOne {
     private String taskName;
     private TaskStatus status;  // 작업 상태 (진행중, 완료됨 등) -> enum 사용
-    private List<MongoLabelField> fields;  // 작업에 연결된 라벨링 항목 리스트
+    private List<Field> fields;  // 작업에 연결된 라벨링 항목 리스트
 }
