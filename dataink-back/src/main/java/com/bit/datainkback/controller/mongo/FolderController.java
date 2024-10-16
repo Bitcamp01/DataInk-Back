@@ -26,12 +26,6 @@ public class FolderController {
     @Autowired
     private FieldService fieldService;
 
-    @Autowired
-    private FolderRepository folderRepository;
-
-    @Autowired
-    private FieldRepository fieldRepository;
-
     // 폴더 생성
     @PostMapping
     public Folder createFolder(@RequestBody Folder folder) {
@@ -58,15 +52,10 @@ public class FolderController {
 
     // 특정 프로젝트에 폴더 추가
     @PostMapping("/projects/{projectId}")
-    public ResponseEntity<?> addFolderToProject(@PathVariable Long projectId, @RequestBody Folder folder) {
-        mongoProjectDataService.addFolderToProject(projectId, folder);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    // 파일(Task)에 필드 값 추가 API
-    @PostMapping("/{folderId}/fieldValues")
-    public ResponseEntity<Void> addFieldsToTask(@PathVariable String folderId, @RequestBody List<Field> fields) {
-        fieldService.addFieldsToTask(folderId, fields);
+    public ResponseEntity<?> addFolderToProject(@PathVariable Long projectId, @RequestBody List<Folder> folders) {
+        for (Folder folder : folders) {
+            mongoProjectDataService.addFolderToProject(projectId, folder);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -18,7 +18,7 @@ public class FieldController {
     private FieldService fieldService;
 
     // 폴더에 필드 추가
-    @PostMapping("/{folderId}/add")
+    @PostMapping("/add/{folderId}")
     public ResponseEntity<Void> addFieldsToFolder(@PathVariable String folderId, @RequestBody List<Field> fields) {
         fieldService.addFieldsToTask(folderId, fields);
         return new ResponseEntity<>(HttpStatus.OK);
