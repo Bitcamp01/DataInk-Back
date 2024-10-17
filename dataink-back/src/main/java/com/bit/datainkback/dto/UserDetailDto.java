@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 @ToString
 public class UserDetailDto {
     private Long userId; // 사용자 ID
+    private String dep;
     private String addr; // 주소
     private String profileIntro; // 프로필 소개
     private String profilePicture; // 프로필 사진
@@ -27,6 +28,7 @@ public class UserDetailDto {
     public UserDetail toEntity(User user) {
         return UserDetail.builder()
                 .user(user)
+                .dep(this.dep)
                 .addr(this.addr)
                 .profileIntro(this.profileIntro)
                 .profilePicture(this.profilePicture)
