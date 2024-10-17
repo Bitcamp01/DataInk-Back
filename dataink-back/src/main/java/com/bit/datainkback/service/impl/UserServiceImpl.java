@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
 
         long usernameCheck = userRepository.countById(id);
 
-        if(usernameCheck == 0)
+        if (usernameCheck == 0)
             userCheckMsgMap.put("usernameCheckMsg", "available username");
         else
             userCheckMsgMap.put("usernameCheckMsg", "invalid username");
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
                 () -> new RuntimeException("id not exist")
         );
 
-        if(!passwordEncoder.matches(userDto.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(userDto.getPassword(), user.getPassword())) {
             throw new RuntimeException("wrong password");
         }
 
@@ -85,4 +85,5 @@ public class UserServiceImpl implements UserService {
 //
 //        return workoutPlanDto;
 //    }
+//}
 }
