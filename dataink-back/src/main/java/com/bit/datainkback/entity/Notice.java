@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -52,6 +53,11 @@ public class Notice {
                 .userId(this.user.getUserId())
                 .created(this.created)
                 .moddate(this.moddate)
+                .noticeFileDtoList(
+                        noticeFileList != null && noticeFileList.size() > 0
+                                ? noticeFileList.stream().map(NoticeFile::toDto).toList()
+                                : new ArrayList<>()
+                )
                 .build();
     }
 }
