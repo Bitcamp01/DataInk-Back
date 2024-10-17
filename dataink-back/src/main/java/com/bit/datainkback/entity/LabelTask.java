@@ -47,7 +47,7 @@ public class LabelTask {
     private String comment;
 
     @Column(name = "rejection_reason")
-    private String rejectReason;
+    private String rejectionReason;
     private Timestamp created;
     private Timestamp updated;
     private Timestamp submitted;
@@ -70,7 +70,7 @@ public class LabelTask {
                 .status(this.status)
                 .level(this.level)
                 .comment(this.comment)
-                .rejectionReason(this.rejectReason)
+                .rejectionReason(this.rejectionReason)
                 .created(this.created)
                 .updated(this.updated)
                 .submitted(this.submitted)

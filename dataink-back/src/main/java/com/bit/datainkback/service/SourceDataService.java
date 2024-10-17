@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service
-@AllArgsConstructor
-public class SourceDataService {
+public interface SourceDataService {
 
 //    private final SourceDataRepository sourceDataRepository; // 원천 데이터 리포지토리 의존성 주입
 //

@@ -32,12 +32,13 @@ public class FolderService {
         folderRepository.deleteById(id);
     }
 
-    // 폴더의 fields 업데이트
-//    public Folder updateFolderFields(String folderId, List<Field> fields) {
-//        Folder folder = folderRepository.findById(folderId)
-//                .orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
-//        folder.setFields(fields);
-//        return folderRepository.save(folder);
-//    }
+    // 폴더의 itemId 업데이트
+    public Folder updateFolderFields(String folderId, List<String> itemIds) {
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
+        folder.setItemIds(itemIds);
+        return folderRepository.save(folder);
+    }
 }
+
 

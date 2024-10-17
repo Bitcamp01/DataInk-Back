@@ -48,8 +48,9 @@ public class Project {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
-    @Column(name = "mongo_data_id", length = 255)
+    @Column(name = "mongo_data_id")
     private String mongoDataId;
+
     public ProjectDto toDto() {
         return ProjectDto.builder()
                 .projectId(this.projectId)

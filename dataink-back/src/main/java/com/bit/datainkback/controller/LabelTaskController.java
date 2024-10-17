@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
+
 import java.util.List;
 
 @RestController
@@ -16,7 +18,7 @@ import java.util.List;
 @RequestMapping("/labeltask")
 public class LabelTaskController<LabelTaskDTO, SourceDataDTO> {
 
-//    private final LabelTaskService labelTaskService;
+    private final LabelTaskService labelTaskService;
 //    private final SourceDataService sourceDataService;
 //
 //    // 작업 목록 조회(staus가 )
@@ -40,18 +42,28 @@ public class LabelTaskController<LabelTaskDTO, SourceDataDTO> {
 //        return ResponseEntity.ok(sourceData);
 //    }
 //
-//
-//    // 검수 승인(검수 승인 코멘트를 보내고 작업 상태(status)를 reviewed로 바꾼다)
-//    @PostMapping("/tasks/{taskId}/approve")
-//    public ResponseEntity<Void> approveTask(@PathVariable Long taskId) {
-//        labelTaskService.approveTask(taskId);
-//        return ResponseEntity.noContent().build();
-//    }
-//
-//    // 반려 사유 전달하고 작업 상태(status)를 in_progress로 바꾼다.
-//    @PostMapping("/tasks/{taskId}/reject")
-//    public ResponseEntity<Void> rejectTask(@PathVariable Long taskId, @RequestBody RejectReasonDto reasonDto) {
-//        labelTaskService.rejectTask(taskId, reasonDto);
-//        return ResponseEntity.noContent().build();
-//    }
+    // 반려 사유 전달하고 작업 상태(status)를 in_progress로 바꾼다.
+    @PatchMapping("/reject")
+    public ResponseEntity<Void> rejectTask(
+            @RequestParam Long taskId,
+            @RequestParam String rejectionReason
+    ) {
+        Timestamp reviewedTimestamp = new Timestamp(System.currentTimeMillis());
+        labelTaskService.rejectLabelTask(taskId, rejectionReason, reviewedTimestamp);
+        return ResponseEntity.ok().build();
+    }
+
+    // 검수 승인(검수 승인 코멘트를 보내고 작업 상태(status)를 reviewed로 바꾼다)
+    @PatchMapping("/approve")
+    public ResponseEntity<Void> approveTask(
+            @RequestParam Long taskId,
+            @RequestParam String comment
+    ) {
+        Timestamp reviewedTimestamp = new Timestamp(System.currentTimeMillis());
+        labelTaskService.approveLabelTask(taskId, comment, reviewedTimestamp);
+        return ResponseEntity.ok().build();
+    }
+
+
+    //putmapping으로 할지 patchmapping으로 할지 고민중
 }
