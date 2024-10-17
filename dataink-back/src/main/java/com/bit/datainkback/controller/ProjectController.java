@@ -59,19 +59,5 @@ public class ProjectController {
         MongoProjectData projectData = mongoProjectDataService.getProjectDataByProjectId(projectId);
         return ResponseEntity.ok(projectData);
     }
-//    @PostMapping("/create-folder")
-//    public ResponseEntity<ProjectDto> createProject(@RequestParam("selectedFolder") Long selectedFolder,
-//                                                    @RequestParam("selectedProject") Long selectedProject,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-//
-//        // 프로젝트 생성 (RDBMS 저장)
-//        ProjectDto savedProject = projectService.createProject(projectDto,customUserDetails.getUser().getUserId());
-//
-//        // MongoDB에 폴더 및 라벨링 데이터를 저장 (폴더, tasks 포함)
-//        mongoProjectDataService.createMongoProjectData(savedProject.getProjectId());
-//
-//        // 로그 확인
-//        log.info("createProject projectDto.");
-//
-//        return new ResponseEntity<>(savedProject, HttpStatus.CREATED);
-//    }
+
 }
