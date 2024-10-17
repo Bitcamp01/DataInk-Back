@@ -10,7 +10,7 @@ public interface NoticeService {
 
    Page<NoticeDto> post(NoticeDto noticeDto, MultipartFile[] uploadFiles, User user, Pageable pageable);
 
-//   Page<NoticeDto> findAll(String searchCondition, String searchKeyword, Pageable pageale);
+   Page<NoticeDto> findAll(String searchCondition, String searchKeyword, Pageable pageale);
 
    NoticeDto modify(NoticeDto noticeDto, MultipartFile[] uploadFiles, MultipartFile[] changeFiles, String originFiles, Long userId);
 

@@ -2,6 +2,7 @@ package com.bit.datainkback.listener;
 
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.mongo.Tasks;
+import com.bit.datainkback.repository.mongo.FolderRepository;
 import com.bit.datainkback.repository.mongo.MongoLabelTaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.mapping.event.AfterSaveEvent;
@@ -9,15 +10,19 @@ import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventLis
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 
 @Component
 public class FolderListener extends AbstractMongoEventListener<Folder> {
 
     private final MongoLabelTaskRepository taskRepository;
+    private final FolderRepository folderRepository;
 
     @Autowired
-    public FolderListener(MongoLabelTaskRepository taskRepository) {
+    public FolderListener(MongoLabelTaskRepository taskRepository, FolderRepository folderRepository) {
         this.taskRepository = taskRepository;
+        this.folderRepository = folderRepository;
     }
 
     @Override
@@ -41,14 +46,23 @@ public class FolderListener extends AbstractMongoEventListener<Folder> {
     }
 
     private void moveTasksFromFolder(Folder file, String parentFolderId) {
-        // 파일을 Task로 변환하여 Task 컬렉션에 저장
         Tasks tasks = new Tasks();
         tasks.setParentFolderId(parentFolderId);
-        tasks.setItemIds(file.getItemIds());
+
+        // Optional을 안전하게 처리하여 parentFolderId에 대한 값을 가져옴
+        Optional<Folder> parentFolderOpt = folderRepository.findById(parentFolderId);
+        List<String> itemIds = file.getItemIds();
+
+        if ((itemIds == null || itemIds.isEmpty()) && parentFolderOpt.isPresent()) {
+            itemIds = parentFolderOpt.get().getItemIds();  // 부모 폴더의 itemIds를 상속
+        }
+
+        tasks.setItemIds(itemIds);
         tasks.setTaskName(file.getLabel());
         tasks.setStatus("in_progress");
-        tasks.setFieldValue(new HashMap<>());  // 기본 필드 값 설정
+        tasks.setFieldValue(new HashMap<>());  // 기본 필드 값
 
         taskRepository.save(tasks);  // Task 컬렉션에 저장
     }
+
 }

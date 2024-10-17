@@ -58,12 +58,14 @@ public class NoticeServiceImpl implements NoticeService {
        return noticeRepository.findAll(pageable).map(Notice::toDto);
     }
 
-//    @Override
-//    public Page<NoticeDto> findAll(String searchCondition, String searchKeyword, Pageable pageable) {
-//        return noticeRepository
-//                .searchAll(searchCondition, searchKeyword, pageable)
-//                .map(Notice::toDto);
-//    }
+
+
+    @Override
+    public Page<NoticeDto> findAll(String searchCondition, String searchKeyword, Pageable pageable) {
+        return noticeRepository
+                .searchAll(searchCondition, searchKeyword, pageable)
+                .map(Notice::toDto);
+    }
 
     @Override
     public void deleteById(Long id) {

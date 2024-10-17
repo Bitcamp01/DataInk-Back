@@ -5,6 +5,7 @@ import com.bit.datainkback.entity.User;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -32,6 +33,7 @@ public class NoticeDto {
                 .user(user)
                 .created(this.created)
                 .moddate(this.moddate)
+                .noticeFileList(new ArrayList<>())
                 .build();
     }
 
