@@ -40,8 +40,6 @@ public class User {
     private String tel;
     @Column(nullable = false)
     private Date birth;
-    @Column(nullable = true)
-    private String dep;
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AuthenType authen;
@@ -61,7 +59,6 @@ public class User {
                 .email(this.email)
                 .tel(this.tel)
                 .birth(this.birth)
-                .dep(this.dep)
                 .authen(this.authen)
                 .regdate(this.regdate)
                 .status(this.status)

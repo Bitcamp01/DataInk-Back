@@ -22,7 +22,6 @@ public class UserDto {
     private String email;
     private String tel;
     private Date birth;
-    private String dep;
     private AuthenType authen;
     private Timestamp regdate;
     private String status;
@@ -38,7 +37,6 @@ public class UserDto {
                 .email(this.email)
                 .tel(this.tel)
                 .birth(this.birth)
-                .dep(this.dep)
                 .authen(this.authen)
                 .regdate(this.regdate)
                 .status(this.status)

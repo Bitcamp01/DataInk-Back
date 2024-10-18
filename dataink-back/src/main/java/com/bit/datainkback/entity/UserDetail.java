@@ -28,6 +28,9 @@ public class UserDetail {
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user; // User와의 관계 설정
 
+    @Column(nullable = true)
+    private String dep;
+
     private String addr;
     @Column(name = "profile_intro")
     private String profileIntro;
@@ -46,6 +49,7 @@ public class UserDetail {
     public UserDetailDto toDto() {
         return UserDetailDto.builder()
                 .userId(this.user.getUserId())
+                .dep(this.dep)
                 .addr(this.addr)
                 .profileIntro(this.profileIntro)
                 .profilePicture(this.profilePicture)
