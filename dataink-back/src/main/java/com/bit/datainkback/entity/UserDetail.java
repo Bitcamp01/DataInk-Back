@@ -20,17 +20,16 @@ import java.sql.Timestamp;
 @Builder
 public class UserDetail {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "userDetailSeqGenerator"
-    )
+    private Long userId; // 기본 키로 사용할 필드 추가
+
     @OneToOne
+    @MapsId // User의 기본 키를 이 엔티티의 기본 키로 사용
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user; // User와의 관계 설정
 
     @Column(nullable = true)
     private String dep;
-
+    @Column
     private String addr;
     @Column(name = "profile_intro")
     private String profileIntro;
@@ -42,6 +41,7 @@ public class UserDetail {
     private String backgroundPicture;
     @Column(name = "background_picture_route")
     private String backgroundPictureRoute;
+    @Column
     private String nickname;
     @Column(name = "last_login_time")
     private Timestamp lastLogintime;
