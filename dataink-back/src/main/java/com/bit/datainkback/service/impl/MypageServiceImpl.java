@@ -29,10 +29,9 @@ public class MypageServiceImpl implements MypageService {
     }
 
     @Override
-    public UserDetailDto updateUserProfile(String loggedInUserId, UserDetailDto userDetailDto) {
-        Long userId = Long.parseLong(loggedInUserId); // 문자열 ID를 Long 타입으로 변환
+    public UserDetailDto updateUserProfile(Long loggedInUserId, UserDetailDto userDetailDto) {
         // 사용자 조회
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(loggedInUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // 사용자 세부 정보 조회
@@ -47,12 +46,8 @@ public class MypageServiceImpl implements MypageService {
         // 변경된 정보 저장
         UserDetail updatedUserDetail = userDetailRepository.save(userDetail);
 
-        // 업데이트된 사용자 정보를 UserDetailDto로 변환하여 반환
-        return UserDetailDto.builder()
-                .userId(updatedUserDetail.getUser().getUserId())
-                .nickname(updatedUserDetail.getNickname())
-                .addr(updatedUserDetail.getAddr())
-                .dep(userDetail.getDep())
-                .build();
+        // 업데이트된 사용자 정보를 UserDetailDto로 변환하여 반환 (toDto 사용)
+        return updatedUserDetail.toDto();
     }
+
 }
