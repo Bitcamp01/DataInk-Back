@@ -54,16 +54,29 @@ public class ProjectController {
     }
     //하위 폴더 생성
     @PostMapping("/createfolder")
-    public ResponseEntity<ProjectDto> createFolder(@RequestParam("selectedFolder") Long selectedFolder,
+    public ResponseEntity<ProjectDto> createFolder(@RequestParam("selectedFolder") String selectedFolder,
                                                    @RequestParam("selectedProject") Long selectedProject,
                                                    @AuthenticationPrincipal CustomUserDetails customUserDetails) {
         return null;
     }
+    @PostMapping("/rename")
+    public ResponseEntity<String> renameProject(@RequestParam("selectedFolder") String selectedFolder,
+                                                    @RequestParam("selectedProject") Long selectedProject,
+                                                    @RequestParam("label") String newName){
+        if (selectedFolder.equalsIgnoreCase(selectedProject.toString())){
+            return ResponseEntity.ok("ok");
+        }
+        else {
+            folderService.modifyFolder(newName,selectedFolder);
+            return ResponseEntity.ok("ok");
+        }
+    }
     //특정 폴더 정보 가져오기, 프로젝트를 최상위 폴더로 다루므로 별도 처리 필요
     @GetMapping("/folder")
     public ResponseEntity<List<Folder>> getFolderData(@RequestParam("selectedFolder") String selectedFolder,
-                                                @RequestParam("selectedProject") Long selectedProject,
-                                                @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+                                                @RequestParam("selectedProject") Long selectedProject
+                                                ) {
+
         if (selectedFolder.equalsIgnoreCase(selectedProject.toString())){
             ProjectDto projectDto=projectService.getProjectById(selectedProject);
             log.info(projectDto.toString());
