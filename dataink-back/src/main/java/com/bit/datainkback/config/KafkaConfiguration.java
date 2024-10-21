@@ -1,4 +1,4 @@
 package com.bit.datainkback.config;
 
-public class MongoConfig {
+public class KafkaConfiguration {
 }
