@@ -45,4 +45,17 @@ public class MongoLabelTaskController {
         List<Tasks> tasks = mongoLabelTaskRepository.findByParentFolderId(parentFolderId);
         return ResponseEntity.ok(tasks);
     }
+
+    // 여러 taskId로 상태를 업데이트하는 API
+    @PutMapping("/update-submit")
+    public ResponseEntity<?> updateTaskStatus(@RequestBody List<String> taskIds) {
+        // taskId로 해당 task들을 찾아 상태를 업데이트
+        List<Tasks> tasksToUpdate = mongoLabelTaskRepository.findAllById(taskIds);
+
+        tasksToUpdate.forEach(task -> task.setStatus("submitted")); // 상태를 submitted로 변경
+
+        mongoLabelTaskRepository.saveAll(tasksToUpdate);  // 변경된 task들을 저장
+
+        return ResponseEntity.ok().build();  // 성공 응답 반환
+    }
 }
