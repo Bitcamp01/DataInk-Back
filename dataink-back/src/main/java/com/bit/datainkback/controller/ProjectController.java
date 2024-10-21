@@ -4,6 +4,7 @@ package com.bit.datainkback.controller;
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.mongo.FolderDto;
 import com.bit.datainkback.entity.CustomUserDetails;
+import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
 import com.bit.datainkback.enums.TaskStatus;
 import com.bit.datainkback.service.ProjectService;
@@ -38,7 +39,6 @@ public class ProjectController {
 
     // 프로젝트 생성 API (MySQL 및 MongoDB에 저장)
     @PostMapping("/create")
-    //프론트 단에서 db에 사용되는 유저 인덱스id를 확인할 수 없음, 따라서 user db의 id 컬럼을 사용하는 userName이용
     public ResponseEntity<ProjectDto> createProject(@RequestBody ProjectDto projectDto,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         log.info(projectDto.toString());
         // 프로젝트 생성 (RDBMS 저장)
@@ -52,10 +52,32 @@ public class ProjectController {
 
         return new ResponseEntity<>(savedProject, HttpStatus.CREATED);
     }
+    //하위 폴더 생성
+    @PostMapping("/createfolder")
+    public ResponseEntity<ProjectDto> createFolder(@RequestParam("selectedFolder") Long selectedFolder,
+                                                   @RequestParam("selectedProject") Long selectedProject,
+                                                   @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        return null;
+    }
+    //특정 폴더 정보 가져오기, 프로젝트를 최상위 폴더로 다루므로 별도 처리 필요
+    @GetMapping("/folder")
+    public ResponseEntity<List<Folder>> getFolderData(@RequestParam("selectedFolder") String selectedFolder,
+                                                @RequestParam("selectedProject") Long selectedProject,
+                                                @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        if (selectedFolder.equalsIgnoreCase(selectedProject.toString())){
+            ProjectDto projectDto=projectService.getProjectById(selectedProject);
+            log.info(projectDto.toString());
+            return ResponseEntity.ok(projectDto.getFolders());
+        }
+        else {
+            return ResponseEntity.ok(folderService.getFolderById(selectedFolder).getChildren());
+        }
+    }
     @GetMapping("/all")
     public ResponseEntity<List<ProjectDto>> getAllProjects(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long id=customUserDetails.getUser().getUserId();
         List<ProjectDto> getProject=projectService.getProjectByUser(id);
+
         return ResponseEntity.ok(getProject);
     }
     // 프로젝트 데이터 조회 및 트리구조 반환 API
@@ -70,8 +92,5 @@ public class ProjectController {
         // 3. 폴더 구조를 트리 형태로 반환
         return ResponseEntity.ok(folderTree);
     }
-<<<<<<< HEAD
 
-=======
->>>>>>> 6306a9dcfc833636b65773b7e71259006cae75ab
 }
