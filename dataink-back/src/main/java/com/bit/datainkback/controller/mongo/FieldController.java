@@ -26,7 +26,7 @@ public class FieldController {
 
     // 특정 필드 조회
     @GetMapping("/{id}")
-    public Field getFieldById(@PathVariable Long id) {
+    public Field getFieldById(@PathVariable String id) {
         return fieldService.getFieldById(id);
     }
 }
