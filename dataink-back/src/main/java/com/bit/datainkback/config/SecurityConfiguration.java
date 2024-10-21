@@ -39,6 +39,7 @@ public class SecurityConfiguration {
                     authorizationManagerRequestMatcherRegistry.requestMatchers(
                             "/users/id-check",
                             "/users/join",
+                            "/users/tel-check",
                             "/users/login").permitAll();
                     authorizationManagerRequestMatcherRegistry.anyRequest().authenticated();
                 })
