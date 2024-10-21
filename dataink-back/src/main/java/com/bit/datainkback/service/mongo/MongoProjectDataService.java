@@ -32,10 +32,12 @@ public class MongoProjectDataService {
         return savedData.getId();  // 저장된 MongoDB ID 반환
     }
 
-    // 특정 프로젝트의 폴더와 라벨링 데이터 가져오기
-    public MongoProjectData getProjectDataByProjectId(Long projectId) {
-        return mongoProjectDataRepository.findByProjectId(projectId)
-                .orElseThrow(() -> new RuntimeException("MongoDB에서 프로젝트 데이터를 찾을 수 없습니다."));
+    // 프로젝트 ID로 folderIds를 조회하는 메소드
+    public List<String> getFolderIdsByProjectId(Long projectId) {
+        MongoProjectData mongoProjectData = mongoProjectDataRepository.findByProjectId(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        return mongoProjectData.getFolders();  // 프로젝트의 folderIds 반환
     }
 
     public void addFolderToProject(Long projectId, Folder folder) {

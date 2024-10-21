@@ -28,6 +28,10 @@ public class User {
     )
     @Column(name = "user_id")
     private Long userId;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    private UserDetail userDetail;
+
     @Column(unique = true, nullable = false)
     private String id;
     @Column(nullable = false)
@@ -47,8 +51,6 @@ public class User {
     private Timestamp regdate;
     @Column(nullable = false)
     private String status;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private UserDetail userDetail;
 
     public UserDto toDto() {
         return UserDto.builder()
