@@ -4,8 +4,10 @@ package com.bit.datainkback.controller;
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.mongo.FolderDto;
 import com.bit.datainkback.entity.CustomUserDetails;
+import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
 import com.bit.datainkback.enums.TaskStatus;
+import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.service.ProjectService;
 import com.bit.datainkback.service.mongo.FolderService;
 import com.bit.datainkback.service.mongo.MongoProjectDataService;
@@ -13,12 +15,15 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -35,6 +40,8 @@ public class ProjectController {
 
     @Autowired
     private FolderService folderService;
+    @Autowired
+    private ProjectRepository projectRepository;
 
     // 프로젝트 생성 API (MySQL 및 MongoDB에 저장)
     @PostMapping("/create")
@@ -70,4 +77,13 @@ public class ProjectController {
         // 3. 폴더 구조를 트리 형태로 반환
         return ResponseEntity.ok(folderTree);
     }
+
+    // 프로젝트의 마감일 가져오기
+    @GetMapping("/enddate/{projectId}")
+    public ResponseEntity<String> getProjectEndDateById(@PathVariable Long projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("프로젝트를 찾을 수 없습니다."));
+        LocalDate endDate = project.getEndDate().toLocalDate().minusDays(1); // 하루 빼기
+        return ResponseEntity.ok(endDate.toString());
+    }
+
 }
