@@ -1,5 +1,6 @@
 package com.bit.datainkback.service.impl;
 
+import com.bit.datainkback.dto.LabelTaskDto;
 import com.bit.datainkback.entity.LabelTask;
 import com.bit.datainkback.enums.TaskLevel;
 import com.bit.datainkback.enums.TaskStatus;
@@ -9,30 +10,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor // 생성자 자동 생성
 public class LabelTaskServiceImpl implements LabelTaskService {
 
     private final LabelTaskRepository labelTaskRepository;
-
-//    @Override
-//    public List<FolderDto> getFolderStructureByProjectId(String projectId) {
-//        // projects 컬렉션에서 해당 projectId로 프로젝트 데이터 가져오기
-//        Project project = projectRepository.findById(projectId)
-//                .orElseThrow(() -> new RuntimeException("프로젝트를 찾을 수 없습니다."));
-//
-//        // 프로젝트에 속한 folders 컬렉션에서 폴더 ID를 통해 폴더 구조 조회
-//        List<Folder> folders = folderRepository.findByIdIn(project.getFolders());
-//
-//        // 폴더 데이터를 트리 구조로 변환
-//        return convertToTreeStructure(folders);
-//    }
-//
-//    private List<FolderDto> convertToTreeStructure(List<Folder> folders) {
-//        // 폴더 트리 변환 로직 구현
-//        // 필요한 경우 checkable 속성 추가
-//    }
 
 
     @Override
@@ -59,5 +44,13 @@ public class LabelTaskServiceImpl implements LabelTaskService {
         labelTask.setReviewed(reviewedTimestamp);
 
         labelTaskRepository.save(labelTask);
+    }
+
+    @Override
+    public List<LabelTaskDto> getAllLabelTasks() {
+        // LabelTask 엔티티를 LabelTaskDto로 변환하여 반환
+        return labelTaskRepository.findAll().stream()
+                .map(LabelTask::toDto) // 엔티티의 toDto 메서드 사용
+                .collect(Collectors.toList());
     }
 }
