@@ -19,6 +19,7 @@ public class NoticeDto {
     private String title; // 제목
     private String content; // 내용
     private Long userId; // 작성자 ID
+    private String name;
     private Timestamp created; // 작성 시간
     private Timestamp moddate; // 작성 시간
     private String searchKeyword;
