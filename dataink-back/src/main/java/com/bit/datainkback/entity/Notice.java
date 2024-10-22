@@ -51,6 +51,7 @@ public class Notice {
                 .title(this.title)
                 .content(this.content)
                 .userId(this.user.getUserId())
+                .name(this.user.getName())
                 .created(this.created)
                 .moddate(this.moddate)
                 .noticeFileDtoList(
