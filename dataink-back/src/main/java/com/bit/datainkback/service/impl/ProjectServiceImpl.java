@@ -115,4 +115,14 @@ public class ProjectServiceImpl implements ProjectService {
     public void updateProjectData(MongoProjectData projectData) {
         mongoProjectDataRepository.save(projectData);
     }
+
+    @Override
+    public void deleteProject(Long i) {
+        Project project=projectRepository.findById(i).orElseThrow(() -> new RuntimeException("Project not found"));
+        var s=mongoProjectDataRepository.findByProjectId(project.getProjectId());
+        if (s.isPresent()){
+            mongoProjectDataRepository.delete(s.get());
+        }
+        projectRepository.delete(project);
+    }
 }

@@ -15,4 +15,6 @@ public interface ProjectService {
     MongoProjectData getProjectDataById(Long selectedProject);
 
     void updateProjectData(MongoProjectData projectData);
+
+    void deleteProject(Long i);
 }

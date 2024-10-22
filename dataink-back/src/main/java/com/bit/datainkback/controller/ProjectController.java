@@ -19,8 +19,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -104,6 +107,37 @@ public class ProjectController {
             folderService.modifyFolder(label,selectedFolder);
             return ResponseEntity.ok("ok");
         }
+    }
+    @PostMapping("/delete")
+    public ResponseEntity<String> deleteFolder(@RequestBody Map<String, Object> requestData) {
+        List<String> ids = (List<String>) requestData.get("ids");
+        Map<String,String> parseIds=new HashMap<>();
+        for (String id : ids){
+            String[] split = id.split("_");
+            parseIds.put(split[0],split[1]);
+        }
+        for (Map.Entry<String, String> entry : parseIds.entrySet()) {
+            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+            //프로젝트 삭제
+            if (entry.getKey().equalsIgnoreCase(entry.getValue())) {
+                projectService.deleteProject(Long.parseLong(entry.getValue()));
+            }
+            //하위 폴더 삭제
+            else {
+                folderService.deleteFolder(entry.getKey());
+            }
+        }
+        return ResponseEntity.ok("ok");
+
+    }
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadfile(@RequestParam("selectedFolder") String selectedFolder,
+                                             @RequestParam("selectedProject") Long selectedProject,
+                                             @RequestParam("files") MultipartFile[] files) {
+
+
+        return ResponseEntity.ok("ok");
+
     }
     //특정 폴더 정보 가져오기, 프로젝트를 최상위 폴더로 다루므로 별도 처리 필요
     @GetMapping("/folder")
