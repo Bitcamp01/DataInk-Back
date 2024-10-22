@@ -20,7 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -54,20 +56,52 @@ public class ProjectController {
     }
     //하위 폴더 생성
     @PostMapping("/createfolder")
-    public ResponseEntity<ProjectDto> createFolder(@RequestParam("selectedFolder") String selectedFolder,
-                                                   @RequestParam("selectedProject") Long selectedProject,
-                                                   @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        return null;
+    public ResponseEntity<FolderDto> createFolder(@RequestBody Map<String, Object> requestData,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        String selectedFolder = String.valueOf(requestData.get("selectedFolder"));
+        Long selectedProject = ((Number) requestData.get("selectedProject")).longValue();
+        log.info(selectedFolder);
+        log.info(selectedProject.toString());
+        FolderDto folderDto = new FolderDto();
+        folderDto.setLabel("NewFolder");
+        folderDto.setFolder(true);
+        folderDto.setChildren(List.of());
+        folderDto.setFinished(false);
+        folderDto.setItemIds(List.of());
+        folderDto.setLastModifiedDate(LocalDateTime.now().toString());
+        folderDto.setLastModifiedUserId(customUserDetails.getUser().getId());
+        Folder newFolder = folderDto.toEntity();
+        newFolder.generateId();  // MongoDB ID 생성
+          // 부모 폴더 ID로 조회
+        if (selectedFolder.equalsIgnoreCase(selectedProject.toString())){
+            // 프로젝트 데이터에 새 폴더 추가
+            MongoProjectData projectData = projectService.getProjectDataById(selectedProject);
+            folderService.createFolder(newFolder);
+            projectData.getFolders().add(newFolder.getId());  // 폴더 ID 추가
+            projectService.updateProjectData(projectData);
+
+        }
+        else {
+            Folder parentFolder = folderService.getFolderById(selectedFolder);
+            if (parentFolder != null) {
+                parentFolder.getChildren().add(newFolder);  // 자식 폴더 리스트에 추가
+                folderService.updateFolder(parentFolder);   // 부모 폴더 업데이트
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // 부모 폴더를 찾지 못한 경우
+            }
+        }
+
+        return ResponseEntity.ok(newFolder.toDto());  // 필요시 적절한 DTO 반환
     }
     @PostMapping("/rename")
-    public ResponseEntity<String> renameProject(@RequestParam("selectedFolder") String selectedFolder,
-                                                    @RequestParam("selectedProject") Long selectedProject,
-                                                    @RequestParam("label") String newName){
+    public ResponseEntity<String> renameProject(@RequestBody Map<String, Object> requestData) {
+        String label = (String) requestData.get("label");
+        String selectedFolder = (String) requestData.get("selectedFolder");
+        Long selectedProject = ((Number) requestData.get("selectedProject")).longValue();
         if (selectedFolder.equalsIgnoreCase(selectedProject.toString())){
             return ResponseEntity.ok("ok");
         }
         else {
-            folderService.modifyFolder(newName,selectedFolder);
+            folderService.modifyFolder(label,selectedFolder);
             return ResponseEntity.ok("ok");
         }
     }

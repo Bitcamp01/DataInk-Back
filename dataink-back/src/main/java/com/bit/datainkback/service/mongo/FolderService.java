@@ -83,6 +83,10 @@ public class FolderService {
         folder.setLabel(newName);
         folderRepository.save(folder);
     }
+
+    public void updateFolder(Folder folder) {
+        folderRepository.save(folder);
+    }
 }
 
 
