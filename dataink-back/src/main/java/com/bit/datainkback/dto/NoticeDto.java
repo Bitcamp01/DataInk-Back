@@ -26,6 +26,13 @@ public class NoticeDto {
     private String searchCondition;
     private List<NoticeFileDto> noticeFileDtoList;
 
+    public NoticeDto(String title, String content, Long noticeId, Timestamp created) {
+        this.title = title;
+        this.content = content;
+        this.noticeId = noticeId;
+        this.created = created;
+    }
+
     public Notice toEntity(User user) {
         return Notice.builder()
                 .noticeId(this.noticeId)
