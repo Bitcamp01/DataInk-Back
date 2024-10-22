@@ -91,7 +91,7 @@ public class FieldService {
     }
 
     // 특정 필드 조회
-    public Field getFieldById(Long id) {
+    public Field getFieldById(String id) {
         return fieldRepository.findById(id).orElse(null);
     }
 }
