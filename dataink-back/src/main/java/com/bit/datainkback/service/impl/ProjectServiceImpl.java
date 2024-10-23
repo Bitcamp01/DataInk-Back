@@ -125,4 +125,11 @@ public  class ProjectServiceImpl implements ProjectService {
         }
         projectRepository.delete(project);
     }
+
+    @Override
+    public void modifyProjectName(String label, Long selectedProject) {
+        Project project=projectRepository.findById(selectedProject).orElseThrow(() -> new RuntimeException("Project not found"));
+        project.setName(label);
+        projectRepository.save(project);
+    }
 }

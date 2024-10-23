@@ -4,17 +4,17 @@ package com.bit.datainkback.controller;
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.mongo.FolderDto;
 import com.bit.datainkback.entity.CustomUserDetails;
-<<<<<<< HEAD
+import com.bit.datainkback.entity.mongo.Field;
 import com.bit.datainkback.entity.mongo.Folder;
-=======
 import com.bit.datainkback.entity.Project;
->>>>>>> 4d0bccb7f90060d32a1df2aed5dd63566830f32c
 import com.bit.datainkback.entity.mongo.MongoProjectData;
 import com.bit.datainkback.enums.TaskStatus;
 import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.service.ProjectService;
+import com.bit.datainkback.service.mongo.FieldService;
 import com.bit.datainkback.service.mongo.FolderService;
 import com.bit.datainkback.service.mongo.MongoProjectDataService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -27,14 +27,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-<<<<<<< HEAD
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
-=======
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
->>>>>>> 4d0bccb7f90060d32a1df2aed5dd63566830f32c
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +53,8 @@ public class ProjectController {
     private FolderService folderService;
     @Autowired
     private ProjectRepository projectRepository;
-
+    @Autowired
+    private FieldService fieldService;
     // 프로젝트 생성 API (MySQL 및 MongoDB에 저장)
     @PostMapping("/create")
     public ResponseEntity<ProjectDto> createProject(@RequestBody ProjectDto projectDto,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -111,9 +111,10 @@ public class ProjectController {
     @PostMapping("/rename")
     public ResponseEntity<String> renameProject(@RequestBody Map<String, Object> requestData) {
         String label = (String) requestData.get("label");
-        String selectedFolder = (String) requestData.get("selectedFolder");
+        String selectedFolder = requestData.get("selectedFolder").toString();
         Long selectedProject = ((Number) requestData.get("selectedProject")).longValue();
         if (selectedFolder.equalsIgnoreCase(selectedProject.toString())){
+            projectService.modifyProjectName(label,selectedProject);
             return ResponseEntity.ok("ok");
         }
         else {
@@ -152,6 +153,97 @@ public class ProjectController {
         return ResponseEntity.ok("ok");
 
     }
+    @PostMapping("/itemcreate")
+    public ResponseEntity<String> itemcreate(@RequestBody Map<String, Object> requestData) {
+        log.info(requestData.toString());
+
+        // itemName 추출
+        String label = requestData.get("itemName").toString();
+
+        // data 추출
+        var s = requestData.get("data");
+        String parse = s.toString();
+        parse = fixJsonString(parse);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            // JSON 문자열을 Map으로 변환
+            Map<String, Object> map = objectMapper.readValue(parse, Map.class);
+            Field rootField = new Field();
+            List<Field> fields = new ArrayList<>();
+            // 중첩된 필드 처리
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if (entry.getValue() instanceof Map) {
+                    // Map 처리
+                    Field field = mapJsonToField(entry.getKey(), (Map<String, Object>) entry.getValue());
+                    fields.add(field);
+                    log.info("Field created: " + field.toString());
+                } else {
+                    log.info("Non-map value: " + entry.getValue().toString());
+                }
+            }
+            rootField.setSubFields(fields);
+            rootField.setFieldName(label);
+            fieldService.createField(rootField);
+            return ResponseEntity.ok("ok");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+
+    public static String fixJsonString(String jsonString) {
+        // 1. '='을 ':'로 바꾸기
+        jsonString = jsonString.replaceAll("=", ":");
+
+        // 2. 필드 이름에 큰따옴표 추가
+        jsonString = jsonString.replaceAll("([a-zA-Z0-9가-힣]+)(:)", "\"$1\":");
+
+        // 3. 빈 값에 대한 처리 (빈 값을 빈 문자열로 교체)
+        jsonString = jsonString.replaceAll(":,", ":\"\",");  // 빈 값은 ""로 처리
+        jsonString = jsonString.replaceAll(":\\}", ":\"\"}");  // 빈 객체는 ""로 처리
+
+        // 4. 잘못된 콤마 제거 및 중첩 객체 처리
+        jsonString = jsonString.replaceAll(",\\{", ",{\"");
+        jsonString = jsonString.replaceAll("\\},\\{", "},{");
+
+        // 5. 빈 값으로 남는 부분을 빈 문자열로 교체
+        jsonString = jsonString.replaceAll(":\\{\\}", ":\"\"");  // 빈 중첩 객체는 ""로 처리
+
+        return jsonString;
+    }
+
+
+
+    public static Field mapJsonToField(String fieldName, Map<String, Object> jsonField) {
+        Field field = new Field();
+        field.setFieldName(fieldName);
+
+        // 하위 필드가 있는 경우, subFields에 추가
+        List<Field> subFields = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : jsonField.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (value instanceof Map) {
+                // 하위 필드가 있는 경우 재귀적으로 처리
+                Field subField = mapJsonToField(key, (Map<String, Object>) value);
+                subFields.add(subField);
+            } else {
+                // value가 문자열인 경우, 하위 필드가 없는 단순 필드로 처리
+                Field subField = new Field();
+                subField.setFieldName(key);
+                subField.setParentField(false);
+                subFields.add(subField);
+            }
+        }
+
+        field.setSubFields(subFields);
+        field.setParentField(!subFields.isEmpty());  // 하위 필드가 있으면 상위 항목으로 설정
+        return field;
+    }
     //특정 폴더 정보 가져오기, 프로젝트를 최상위 폴더로 다루므로 별도 처리 필요
     @GetMapping("/folder")
     public ResponseEntity<List<Folder>> getFolderData(@RequestParam("selectedFolder") String selectedFolder,
@@ -187,8 +279,7 @@ public class ProjectController {
         return ResponseEntity.ok(folderTree);
     }
 
-<<<<<<< HEAD
-=======
+
     // 프로젝트의 마감일 가져오기
     @GetMapping("/enddate/{projectId}")
     public ResponseEntity<String> getProjectEndDateById(@PathVariable Long projectId) {
@@ -197,5 +288,5 @@ public class ProjectController {
         return ResponseEntity.ok(endDate.toString());
     }
 
->>>>>>> 4d0bccb7f90060d32a1df2aed5dd63566830f32c
+
 }
