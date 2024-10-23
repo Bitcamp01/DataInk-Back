@@ -3,6 +3,7 @@ package com.bit.datainkback.entity.mongo;
 import com.bit.datainkback.dto.mongo.FolderDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -27,6 +28,15 @@ public class Folder {
     private boolean finished; // 하위 작업 완료 여부
     private List<Folder> children;  // 하위 폴더 및 파일(Task) 통합
 
+    @Transient
+    private String category1;
+    @Transient
+    private String category2;
+    @Transient
+    private String category3;
+    @Transient
+    private String workStatus;
+
     // MongoDB에 삽입할 때 String으로 변환된 ObjectId를 id에 설정하는 메서드
     public void generateId() {
         this.id = new ObjectId().toString();  // 자동 생성된 ObjectId를 String으로 변환
@@ -42,6 +52,10 @@ public class Folder {
                 .isFolder(this.isFolder)
                 .finished(this.finished)
                 .children(this.children != null ? this.children.stream().map(Folder::toDto).toList() : null)
+                .category1(this.category1)
+                .category2(this.category2)
+                .category3(this.category3)
+                .workStatus(this.workStatus)
                 .build();
     }
 }
