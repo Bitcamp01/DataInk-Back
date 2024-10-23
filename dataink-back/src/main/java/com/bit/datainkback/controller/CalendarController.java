@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "https://dataink.site")
+
 public class CalendarController {
 
     @Autowired
