@@ -103,7 +103,50 @@ import java.util.UUID;
 
             return noticeFileDto;
         }
+        public String parserFileInfoToProject(MultipartFile multipartFile, String directory) {
+            String bucketName = "bitcamp-62";
 
+
+
+            // 다른 사용자가 같은 파일명의 파일을 업로드 했을 때
+            // 덮어써지는 것을 방지하기 위해서 파일명을 랜덤값_날짜시간_파일명으로 지정
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+            Date nowDate = new Date();
+
+            String nowDateStr = format.format(nowDate);
+
+            UUID uuid = UUID.randomUUID();
+
+            String fileName =  uuid.toString() + "_" + nowDateStr + "_" + multipartFile.getOriginalFilename();
+
+            // Object Storage에 파일 업로드
+            try(InputStream fileInputStream = multipartFile.getInputStream()) {
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+                objectMetadata.setContentType(multipartFile.getContentType());
+
+                PutObjectRequest putObjectRequest = new PutObjectRequest(
+                        bucketName,
+                        directory + fileName,
+                        fileInputStream,
+                        objectMetadata
+                ).withCannedAcl(CannedAccessControlList.PublicRead);
+
+                s3.putObject(putObjectRequest);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+            File uploadFile = new File(directory + fileName);
+            String type = "";
+
+            try {
+                type = Files.probeContentType(uploadFile.toPath());
+            } catch(IOException ie) {
+                System.out.println(ie.getMessage());
+            }
+
+            return fileName;
+        }
         public void deleteFile(String directory, String fileName) {
             String bucketName = "bitcamp-62";
 

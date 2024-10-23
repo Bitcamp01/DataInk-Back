@@ -94,4 +94,9 @@ public class FieldService {
     public Field getFieldById(String id) {
         return fieldRepository.findById(id).orElse(null);
     }
+
+    public void createField(Field field) {
+        log.info(field.toString());
+        fieldRepository.save(field);
+    }
 }
