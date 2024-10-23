@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, String> telCheck(String tel) {
         Map<String, String> telCheckMsgMap = new HashMap<>();
-        long telCheck = userRepository.findByTel(tel);
+        long telCheck = userRepository.countByTel(tel); // 수정된 부분: findByTel -> countByTel
 
         if(telCheck == 0)
             telCheckMsgMap.put("telCheckMsg", "available tel");

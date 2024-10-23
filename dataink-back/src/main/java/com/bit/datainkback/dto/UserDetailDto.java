@@ -24,6 +24,7 @@ public class UserDetailDto {
     private String nickname; // 닉네임
     private Timestamp lastLogintime; // 마지막 로그인 시간
 
+
     // UserDetailDto를 UserDetail 엔티티로 변환하는 메서드
     public UserDetail toEntity(User user) {
         return UserDetail.builder()

@@ -19,11 +19,19 @@ public class NoticeDto {
     private String title; // 제목
     private String content; // 내용
     private Long userId; // 작성자 ID
+    private String name;
     private Timestamp created; // 작성 시간
     private Timestamp moddate; // 작성 시간
     private String searchKeyword;
     private String searchCondition;
     private List<NoticeFileDto> noticeFileDtoList;
+
+    public NoticeDto(String title, String content, Long noticeId, Timestamp created) {
+        this.title = title;
+        this.content = content;
+        this.noticeId = noticeId;
+        this.created = created;
+    }
 
     public Notice toEntity(User user) {
         return Notice.builder()
