@@ -3,84 +3,110 @@
 ## 1. 기본 규칙
 - 자신이 맡은 영역 이외의 폴더는 건드리지 않기. 필요한 경우엔 담당하는 사람과 얘기할 것
 - DB 설정 변경 관련은 조장에게 얘기하고 변경하기
+- intellij로 폴더 잡을 때 DataInk-Back이 아니라 dataink-back을 잡기
 
 ## 2. 파일 및 폴더 구조
 
-  ### 파일 구조 초안:
+  ### 파일 구조(24.10.16 갱신):
 
 ```
 src/main/java
 └── com
-    └── example
-        └── project
-            ├── config                // 보안, 데이터베이스, 메시징 시스템 설정 관련
-            │   ├── RedisConfig.java          // Redis 설정
-            │   ├── MongoConfig.java          // MongoDB 설정
-            │   └── KafkaConfig.java          // Kafka 설정
-            ├── controller            // REST API 컨트롤러
+    └── bit
+        └── datainkback
+            ├── common                // 공통 유틸리티 클래스
+            │   ├── FileUtils.java          // 파일 관련 유틸리티
+            │   ├── KafkaUtil.java          // Kafka 메시징 관련 유틸리티
+            │   ├── MongoUtil.java          // MongoDB 관련 유틸리티
+            │   └── RedisUtil.java          // Redis 관련 유틸리티
+            ├── config                // 보안, 데이터베이스, 메시징 시스템 설정
+            │   ├── KafkaConfiguration.java          // Kafka 설정 클래스
+            │   ├── MongoConfiguration.java          // MongoDB 설정 클래스
+            │   ├── NaverConfiguration.java          // 네이버 클라우드 설정 클래스
+            │   ├── QueryDslConfiguration.java       // QueryDSL 설정 클래스
+            │   ├── RedisConfiguration.java          // Redis 설정 클래스
+            │   ├── SecurityConfiguration.java       // 보안 및 인증 설정 (JWT 등)
+            │   └── WebMvcConfiguration.java         // 웹 MVC 설정
+            ├── controller            // REST API 컨트롤러 (사용자 요청 처리)
+            │   │   └── mongo (MongoDB 관련 컨트롤러)
             │   ├── UserController.java           // 사용자 관련 API
             │   ├── ProjectController.java        // 프로젝트 관련 API
-            │   ├── LabelTaskController.java      // 라벨링 작업 관련 API
-            │   ├── LabelReviewController.java    // 검수 작업 관련 API
+            │   ├── LabelTaskController.java      // 라벨링 작업 및 검수 API
+            │   ├── LabelFieldsController.java    // 라벨링 필드 관련 API
+            │   ├── MemberManagementController.java // 사용자 관리 API
+            │   ├── MypageController.java         // 마이페이지 관련 API
             │   ├── NoticeController.java         // 공지사항 관련 API
             │   ├── CommentController.java        // 댓글 관련 API
-            │   ├── TempTaskController.java       // 임시 저장 관련 API
-            │   ├── SourceDataController.java     // 원천 데이터 관련 API
+            │   ├── TempTaskController.java       // 임시 작업 저장 API
+            │   ├── SourceDataController.java     // 원천 데이터 처리 API
             │   ├── NotificationController.java   // 실시간 알림 API (Redis 기반)
             │   └── ChatController.java           // 실시간 채팅 API (Redis 기반)
             ├── dto                   // 데이터 전송 객체 (DTO)
-            │   ├── UserDTO.java
-            │   ├── ProjectDTO.java
-            │   ├── LabelTaskDTO.java
-            │   ├── LabelReviewDTO.java
-            │   ├── TempTaskDTO.java
-            │   ├── NotificationDTO.java
-            │   ├── ChatMessageDTO.java
-            │   └── KafkaMessageDTO.java          // Kafka 메시지 전송 객체
+            │   │   └── mongo (MongoDB 관련 DTO)
+            │   ├── ChatMessageDto.java           // 채팅 메시지 DTO
+            │   ├── CommentDto.java               // 댓글 DTO
+            │   ├── KafkaMessageDto.java          // Kafka 메시지 DTO
+            │   ├── LabelFieldDto.java            // 라벨 필드 DTO
+            │   ├── LabelTaskDto.java             // 라벨 작업 DTO
+            │   ├── NoticeDto.java                // 공지사항 DTO
+            │   ├── NoticeFileDto.java            // 공지 파일 DTO
+            │   ├── NotificationDto.java          // 알림 DTO
+            │   ├── ProjectDto.java               // 프로젝트 DTO
+            │   ├── RejectReasonDto.java          // 반려 사유 DTO
+            │   ├── ResponseDto.java              // 공통 응답 DTO
+            │   ├── SourceDataDto.java            // 원천 데이터 DTO
+            │   ├── TempTaskDto.java              // 임시 작업 DTO
+            │   ├── UserDetailDto.java            // 사용자 상세 정보 DTO
+            │   ├── UserDto.java                  // 사용자 정보 DTO
+            │   └── UserProjectDto.java           // 사용자-프로젝트 연관 DTO
             ├── entity                // JPA 엔티티 (DB 테이블 매핑)
-            │   ├── User.java
-            │   ├── Project.java
-            │   ├── UserProject.java
-            │   ├── LabelField.java
-            │   ├── LabelTask.java
-            │   ├── LabelReview.java
-            │   ├── Notice.java
-            │   ├── Comment.java
-            │   ├── TempTask.java
-            │   ├── SourceData.java
-            │   ├── UserDetail.java
-            │   └── Reject.java
-            ├── exception             // 예외 처리 관련
+            │   │   └── mongo (MongoDB 관련 엔티티)
+            │   ├── Comment.java                  // 댓글 엔티티
+            │   ├── CustomUserDetails.java        // 사용자 인증 정보 엔티티
+            │   ├── LabelField.java               // 라벨 필드 엔티티
+            │   ├── LabelTask.java                // 라벨 작업 엔티티
+            │   ├── Notice.java                   // 공지사항 엔티티
+            │   ├── NoticeFile.java               // 공지 파일 엔티티
+            │   ├── Project.java                  // 프로젝트 엔티티
+            │   ├── SourceData.java               // 원천 데이터 엔티티
+            │   ├── TempTask.java                 // 임시 작업 엔티티
+            │   ├── User.java                     // 사용자 엔티티
+            │   ├── UserDetail.java               // 사용자 상세 정보 엔티티
+            │   ├── UserProject.java              // 사용자-프로젝트 연관 엔티티
+            │   └── UserProjectId.java            // 사용자-프로젝트 복합 키 엔티티
+            ├── enums // enum 타입 관리
+            ├── jwt // JWT 인증 관련 폴더
+            ├── listener // 이벤트 리스너 관련 폴더
             ├── repository            // JPA 및 MongoDB 레포지토리 (데이터 접근 계층)
-            │   ├── UserRepository.java
-            │   ├── ProjectRepository.java
-            │   ├── LabelTaskRepository.java
-            │   ├── LabelReviewRepository.java
-            │   ├── NoticeRepository.java
-            │   ├── CommentRepository.java
-            │   ├── TempTaskRepository.java
-            │   ├── SourceDataRepository.java
-            │   ├── RedisChatRepository.java      // Redis 기반 채팅 데이터 처리
-            │   └── MongoLabelDataRepository.java // MongoDB 기반 라벨링 데이터 처리
-            ├── security              // Spring Security 설정
-            │   └── SecurityConfig.java
+            │   │   └── custom (복잡한 쿼리를 위한 커스텀 레포지토리)
+            │   │   └── mongo (MongoDB 관련 레포지토리)
+            │   ├── CommentRepository.java        // 댓글 레포지토리
+            │   ├── LabelFieldRepository.java     // 라벨 필드 레포지토리
+            │   ├── LabelTaskRepository.java      // 라벨 작업 레포지토리
+            │   ├── NoticeFileRepository.java     // 공지 파일 레포지토리
+            │   ├── NoticeRepository.java         // 공지사항 레포지토리
+            │   ├── ProjectRepository.java        // 프로젝트 레포지토리
+            │   ├── RedisChatRepository.java      // Redis 채팅 레포지토리
+            │   ├── SourceDataRepository.java     // 원천 데이터 레포지토리
+            │   ├── TempTaskRepository.java       // 임시 작업 레포지토리
+            │   ├── UserDetailRepository.java     // 사용자 상세 정보 레포지토리
+            │   ├── UserProjectRepository.java    // 사용자-프로젝트 연관 레포지토리
+            │   └── UserRepository.java           // 사용자 레포지토리
             ├── service               // 서비스 계층 (비즈니스 로직)
-            │   │   └── impl (impl 폴더 파일은 각자 구현)
-            │   ├── UserService.java
-            │   ├── ProjectService.java
-            │   ├── LabelTaskService.java
-            │   ├── LabelReviewService.java
-            │   ├── NoticeService.java
-            │   ├── CommentService.java
-            │   ├── TempTaskService.java
-            │   ├── SourceDataService.java
-            │   ├── NotificationService.java      // Redis 기반 실시간 알림 서비스
-            │   ├── ChatService.java              // Redis 기반 실시간 채팅 서비스
-            │   └── KafkaService.java             // Kafka 메시지 큐 서비스
-            ├── util                  // 유틸리티 클래스 (공용 기능)
-            │   ├── RedisUtil.java             // Redis 유틸리티
-            │   ├── KafkaUtil.java             // Kafka 유틸리티
-            │   └── MongoUtil.java             // MongoDB 유틸리티
+            │   │   └── impl (각 서비스의 구현 클래스)
+            │   │   └── mongo (MongoDB 관련 서비스)
+            │   ├── ChatService.java              // 채팅 서비스
+            │   ├── CommentService.java           // 댓글 서비스
+            │   ├── KafkaService.java             // Kafka 메시징 서비스
+            │   ├── LabelReviewService.java       // 라벨 검수 서비스
+            │   ├── LabelTaskService.java         // 라벨 작업 서비스
+            │   ├── MypageService.java            // 마이페이지 서비스
+            │   ├── NoticeService.java            // 공지사항 서비스
+            │   ├── NotificationService.java      // 알림 서비스
+            │   ├── ProjectService.java           // 프로젝트 서비스
+            │   ├── SourceDataService.java        // 원천 데이터 서비스
+            │   ├── TempTaskService.java          // 임시 작업 서비스
+            │   └── UserService.java              // 사용자 서비스
 
 src/main/resources
 ├── application.properties           // 애플리케이션 설정 파일 (gitignore에 올려두었으므로 슬랙 참고해서 각자 설정할 것)
