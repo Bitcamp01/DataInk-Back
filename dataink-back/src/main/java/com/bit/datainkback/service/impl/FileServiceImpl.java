@@ -16,9 +16,11 @@ public class FileServiceImpl implements FileService {
 
 
     @Override
-    public void uploadFile(MultipartFile file, String directory) {
+    public String uploadFile(MultipartFile file, String directory) {
+        log.info(file.getOriginalFilename());
+        log.info(directory);
         // 파일을 업로드하고 NoticeFileDto 객체로 반환
-        fileUtils.parserFileInfo(file, directory);
+        return fileUtils.parserFileInfoToProject(file, directory);
     }
 
     @Override
