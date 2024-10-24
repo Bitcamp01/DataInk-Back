@@ -1,6 +1,8 @@
 package com.bit.datainkback.service;
 
 import com.bit.datainkback.dto.UserDto;
+import com.bit.datainkback.entity.User;
+
 import java.util.Map;
 
 public interface UserService {
@@ -11,4 +13,6 @@ public interface UserService {
     UserDto join(UserDto userDto);
 
     UserDto login(UserDto userDto);
+
+    User getUserById(Long userId);
 }

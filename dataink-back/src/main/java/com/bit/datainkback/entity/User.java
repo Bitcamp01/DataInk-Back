@@ -8,6 +8,8 @@ import lombok.*;
 
 import java.sql.Timestamp;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @SequenceGenerator(
@@ -33,6 +35,9 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, optional = false)
     @JsonManagedReference
     private UserDetail userDetail;
+
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<TodoList> todoLists = new ArrayList<>();
 
     @Column(unique = true, nullable = false)
     private String id;

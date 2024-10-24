@@ -81,6 +81,12 @@ public class UserServiceImpl implements UserService {
         return loginUserDto;
     }
 
+    @Override
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found for userId: " + userId));
+    }
+
 
 //    @Override
 //    public WorkoutPlanDto addWorkoutPlan(List<WorkoutRoutineDto> workoutRoutineDtoList) {

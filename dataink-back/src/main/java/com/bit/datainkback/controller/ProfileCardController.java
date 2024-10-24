@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/profile")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ProfileCardController {
 
@@ -41,7 +41,7 @@ public class ProfileCardController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/profile")
+    @GetMapping("/profiles")
     public ProfileCardDto getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
         // CustomUserDetails에서 userId 가져오기
         Long userId = userDetails.getUser().getUserId();
