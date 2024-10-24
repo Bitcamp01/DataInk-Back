@@ -2,6 +2,7 @@ package com.bit.datainkback.entity;
 
 import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.enums.AuthenType;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -55,8 +56,9 @@ public class User {
     @Column(nullable = false)
     private String status;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
-    private UserDetail userDetail;
+//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+//    private UserDetail userDetail;
+    // UserDetail이 두 개 있어서 주석처리
 
     public UserDto toDto() {
         return UserDto.builder()
