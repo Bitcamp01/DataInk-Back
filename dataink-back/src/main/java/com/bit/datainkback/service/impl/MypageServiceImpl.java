@@ -1,10 +1,6 @@
 package com.bit.datainkback.service.impl;
 
-import com.bit.datainkback.dto.UserDetailDto;
-import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.entity.User;
-import com.bit.datainkback.entity.UserDetail;
-import com.bit.datainkback.repository.UserDetailRepository;
 import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.MypageService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +11,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MypageServiceImpl implements MypageService {
     private final UserRepository userRepository;
-    private final UserDetailRepository userDetailRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -27,6 +22,7 @@ public class MypageServiceImpl implements MypageService {
         // 입력된 비밀번호와 저장된 비밀번호 비교
         return passwordEncoder.matches(inputPassword, user.getPassword());
     }
+<<<<<<< HEAD
 
     @Override
     public UserDetailDto updateUserProfile(Long loggedInUserId, UserDetailDto userDetailDto) {
@@ -49,5 +45,6 @@ public class MypageServiceImpl implements MypageService {
         // 업데이트된 사용자 정보를 UserDetailDto로 변환하여 반환 (toDto 사용)
         return updatedUserDetail.toDto();
     }
-
+=======
+>>>>>>> parent of 6306a9d (Merge pull request #42 from Bitcamp01/feat/mypage)
 }

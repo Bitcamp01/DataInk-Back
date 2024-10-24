@@ -81,6 +81,20 @@ public class UserServiceImpl implements UserService {
         return loginUserDto;
     }
 
+    @Override
+    public void changePassword(Long loggedInUserId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(loggedInUserId)
+                .orElseThrow(() -> new RuntimeException("User not found")
+                );
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("기존 비밀번호와 일치하지 않습니다.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
 
 //    @Override
 //    public WorkoutPlanDto addWorkoutPlan(List<WorkoutRoutineDto> workoutRoutineDtoList) {
