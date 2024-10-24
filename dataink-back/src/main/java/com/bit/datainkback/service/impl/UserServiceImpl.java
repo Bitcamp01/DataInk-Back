@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, String> telCheck(String tel) {
         Map<String, String> telCheckMsgMap = new HashMap<>();
-        long telCheck = userRepository.findByTel(tel);
+        long telCheck = userRepository.countByTel(tel); // 수정된 부분: findByTel -> countByTel
 
         if(telCheck == 0)
             telCheckMsgMap.put("telCheckMsg", "available tel");
@@ -79,20 +79,6 @@ public class UserServiceImpl implements UserService {
         loginUserDto.setToken(jwtProvider.createJwt(user));
 
         return loginUserDto;
-    }
-
-    @Override
-    public void changePassword(Long loggedInUserId, String currentPassword, String newPassword) {
-        User user = userRepository.findById(loggedInUserId)
-                .orElseThrow(() -> new RuntimeException("User not found")
-                );
-
-        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            throw new RuntimeException("기존 비밀번호와 일치하지 않습니다.");
-        }
-
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
     }
 
 

@@ -2,8 +2,6 @@ package com.bit.datainkback.controller;
 
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.entity.CustomUserDetails;
-import com.bit.datainkback.entity.Project;
-import com.bit.datainkback.repository.ProjectEndDateRepository;
 import com.bit.datainkback.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,20 +16,22 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
-public class CalendarController {
+public class WorkInController {
 
     @Autowired
     private ProjectRepository projectRepository;
 
-    @GetMapping("/project-end-dates")
-    public List<ProjectDto> getProjectEndDates(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        Long userId = userDetails.getUser().getUserId();
+    @GetMapping("/work-items")
+    public List<ProjectDto> getWorkItems(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        // CustomUserDetails에서 userId를 가져옴
+        Long userId = userDetails.getUser().getUserId(); // CustomUserDetails에서 직접 userId를 가져옴
 
+        // 현재 유저 ID에 해당하는 프로젝트만 필터링하여 반환
         return projectRepository.findByUser_UserId(userId).stream()
                 .map(project -> ProjectDto.builder()
                         .userId(project.getUser().getUserId())
-                        .endDate(project.getEndDate())
                         .name(project.getName())
+                        .endDate(project.getEndDate()) // 종료일 추가
                         .build())
                 .collect(Collectors.toList());
     }

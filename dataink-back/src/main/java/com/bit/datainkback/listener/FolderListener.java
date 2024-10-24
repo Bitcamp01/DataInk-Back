@@ -46,10 +46,20 @@ public class FolderListener extends AbstractMongoEventListener<Folder> {
     }
 
     private void moveTasksFromFolder(Folder file, String parentFolderId) {
-        Tasks tasks = new Tasks();
-        tasks.setParentFolderId(parentFolderId);
+        // Optional로 기존 task를 찾아본다
+        Optional<Tasks> existingTaskOpt = taskRepository.findByParentFolderIdAndTaskName(parentFolderId, file.getLabel());
 
-        // Optional을 안전하게 처리하여 parentFolderId에 대한 값을 가져옴
+        Tasks tasks;
+        if (existingTaskOpt.isPresent()) {
+            // 이미 존재하는 task가 있다면 그 task를 사용
+            tasks = existingTaskOpt.get();
+        } else {
+            // 없으면 새로 생성
+            tasks = new Tasks();
+            tasks.setParentFolderId(parentFolderId);
+        }
+
+        // Optional로 부모 폴더의 itemIds 가져오기
         Optional<Folder> parentFolderOpt = folderRepository.findById(parentFolderId);
         List<String> itemIds = file.getItemIds();
 
@@ -58,11 +68,20 @@ public class FolderListener extends AbstractMongoEventListener<Folder> {
         }
 
         tasks.setItemIds(itemIds);
-        tasks.setTaskName(file.getLabel());
+        tasks.setTaskName(file.getLabel());  // 파일의 label을 task 이름으로 사용
         tasks.setStatus("in_progress");
         tasks.setFieldValue(new HashMap<>());  // 기본 필드 값
 
-        taskRepository.save(tasks);  // Task 컬렉션에 저장
+        // Task를 저장 (새로 생성이든 업데이트든)
+        taskRepository.save(tasks);
+
+        // 만약 폴더 내부에 또 다른 폴더/파일이 있으면 재귀적으로 처리
+        if (file.getChildren() != null) {
+            for (Folder child : file.getChildren()) {
+                moveTasksFromFolder(child, file.getId());  // 자식 폴더/파일도 처리
+            }
+        }
     }
+
 
 }

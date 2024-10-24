@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 @SequenceGenerator(
         name = "projectSeqGenerator",
         sequenceName = "PROJECT_SEQ",
