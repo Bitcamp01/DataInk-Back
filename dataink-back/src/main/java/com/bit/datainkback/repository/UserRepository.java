@@ -16,6 +16,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByName(String userId);
 
-    //무한스크롤 lastItemId이후 데이터 가져오는 메소드
-    List<User> findByUserIdGreaterThan(Long lastItemId, Pageable pageable);
 }
