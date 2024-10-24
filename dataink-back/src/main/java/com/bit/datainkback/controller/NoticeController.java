@@ -32,7 +32,7 @@ public class NoticeController {
 
     @PostMapping
 //    multipartFile이 추가된 데이터는 @RequestPart로 받아준다.
-    public ResponseEntity<?> post(@RequestPart("NoticeDto") NoticeDto noticeDto,
+    public ResponseEntity<?> post(@RequestPart("noticeDto") NoticeDto noticeDto,
                                   @RequestPart(value="uploadFiles", required=false) MultipartFile[] uploadFiles,
                                   @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                   @PageableDefault(page =0, size =15) Pageable pageable) {

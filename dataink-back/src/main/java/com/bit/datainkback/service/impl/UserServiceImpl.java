@@ -2,21 +2,27 @@ package com.bit.datainkback.service.impl;
 
 import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.entity.User;
+import com.bit.datainkback.entity.UserDetail;
 import com.bit.datainkback.enums.AuthenType;
 import com.bit.datainkback.jwt.JwtProvider;
 import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -40,7 +46,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, String> telCheck(String tel) {
         Map<String, String> telCheckMsgMap = new HashMap<>();
-        long telCheck = userRepository.findByTel(tel);
+        long telCheck = userRepository.countByTel(tel); // 수정된 부분: findByTel -> countByTel
 
         if(telCheck == 0)
             telCheckMsgMap.put("telCheckMsg", "available tel");
@@ -57,7 +63,16 @@ public class UserServiceImpl implements UserService {
         userDto.setRegdate(new Timestamp(System.currentTimeMillis()));
         userDto.setStatus("active");
 
-        UserDto joinedUserDto = userRepository.save(userDto.toEntity()).toDto();
+        // User 엔티티 생성
+        User user = userDto.toEntity();
+
+        // UserDetail을 user_id만 설정한 상태로 생성
+        UserDetail userDetail = new UserDetail();
+        userDetail.setUser(user);  // User와 연관 설정
+        user.setUserDetail(userDetail);  // User에 UserDetail 설정
+
+        // User 엔티티 저장 (UserDetail도 같이 저장됨)
+        UserDto joinedUserDto = userRepository.save(user).toDto();
 
         joinedUserDto.setPassword("");
 
