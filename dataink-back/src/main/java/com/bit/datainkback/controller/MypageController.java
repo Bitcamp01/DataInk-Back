@@ -1,17 +1,19 @@
 package com.bit.datainkback.controller;
 
 import com.bit.datainkback.dto.ResponseDto;
-import com.bit.datainkback.dto.UserDetailDto;
 import com.bit.datainkback.dto.UserDto;
-import com.bit.datainkback.entity.CustomUserDetails;
 import com.bit.datainkback.service.MypageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import com.bit.datainkback.dto.UserDetailDto;
+import com.bit.datainkback.entity.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/mypage")

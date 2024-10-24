@@ -1,7 +1,6 @@
 package com.bit.datainkback.service.impl;
 
 import com.bit.datainkback.dto.UserDetailDto;
-import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.UserDetail;
 import com.bit.datainkback.repository.UserDetailRepository;
@@ -27,6 +26,7 @@ public class MypageServiceImpl implements MypageService {
         // 입력된 비밀번호와 저장된 비밀번호 비교
         return passwordEncoder.matches(inputPassword, user.getPassword());
     }
+
 
     @Override
     public UserDetailDto updateUserProfile(Long loggedInUserId, UserDetailDto userDetailDto) {

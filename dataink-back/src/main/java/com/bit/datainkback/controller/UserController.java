@@ -125,4 +125,24 @@ public class UserController {
             return ResponseEntity.internalServerError().body(responseDto);
         }
     }
+
+    @PostMapping("/{id}/change-password")
+    public ResponseEntity<?> changePassword(@PathVariable Long id, @RequestBody Map<String, String> passwordMap) {
+        ResponseDto<String> responseDto = new ResponseDto<>();
+        try {
+            String currentPassword = passwordMap.get("currentPassword");
+            String newPassword = passwordMap.get("newPassword");
+
+            userService.changePassword(id, currentPassword, newPassword);
+            responseDto.setStatusCode(HttpStatus.OK.value());
+            responseDto.setStatusMessage("Password updated successfully.");
+
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            log.error("Password change error: {}", e.getMessage());
+            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseDto.setStatusMessage(e.getMessage());
+            return ResponseEntity.internalServerError().body(responseDto);
+        }
+    }
 }

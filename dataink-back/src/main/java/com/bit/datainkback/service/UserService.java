@@ -11,4 +11,6 @@ public interface UserService {
     UserDto join(UserDto userDto);
 
     UserDto login(UserDto userDto);
+
+    void changePassword(Long id, String currentPassword, String newPassword);
 }

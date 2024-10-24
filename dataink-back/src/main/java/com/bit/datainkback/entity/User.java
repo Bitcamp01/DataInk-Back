@@ -2,7 +2,6 @@ package com.bit.datainkback.entity;
 
 import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.enums.AuthenType;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,10 +29,6 @@ public class User {
     @Column(name = "user_id")
     private Long userId;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, optional = false)
-    @JsonManagedReference
-    private UserDetail userDetail;
-
     @Column(unique = true, nullable = false)
     private String id;
     @Column(nullable = false)
@@ -54,6 +49,9 @@ public class User {
     @Column(nullable = false)
     private String status;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    private UserDetail userDetail;
+
     public UserDto toDto() {
         return UserDto.builder()
                 .userId(this.userId)
@@ -73,4 +71,6 @@ public class User {
                 )
                 .build();
     }
+
+
 }
