@@ -127,9 +127,9 @@ public  class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void modifyProjectName(String label, Long selectedProject) {
+    public Project modifyProjectName(String label, Long selectedProject) {
         Project project=projectRepository.findById(selectedProject).orElseThrow(() -> new RuntimeException("Project not found"));
         project.setName(label);
-        projectRepository.save(project);
+        return projectRepository.save(project);
     }
 }
