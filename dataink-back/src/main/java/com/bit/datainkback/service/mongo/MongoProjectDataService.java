@@ -77,5 +77,9 @@ public class MongoProjectDataService {
     public void updateTaskStatus(String taskId, TaskStatus newStatus) {
         // 작업 상태 업데이트 로직 (BeforeLabelTask -> MongoLabelTasks 전환)
     }
+
+    public void deleteFolder(String id) {
+        mongoProjectDataRepository.deleteById(id);
+    }
 }
 

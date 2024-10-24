@@ -94,4 +94,18 @@ public class FieldService {
     public Field getFieldById(String id) {
         return fieldRepository.findById(id).orElse(null);
     }
+
+    public void createField(Field field) {
+        log.info(field.toString());
+        fieldRepository.save(field);
+    }
+
+    public List<Field> getFieldByUserId(Long id) {
+        List<Field> fields=fieldRepository.findAllByUserId(id);
+        return fields;
+    }
+
+    public void updateField(Field rootField) {
+        fieldRepository.save(rootField);
+    }
 }

@@ -1,3 +1,4 @@
+
 package com.bit.datainkback.controller;
 
 import com.bit.datainkback.dto.NoticeDto;
@@ -64,3 +65,4 @@ public class ProfileCardController {
         );
     }
 }
+

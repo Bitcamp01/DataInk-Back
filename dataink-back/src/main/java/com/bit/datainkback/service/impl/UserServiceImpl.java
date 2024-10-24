@@ -2,21 +2,27 @@ package com.bit.datainkback.service.impl;
 
 import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.entity.User;
+import com.bit.datainkback.entity.UserDetail;
 import com.bit.datainkback.enums.AuthenType;
 import com.bit.datainkback.jwt.JwtProvider;
 import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -57,7 +63,16 @@ public class UserServiceImpl implements UserService {
         userDto.setRegdate(new Timestamp(System.currentTimeMillis()));
         userDto.setStatus("active");
 
-        UserDto joinedUserDto = userRepository.save(userDto.toEntity()).toDto();
+        // User 엔티티 생성
+        User user = userDto.toEntity();
+
+        // UserDetail을 user_id만 설정한 상태로 생성
+        UserDetail userDetail = new UserDetail();
+        userDetail.setUser(user);  // User와 연관 설정
+        user.setUserDetail(userDetail);  // User에 UserDetail 설정
+
+        // User 엔티티 저장 (UserDetail도 같이 저장됨)
+        UserDto joinedUserDto = userRepository.save(user).toDto();
 
         joinedUserDto.setPassword("");
 
@@ -85,6 +100,17 @@ public class UserServiceImpl implements UserService {
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found for userId: " + userId));
+    public void changePassword(Long loggedInUserId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(loggedInUserId)
+                .orElseThrow(() -> new RuntimeException("User not found")
+                );
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new RuntimeException("기존 비밀번호와 일치하지 않습니다.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
 

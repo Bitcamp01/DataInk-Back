@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class Folder {
     @Id
     private String id;  // MongoDB의 ObjectId를 사용하여 ID 생성
