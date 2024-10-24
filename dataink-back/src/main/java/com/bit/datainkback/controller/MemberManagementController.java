@@ -5,6 +5,7 @@ import com.bit.datainkback.dto.ResponseDto;
 import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.service.MemberManagementService;
 import com.bit.datainkback.service.MemberProjectService;
+import com.bit.datainkback.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/member")
@@ -29,6 +32,36 @@ public class MemberManagementController {
     @Autowired
     private final MemberProjectService memberProjectService;
     private final MemberManagementService memberManagementService;
+
+
+    @GetMapping("/modal")
+    public ResponseEntity<?> getUsersForModal(
+            @PageableDefault(page = 0, size = 10) Pageable pageable
+    ) {
+        ResponseDto<UserDto> responseDto = new ResponseDto<>();
+
+        try {
+            // UserDto 페이지 가져오기
+            Page<UserDto> userDtoPage = memberManagementService.getAllUsers(pageable);
+
+            // ResponseDto에 데이터 세팅
+            responseDto.setPageItems(userDtoPage); // Page에서 리스트를 가져옴
+            responseDto.setStatusCode(HttpStatus.OK.value());
+            responseDto.setStatusMessage("ok");
+
+            // 응답 반환
+            return ResponseEntity.ok(responseDto);
+
+        } catch (Exception e) {
+            log.error("Error fetching modal users: {}", e.getMessage());
+
+            // 오류 발생 시 응답 세팅
+            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseDto.setStatusMessage("Error fetching modal users");
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+        }
+    }
 
     // 단일 API에서 탭별로 다른 데이터 반환
     @GetMapping
