@@ -1,19 +1,18 @@
 package com.bit.datainkback.service.mongo;
 
 import com.bit.datainkback.dto.mongo.FolderDto;
-import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.mongo.Folder;
-import com.bit.datainkback.entity.mongo.MongoProjectData;
-import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.repository.mongo.FolderRepository;
-import com.bit.datainkback.repository.mongo.MongoProjectDataRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Service
 public class FolderService {
 
@@ -77,16 +76,21 @@ public class FolderService {
         return folderTree;
     }
 
-    public void modifyFolder(String newName, String selectedFolder) {
+    public Folder modifyFolderName(String newName, String selectedFolder, Long userId) {
         Folder folder = folderRepository.findById(selectedFolder)
                 .orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
+        log.info("folder: {}",folder.toString());
         folder.setLabel(newName);
-        folderRepository.save(folder);
+        folder.setLastModifiedUserId(userId.toString());
+
+        return folderRepository.save(folder);
     }
 
     public void updateFolder(Folder folder) {
         folderRepository.save(folder);
     }
+
+
 }
 
 

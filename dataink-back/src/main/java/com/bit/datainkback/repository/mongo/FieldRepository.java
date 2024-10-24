@@ -12,4 +12,7 @@ public interface FieldRepository extends MongoRepository<Field, String> {
     // itemId로 필드를 저장하는 커스텀 메서드
     @Query("{ 'itemId': ?0 }")
     void saveFieldsForItem(String itemId, List<Field> fieldData);
+
+
+    List<Field> findAllByUserId(Long id);
 }
