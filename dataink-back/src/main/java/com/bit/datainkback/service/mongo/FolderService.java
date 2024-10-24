@@ -77,6 +77,16 @@ public class FolderService {
         return folderTree;
     }
 
+    public void modifyFolder(String newName, String selectedFolder) {
+        Folder folder = folderRepository.findById(selectedFolder)
+                .orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
+        folder.setLabel(newName);
+        folderRepository.save(folder);
+    }
+
+    public void updateFolder(Folder folder) {
+        folderRepository.save(folder);
+    }
 }
 
 
