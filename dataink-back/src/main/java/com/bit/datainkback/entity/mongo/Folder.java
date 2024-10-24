@@ -3,6 +3,7 @@ package com.bit.datainkback.entity.mongo;
 import com.bit.datainkback.dto.mongo.FolderDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
