@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/profile")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ProfileCardController {
 
     @Autowired
