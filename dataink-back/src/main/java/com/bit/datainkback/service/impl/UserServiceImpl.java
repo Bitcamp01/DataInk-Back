@@ -97,6 +97,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found for userId: " + userId));
     public void changePassword(Long loggedInUserId, String currentPassword, String newPassword) {
         User user = userRepository.findById(loggedInUserId)
                 .orElseThrow(() -> new RuntimeException("User not found")
