@@ -1,5 +1,6 @@
 package com.bit.datainkback.repository.mongo;
 
+import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -13,4 +14,6 @@ public interface MongoProjectDataRepository extends MongoRepository<MongoProject
 
     @Query("{ 'folders._id': ?0 }")
     Optional<MongoProjectData> findFolderById(String folderId);
+
+    MongoProjectData findByFolders(String id);
 }

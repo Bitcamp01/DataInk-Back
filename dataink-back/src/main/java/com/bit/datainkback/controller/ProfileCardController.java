@@ -41,27 +41,27 @@ public class ProfileCardController {
                 .collect(Collectors.toList());
     }
 
-//    @GetMapping("/profiles")
-//    public ProfileCardDto getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
-//        // CustomUserDetails에서 userId 가져오기
-//        Long userId = userDetails.getUser().getUserId();
-//
-//        // 유저 정보 조회
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        // 유저 상세 정보 조회
-//        UserDetail userDetail = userDetailRepository.findById(user.getUserId())
-//                .orElseThrow(() -> new RuntimeException("UserDetail not found"));
-//
-//        // ProfileCardDto 반환
-//        return new ProfileCardDto(
-//                user.getUserId(),
-//                user.getName(),
-//                user.getAuthen(),
-//                userDetail.getDep(),
-//                userDetail.getProfilePicture()
-//        );
-//    }
+    @GetMapping("/profiles")
+    public ProfileCardDto getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        // CustomUserDetails에서 userId 가져오기
+        Long userId = userDetails.getUser().getUserId();
+
+        // 유저 정보 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 유저 상세 정보 조회
+        UserDetail userDetail = userDetailRepository.findById(user.getUserId())
+                .orElseThrow(() -> new RuntimeException("UserDetail not found"));
+
+        // ProfileCardDto 반환
+        return new ProfileCardDto(
+                user.getUserId(),
+                user.getName(),
+                user.getAuthen(),
+                userDetail.getDep(),
+                userDetail.getProfileImageUrl()
+        );
+    }
 }
 
