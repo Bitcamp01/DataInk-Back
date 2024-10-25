@@ -5,10 +5,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.*;
 import com.bit.datainkback.config.NaverConfiguration;
 import com.bit.datainkback.dto.NoticeFileDto;
 import com.bit.datainkback.dto.UserDetailDto;
@@ -49,7 +46,47 @@ import java.util.UUID;
                     )
                     .build();
         }
+        public void copyFileInS3(String originalFileName, String copyFileName) {
+            String bucketName = "dataink";
+            String sourceKey = "/pdf_file" + originalFileName;       // 원본 파일 경로
+            String destinationKey = "/pdf_file" + copyFileName; // 복사본 파일 경로
 
+            // S3 내부에서 파일 복사
+            CopyObjectRequest copyObjRequest = new CopyObjectRequest(bucketName, sourceKey, bucketName, destinationKey);
+            s3.copyObject(copyObjRequest);
+        }
+        public String parserFileInfoToProject(MultipartFile multipartFile, String directory) {
+            String bucketName = "dataink";
+
+            // 다른 사용자가 같은 파일명의 파일을 업로드 했을 때
+            // 덮어써지는 것을 방지하기 위해서 파일명을 랜덤값_날짜시간_파일명으로 지정
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+            Date nowDate = new Date();
+
+            String nowDateStr = format.format(nowDate);
+
+            UUID uuid = UUID.randomUUID();
+
+            String fileName =  uuid.toString() + "_" + nowDateStr + "_" + multipartFile.getOriginalFilename();
+
+            // Object Storage에 파일 업로드
+            try(InputStream fileInputStream = multipartFile.getInputStream()) {
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+                objectMetadata.setContentType(multipartFile.getContentType());
+
+                PutObjectRequest putObjectRequest = new PutObjectRequest(
+                        bucketName,
+                        directory + fileName,
+                        fileInputStream,
+                        objectMetadata
+                ).withCannedAcl(CannedAccessControlList.PublicRead);
+
+                s3.putObject(putObjectRequest);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            return fileName;
+        }
         public NoticeFileDto parserFileInfo(MultipartFile multipartFile, String directory) {
             String bucketName = "dataink";
 

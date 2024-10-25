@@ -15,4 +15,6 @@ public interface FolderRepository extends MongoRepository<Folder, String> {
 
     // folderIds 목록에 포함된 폴더들을 조회하는 커스텀 메소드
     List<Folder> findByIdIn(List<String> folderIds);
+
+    Optional<Folder> findByChildrenId(String selectedFolder);
 }
