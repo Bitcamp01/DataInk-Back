@@ -8,17 +8,14 @@ import com.bit.datainkback.entity.mongo.Field;
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
-import com.bit.datainkback.enums.TaskStatus;
 import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.service.FileService;
 import com.bit.datainkback.service.ProjectService;
 import com.bit.datainkback.service.mongo.FieldService;
 import com.bit.datainkback.service.mongo.FolderService;
 import com.bit.datainkback.service.mongo.MongoProjectDataService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +30,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @RestController
 @Slf4j
@@ -80,26 +76,18 @@ public class ProjectController {
         folderDto.setLastModifiedDate(LocalDateTime.now().toString());
         folderDto.setLastModifiedUserId(customUserDetails.getUser().getId());
         Folder newFolder = folderDto.toEntity();
+        //별도의 폴더를 생성
         folderService.createFolder(newFolder);
-          // 부모 폴더 ID로 조회
+
+        //프로젝트 바로 아래에 붙는 폴더는 projects의 folders에 ids로 저장
         if (selectedFolder.equals(selectedProject.toString())){
-            // 프로젝트 데이터에 새 폴더 추가
             MongoProjectData projectData = projectService.getProjectDataById(selectedProject);
-            folderService.createFolder(newFolder);
             projectData.getFolders().add(newFolder.getId());  // 폴더 ID 추가
             projectService.updateProjectData(projectData);
-
         }
+        // 그 아래 붙는 폴더는 folders에 생성하고 부모 폴더를 찾아 부모 폴더 children배열에 추가
         else {
-
-            Folder parentFolder = folderService.getFolderById(selectedFolder);
-            log.info("create folder's parent: {}",parentFolder.toString());
-            if (parentFolder != null) {
-                parentFolder.getChildren().add(newFolder);  // 자식 폴더 리스트에 추가
-                folderService.updateFolder(parentFolder);   // 부모 폴더 업데이트
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // 부모 폴더를 찾지 못한 경우
-            }
+            folderService.addNewFolder(selectedFolder,newFolder);   
         }
 
         return ResponseEntity.ok(newFolder.toDto());  // 필요시 적절한 DTO 반환
@@ -110,9 +98,10 @@ public class ProjectController {
         String label = (String) requestData.get("label");
         String selectedFolder = requestData.get("selectedFolder").toString();
         Long selectedProject = ((Number) requestData.get("selectedProject")).longValue();
-        log.info("selectedFolder:{} selectedProject:{}", selectedFolder, selectedProject);
+        //프로젝트 이름 수정 
         if (selectedFolder.equals(selectedProject.toString())){
             Project project=projectService.modifyProjectName(label,selectedProject);
+            //반환 정보를 folder형태로 받기 때문에 생성함
             Folder folder=new Folder();
             folder.setId(project.getProjectId().toString());
             folder.setChildren(project.toDto().getFolders());
@@ -124,6 +113,9 @@ public class ProjectController {
             folder.setFinished(false);
             return ResponseEntity.ok(folder);
         }
+        //하위 폴더 이름 수정,
+        //이때 프로젝트 바로 아래 수정은 그냥 적용하면 됨(상위 폴더에서 기억할 필요 없음)
+        //그러나 그 하위 폴더의 경우 상위 폴더의 children배열에서 이름을 변경해줘야 함
         else {
             Folder folder=folderService.modifyFolderName(label,selectedFolder,customUserDetails.getUser().getUserId());
             return ResponseEntity.ok(folder);
@@ -133,7 +125,6 @@ public class ProjectController {
     public ResponseEntity<String> deleteFolder(@RequestBody Map<String, Object> requestData) {
         List<String> ids = (List<String>) requestData.get("ids");
         Map<String,String> parseIds=new HashMap<>();
-        log.info(ids.toString());
         for (String id : ids){
             String[] split = id.split("_");
             parseIds.put(split[0],split[1]);
@@ -141,12 +132,24 @@ public class ProjectController {
         for (Map.Entry<String, String> entry : parseIds.entrySet()) {
             //프로젝트 삭제
             if (entry.getKey().equals(entry.getValue())) {
-//                projectService.deleteProject(Long.parseLong(entry.getValue()));
-                //몽고 db데이터는 방치
+                //프로젝트에 붙은 최상위 폴더들
+                List<Folder> childrenFolder = projectService.getProjectById(Long.parseLong(entry.getKey())).getFolders();
+                //최상위 폴더들에 대한 정보를 가져왔으므로 각 최상위 폴더부터 전부 삭제 시도
+                folderService.deleteFolderAndChildFolder(childrenFolder);
+                //몽고 프로젝트 삭제
+                mongoProjectDataService.deleteFolder(entry.getKey());
+                //폴더 삭제 후 rdb프로젝트 삭제
                 projectService.deleteProject(Long.parseLong(entry.getKey()));
             }
             //하위 폴더 삭제
             else {
+                //삭제 될 폴더 가져옴
+                Folder folder=folderService.getFolderById(entry.getKey());
+                //삭제 될 폴더의 상위 폴더에서 children배열 제거
+                folderService.deleteParentFolderChildren(folder);
+                //삭제 시 하위 폴더까지 포함해서 제거, 이때 삭제 대상의 폴더의 children을 줌
+                folderService.deleteFolderAndChildFolder(folder.getChildren());
+                //삭제 대상이 된 폴더 제거
                 folderService.deleteFolder(entry.getKey());
             }
         }
@@ -198,11 +201,11 @@ public class ProjectController {
 
     }
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadfile(@RequestParam("selectedFolder") String selectedFolder,
+    public ResponseEntity<List<Folder>> uploadfile(@RequestParam("selectedFolder") String selectedFolder,
                                              @RequestParam("selectedProject") Long selectedProject,
                                              @RequestParam("files") MultipartFile[] files,
                                              @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-
+        List<Folder> folders=new ArrayList<>();
         for (MultipartFile file : files) {
             // 파일 처리 로직 (예: S3에 업로드, DB에 메타데이터 저장 등)
             String fileName = fileService.uploadFile(file, "/pdf_file");
@@ -215,28 +218,26 @@ public class ProjectController {
             newFolder.setItemIds(List.of());
             newFolder.setLastModifiedDate(LocalDateTime.now().toString());
             newFolder.setLastModifiedUserId(customUserDetails.getUser().getId());
+            //폴더 하나 생성
             folderService.createFolder(newFolder);
-            if (selectedFolder.equalsIgnoreCase(selectedProject.toString())){
+            //프로젝트 바로 아래에 추가시-현재는 고려 X
+            if (selectedFolder.equals(selectedProject.toString())){
                 mongoProjectDataService.addFolderToProject(selectedProject,newFolder);
             }
+            //하위 폴더에 추가
             else{
-                Folder parentFolder = folderService.getFolderById(selectedFolder);
-                if (parentFolder != null) {
-                    parentFolder.getChildren().add(newFolder);  // 자식 폴더 리스트에 추가
-                    folderService.updateFolder(parentFolder);   // 부모 폴더 업데이트
-                } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // 부모 폴더를 찾지 못한 경우
-                }
+                folderService.addNewFolder(selectedFolder,newFolder);
+                folders.add(newFolder);
             }
         }
-
-        return ResponseEntity.ok("Files uploaded successfully.");
+        return ResponseEntity.ok(folders);
 
     }
     @PostMapping("/item_select")
     public ResponseEntity<String> folderItemSelect(@RequestBody Map<String, Object> requestData) {
-        log.info(requestData.toString());
+        //선택한 항목 아이디
         String selectedItemId = requestData.get("selectedItemId").toString();
+        //선택된
         List<String> selectedFolder = (List<String>) requestData.get("selectedFolder");
         List<String[]> splits=new ArrayList<>();
         Stack<String> folderIdStack=new Stack<>();
@@ -391,11 +392,11 @@ public class ProjectController {
         field.setParentField(!subFields.isEmpty());  // 하위 필드가 있으면 상위 항목으로 설정
         return field;
     }
+    //자르고 붙여넣기의 경우 자른 폴더의 상위 폴더에서 children배열에서 제거하고 붙여넣을 폴더의 children배열에 추가하는 방식
     @PostMapping("/cut_paste")
     public ResponseEntity<String> cutPaste(@RequestParam("selectedFolder") String selectedFolder,
                                            @RequestParam("selectedProject") Long selectedProject,
                                            @RequestBody List<String> requestData) {
-
         //프로젝트 바로 아래에 붙여넣기
         if (selectedFolder.equals(selectedProject.toString())) {
 
@@ -404,17 +405,48 @@ public class ProjectController {
             for (String s:requestData){
                 String[] split=s.split("_");
                 if (split.length >=2){
-//                    if (split[0].equalsIgnoreCase(split[1])){} 프로젝트는 복사,자르기 막음
-                    Folder folder=folderService.getFolderById(split[0]);
-                    folder.setId(null);
-                    Folder folder1=folderService.createFolder(folder);
-                    Folder savedFolder=folderService.getFolderById(selectedFolder);
-                    savedFolder.getChildren().add(folder1);
-                    folderService.updateFolder(savedFolder);
+//                    if (split[0].equals(split[1])){} 프로젝트는 복사,자르기 막음
+                    //붙여넣기 대상이 되는 폴더 가져옴
+                    Folder folder=folderService.getFolderById(selectedFolder);
+                    //자르기 대상이 되는 폴더의 상위 폴더에서 아이디 제거
+                    folderService.deleteParentFolderChildren(folderService.getFolderById(split[0]));
+                    folder.getChildren().add(folderService.getFolderById(split[0]));
+                    folderService.updateFolder(folder);
                 }
             }
         }
         return ResponseEntity.ok("ok");
+
+    }
+    @PostMapping("/copy_paste")
+    public ResponseEntity<List<Folder>> copyPaste(@RequestParam("selectedFolder") String selectedFolder,
+                                           @RequestParam("selectedProject") Long selectedProject,
+                                           @RequestBody List<String> requestData) {
+        log.info("잘라서 붙여넣기 할 데이터 {}",requestData.toString());
+        List<Folder> folders=new ArrayList<>();
+        //프로젝트 바로 아래에 붙여넣기
+        if (selectedFolder.equals(selectedProject.toString())) {
+
+        }
+        else {
+            for (String s:requestData){
+                String[] split=s.split("_");
+                if (split.length >=2){
+//                    if (split[0].equals(split[1])){} 프로젝트는 복사,자르기 막음
+                    //붙여넣기 대상이 되는 폴더 가져옴
+                    Folder folder=folderService.getFolderById(selectedFolder);
+                    //복사 대상이 된 폴더 하위 폴더까지 전부 복사
+                    Folder copyFolder= folderService.copyFolder(split[0]);
+                    log.info("copyfolder {}",copyFolder.toString());
+                    //복사한 붙여넣기 할 폴더에 넣어줌
+                    folder.getChildren().add(copyFolder);
+                    folderService.updateFolder(folder);
+
+                    folders.add(copyFolder);
+                }
+            }
+        }
+        return ResponseEntity.ok(folders);
 
     }
     //특정 폴더 정보 가져오기, 프로젝트를 최상위 폴더로 다루므로 별도 처리 필요
@@ -428,10 +460,16 @@ public class ProjectController {
         }
         else {
             log.info("특정 폴더 정보 {}",folderService.getFolderById(selectedFolder).toString());
+            Folder updateFolder=folderService.getFolderById(selectedFolder);
             List<Folder> folders=new ArrayList<>();
             for (Folder folder:folderService.getFolderById(selectedFolder).getChildren()){
-                folders.add(folderService.getFolderById(folder.getId()));
-
+                Folder getFolder=folderService.getFolderById(folder.getId());
+                if (getFolder == null){
+//                    updateFolder.getChildren().stream().filter(x-> x.getId() != folder.getId());
+                }
+                else {
+                    folders.add(getFolder);
+                }
             }
             return ResponseEntity.ok(folders);
         }

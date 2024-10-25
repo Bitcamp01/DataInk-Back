@@ -17,17 +17,21 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String uploadFile(MultipartFile file, String directory) {
-        log.info(file.getOriginalFilename());
-        log.info(directory);
-        // 파일을 업로드하고 NoticeFileDto 객체로 반환
-//        return fileUtils.parserFileInfoToProject(file, directory);
-        return "something weird";
-        ///////////////////////////////////////////////////////////////////// 에러 나서 아무거나 String 값 줬으니 반드시 수정할 것 - 병주 올림
+        return fileUtils.parserFileInfoToProject(file, directory);
     }
+
+
 
     @Override
     public void deleteFile(String directory, String fileName) {
         // 파일 삭제
         fileUtils.deleteFile(directory, fileName);
     }
+
+    @Override
+    public void copyFile(String originalName, String copyName) {
+        fileUtils.copyFileInS3(originalName, copyName);
+    }
+
+
 }
