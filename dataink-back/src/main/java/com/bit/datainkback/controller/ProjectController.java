@@ -1,6 +1,7 @@
 package com.bit.datainkback.controller;
 
 
+import com.bit.datainkback.common.FileUtils;
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.mongo.FolderDto;
 import com.bit.datainkback.entity.CustomUserDetails;
@@ -8,11 +9,13 @@ import com.bit.datainkback.entity.mongo.Field;
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
+import com.bit.datainkback.entity.mongo.Tasks;
 import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.service.FileService;
 import com.bit.datainkback.service.ProjectService;
 import com.bit.datainkback.service.mongo.FieldService;
 import com.bit.datainkback.service.mongo.FolderService;
+import com.bit.datainkback.service.mongo.MongoLabelTaskService;
 import com.bit.datainkback.service.mongo.MongoProjectDataService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +54,11 @@ public class ProjectController {
     private FieldService fieldService;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private FileUtils fileUtils;
+    @Autowired
+    private MongoLabelTaskService mongoLabelTaskService;
+
     // 프로젝트 생성 API (MySQL 및 MongoDB에 저장)
     @PostMapping("/create")
     public ResponseEntity<ProjectDto> createProject(@RequestBody ProjectDto projectDto,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
@@ -197,8 +205,44 @@ public class ProjectController {
                 }
             }
         }
+        while (!hasConversion.isEmpty()){
+            String conversionId=conversionListIds.poll();
+            Tasks tasks=mongoLabelTaskService.getTaskById(conversionId);
+
+        }
+
         return ResponseEntity.ok("ok");
 
+    }
+    public static Map<String, Object> transformToNestedMap(Map<String, Object> data) {
+        Map<String, Object> result = new HashMap<>();
+        String contentValue = (String) data.get("content");
+
+        // hierarchy 키들만 추출하여 리스트로 정렬
+        String[] keys = data.keySet().stream()
+                .filter(key -> key.startsWith("hierarchy"))
+                .sorted()
+                .toArray(String[]::new);
+
+        buildNestedMap(result, data, keys, contentValue, 0);
+        return result;
+    }
+
+    private static void buildNestedMap(Map<String, Object> currentMap, Map<String, Object> data, String[] keys, String contentValue, int depth) {
+        String currentKey = (String) data.get(keys[depth]);
+
+        // 마지막 계층인 경우 content 값 삽입
+        if (depth == keys.length - 1) {
+            currentMap.put(currentKey, contentValue);
+            return;
+        }
+
+        // 하위 맵을 생성하거나 기존 맵을 가져옴
+        Map<String, Object> nextMap = (Map<String, Object>) currentMap.getOrDefault(currentKey, new HashMap<>());
+        currentMap.put(currentKey, nextMap);
+
+        // 재귀적으로 다음 계층으로 이동
+        buildNestedMap(nextMap, data, keys, contentValue, depth + 1);
     }
     @PostMapping("/upload")
     public ResponseEntity<List<Folder>> uploadfile(@RequestParam("selectedFolder") String selectedFolder,
@@ -480,6 +524,10 @@ public class ProjectController {
         List<ProjectDto> getProject=projectService.getProjectByUser(id);
 
         return ResponseEntity.ok(getProject);
+    }
+    @GetMapping("/pdf/{label}")
+    public ResponseEntity<String> getPdfUrl(@PathVariable String label) {
+        return ResponseEntity.ok(fileUtils.getPdfFileUrl(label));
     }
     @GetMapping("/items")
     public ResponseEntity<List<Field>> getItems(@AuthenticationPrincipal CustomUserDetails customUserDetails) {

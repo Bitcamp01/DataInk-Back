@@ -46,6 +46,10 @@ import java.util.UUID;
                     )
                     .build();
         }
+        public String getPdfFileUrl(String fileName) {
+            String filePath = "/pdf_file" + fileName;
+            return s3.getUrl(bucketName, filePath).toString();
+        }
         public void copyFileInS3(String originalFileName, String copyFileName) {
             String bucketName = "dataink";
             String sourceKey = "/pdf_file" + originalFileName;       // 원본 파일 경로
