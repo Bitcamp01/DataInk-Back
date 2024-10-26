@@ -17,6 +17,16 @@ public class UserProject {
     @EmbeddedId
     private UserProjectId id;
 
+    @MapsId("userId")
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @MapsId("projectId")
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
+
     @Enumerated(EnumType.STRING)
     private UserRole role; // 역할 Enum
 
@@ -34,8 +44,8 @@ public class UserProject {
 
     public UserProjectDto toDto() {
         return UserProjectDto.builder()
-                .userId(this.id.getUser().getUserId())  // userId는 Long 타입
-                .projectId(this.id.getProject().getProjectId())
+                .userId(this.id.getUserId())  // userId는 Long 타입
+                .projectId(this.id.getProjectId())
                 .role(this.role)
                 .userWorkcnt(this.userWorkcnt)
                 .totalWorkcnt(this.totalWorkcnt)
