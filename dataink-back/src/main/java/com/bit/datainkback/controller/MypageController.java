@@ -79,4 +79,28 @@ public class MypageController {
         UserDetailDto userDetail = mypageService.getUserDetail(loggedInUserId);
         return ResponseEntity.ok(userDetail);
     }
+
+    @GetMapping("/profile-intro")
+    public ResponseEntity<String> getProfileIntro(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long loggedInUserId = customUserDetails.getUser().getUserId();
+        String profileIntro = mypageService.getUserProfileIntro(loggedInUserId);
+        return ResponseEntity.ok(profileIntro);
+    }
+
+    @PostMapping("/profile-intro")
+    public ResponseEntity<UserDetailDto> updateProfileIntro(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody String profileIntro) {
+        Long loggedInUserId = customUserDetails.getUser().getUserId();
+        UserDetailDto updatedDetail = mypageService.updateUserProfileIntro(loggedInUserId, profileIntro);
+        return ResponseEntity.ok(updatedDetail);
+    }
+
+
+
+
+
+
+
+
 }

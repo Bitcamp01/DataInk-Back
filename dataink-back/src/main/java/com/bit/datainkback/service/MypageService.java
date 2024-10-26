@@ -14,4 +14,8 @@ public interface MypageService {
     UserDetailDto updateUserProfileImage(Long loggedInUserId,String backgroundImgType, String profileImgName, String profileImageUrl, MultipartFile file);
 
     UserDetailDto updateUserBackgroundImage(Long loggedInUserId,String backgroundImgType, String backgroundImgName, String backgroundImageUrl, MultipartFile file);
+
+    UserDetailDto updateUserProfileIntro(Long loggedInUserId, String profileIntro);
+
+    String getUserProfileIntro(Long loggedInUserId);
 }
