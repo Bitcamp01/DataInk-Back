@@ -1,6 +1,7 @@
 package com.bit.datainkback.entity;
 
 import com.bit.datainkback.dto.UserDetailDto;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,7 @@ public class UserDetail {
     @OneToOne
     @MapsId // User의 기본 키를 이 엔티티의 기본 키로 사용
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @JsonBackReference // 순환 참조 해결
     private User user; // User와의 관계 설정
 
     private String dep;
