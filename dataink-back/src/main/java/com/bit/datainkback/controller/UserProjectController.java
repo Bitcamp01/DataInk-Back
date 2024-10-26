@@ -3,6 +3,7 @@ package com.bit.datainkback.controller;
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.ResponseDto;
 import com.bit.datainkback.dto.UserProjectDto;
+import com.bit.datainkback.entity.CustomUserDetails;
 import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.UserProject;
 import com.bit.datainkback.service.UserProjectService;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,8 +31,10 @@ public class UserProjectController {
     @Autowired
     private UserProjectService userProjectService;
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getUserProjects(@PathVariable Long userId) {
+    @GetMapping("/user")
+    public ResponseEntity<?> getUserProjects(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long userId = customUserDetails.getUser().getUserId();
+
         ResponseDto<ProjectDto> responseDto = new ResponseDto<>();
         try {
             // User ID로 참여한 Project 목록 조회
