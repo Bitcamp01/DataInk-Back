@@ -59,7 +59,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto join(UserDto userDto) {
         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        userDto.setAuthen(AuthenType.ROLE_USER);
         userDto.setRegdate(new Timestamp(System.currentTimeMillis()));
         userDto.setStatus("active");
 

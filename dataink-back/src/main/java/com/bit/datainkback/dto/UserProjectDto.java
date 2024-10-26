@@ -25,7 +25,7 @@ public class UserProjectDto {
     private int completedInspection;
 
     public UserProject toEntity(User user, Project project) {
-        UserProjectId userProjectId = new UserProjectId(user, project); // 복합 키 생성
+        UserProjectId userProjectId = new UserProjectId(user.getUserId(), project.getProjectId()); // 복합 키 생성
 
         return UserProject.builder()
                 .id(userProjectId) // 복합 키 설정

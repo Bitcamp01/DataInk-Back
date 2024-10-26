@@ -76,7 +76,7 @@ public class TodoListController {
 
 
     // 투두리스트 삭제
-    @DeleteMapping("/todoDelete/{todoId}")
+    @DeleteMapping("/todoDelete")
     public ResponseEntity<String> deleteTodo(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long todoId) {
         // userDetails에서 userId를 가져옴
         Long userId = userDetails.getUser().getUserId();

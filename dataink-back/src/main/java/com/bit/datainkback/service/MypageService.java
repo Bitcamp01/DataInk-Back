@@ -2,6 +2,7 @@ package com.bit.datainkback.service;
 
 import com.bit.datainkback.dto.UserDetailDto;
 import com.bit.datainkback.dto.UserDto;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface MypageService {
     boolean checkPassword(String loggedInUserId, String inputPassword);
@@ -10,7 +11,11 @@ public interface MypageService {
 
     UserDetailDto getUserDetail(Long id);
 
-    UserDetailDto updateProfileImage(Long userId, String profileImageUrl);
+    UserDetailDto updateUserProfileImage(Long loggedInUserId,String backgroundImgType, String profileImgName, String profileImageUrl, MultipartFile file);
 
-    UserDetailDto updateBackgroundImage(Long id, String fileUrl);
+    UserDetailDto updateUserBackgroundImage(Long loggedInUserId,String backgroundImgType, String backgroundImgName, String backgroundImageUrl, MultipartFile file);
+
+    UserDetailDto updateUserProfileIntro(Long loggedInUserId, String profileIntro);
+
+    String getUserProfileIntro(Long loggedInUserId);
 }

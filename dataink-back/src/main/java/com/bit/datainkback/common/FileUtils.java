@@ -5,10 +5,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.*;
 import com.bit.datainkback.config.NaverConfiguration;
 import com.bit.datainkback.dto.NoticeFileDto;
 import com.bit.datainkback.dto.UserDetailDto;
@@ -49,7 +46,47 @@ import java.util.UUID;
                     )
                     .build();
         }
+        public void copyFileInS3(String originalFileName, String copyFileName) {
+            String bucketName = "dataink";
+            String sourceKey = "/pdf_file" + originalFileName;       // 원본 파일 경로
+            String destinationKey = "/pdf_file" + copyFileName; // 복사본 파일 경로
 
+            // S3 내부에서 파일 복사
+            CopyObjectRequest copyObjRequest = new CopyObjectRequest(bucketName, sourceKey, bucketName, destinationKey);
+            s3.copyObject(copyObjRequest);
+        }
+        public String parserFileInfoToProject(MultipartFile multipartFile, String directory) {
+            String bucketName = "dataink";
+
+            // 다른 사용자가 같은 파일명의 파일을 업로드 했을 때
+            // 덮어써지는 것을 방지하기 위해서 파일명을 랜덤값_날짜시간_파일명으로 지정
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+            Date nowDate = new Date();
+
+            String nowDateStr = format.format(nowDate);
+
+            UUID uuid = UUID.randomUUID();
+
+            String fileName =  uuid.toString() + "_" + nowDateStr + "_" + multipartFile.getOriginalFilename();
+
+            // Object Storage에 파일 업로드
+            try(InputStream fileInputStream = multipartFile.getInputStream()) {
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+                objectMetadata.setContentType(multipartFile.getContentType());
+
+                PutObjectRequest putObjectRequest = new PutObjectRequest(
+                        bucketName,
+                        directory + fileName,
+                        fileInputStream,
+                        objectMetadata
+                ).withCannedAcl(CannedAccessControlList.PublicRead);
+
+                s3.putObject(putObjectRequest);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            return fileName;
+        }
         public NoticeFileDto parserFileInfo(MultipartFile multipartFile, String directory) {
             String bucketName = "dataink";
 
@@ -114,105 +151,91 @@ import java.util.UUID;
 
             s3.deleteObject(new DeleteObjectRequest(bucketName, directory + fileName));
         }
-    }
 
 
         // 마이페이지 관련 프로필 및 배경화면 이미지
-//        private UserDetailDto uploadUserImage(MultipartFile multipartFile, String directory, boolean isProfile) {
-//            UserDetailDto userDetailDto = new UserDetailDto();
-//
-//            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-//            Date nowDate = new Date();
-//            String nowDateStr = format.format(nowDate);
-//            UUID uuid = UUID.randomUUID();
-//            String fileName = uuid.toString() + "_" + nowDateStr + "_" + multipartFile.getOriginalFilename();
-//
-//            // Object Storage에 파일 업로드
-//            try(InputStream fileInputStream = multipartFile.getInputStream()) {
-//                ObjectMetadata objectMetadata = new ObjectMetadata();
-//                objectMetadata.setContentType(multipartFile.getContentType());
-//
-//                PutObjectRequest putObjectRequest = new PutObjectRequest(
-//                        bucketName,
-//                        directory + fileName,
-//                        fileInputStream,
-//                        objectMetadata
-//                ).withCannedAcl(CannedAccessControlList.PublicRead);
-//
-//                s3.putObject(putObjectRequest);
-//            } catch (Exception e) {
-//                System.out.println(e.getMessage());
-//            }
-//
-//            File uploadFile = new File(directory + fileName);
-//            String type = "";
-//
-//            try {
-//                type = Files.probeContentType(uploadFile.toPath());
-//            } catch(IOException ie) {
-//                System.out.println(ie.getMessage());
-//            }
-//
-//            if(!type.equals("")) {
-//                if(type.startsWith("image")) {
-//                    userDetailDto.setFiletype("image");
-//                } else {
-//                    userDetailDto.setFiletype("etc");
-//                }
-//            } else {
-//                userDetailDto.setFiletype("etc");
-//            }
-//
-//
-//            // 파일 업로드
-//            try (InputStream fileInputStream = multipartFile.getInputStream()) {
-//                uploadFileToS3(directory, fileName, fileInputStream, multipartFile.getContentType());
-//            } catch (Exception e) {
-//                System.out.println("File upload failed: " + e.getMessage());
-//            }
-//
-//            // DTO에 정보 설정
-//            if (isProfile) {
-//                userDetailDto.setProfileImgName(fileName);
-//                userDetailDto.setProfileImgOriginname(multipartFile.getOriginalFilename());
-//                userDetailDto.setProfileImageUrl(directory + fileName);
-//                userDetailDto.setProfileImgType("image"); // 타입 설정 (간단화)
-//            } else {
-//                userDetailDto.setBackgroundImgName(fileName);
-//                userDetailDto.setBackgroundImgOriginname(multipartFile.getOriginalFilename());
-//                userDetailDto.setBackgroundImageUrl(directory + fileName);
-//                userDetailDto.setBackgroundImgType("image"); // 타입 설정 (간단화)
-//            }
-//
-//            return userDetailDto;
-//        }
-//
-//        public String uploadFile(String directory, MultipartFile multipartFile) {
-//            String fileName = generateFileName(multipartFile.getOriginalFilename());
-//            try (InputStream fileInputStream = multipartFile.getInputStream()) {
-//                uploadFileToS3(directory, fileName, fileInputStream, multipartFile.getContentType());
-//            } catch (Exception e) {
-//                System.out.println("File upload failed: " + e.getMessage());
-//            }
-//            return fileName;
-//        }
-//
-//        public String getFileUrl(String directory, String fileName) {
-//            return s3.getUrl(bucketName, directory + fileName).toString();
-//        }
-//
-//
-//        private void uploadFileToS3(String directory, String fileName, InputStream fileInputStream, String contentType) throws IOException {
-//            ObjectMetadata objectMetadata = new ObjectMetadata();
-//            objectMetadata.setContentType(contentType);
-//
-//            PutObjectRequest putObjectRequest = new PutObjectRequest(
-//                    bucketName,
-//                    directory + fileName,
-//                    fileInputStream,
-//                    objectMetadata
-//            ).withCannedAcl(CannedAccessControlList.PublicRead);
-//
-//            s3.putObject(putObjectRequest);
-//        }
-//    }
+        public UserDetailDto updateImg(MultipartFile multipartFile, String directory, boolean isProfile) {
+            String bucketName = "dataink";
+            UserDetailDto userDetailDto = new UserDetailDto();
+
+            // 다른 사용자가 같은 파일명의 파일을 업로드 했을 때
+            // 덮어써지는 것을 방지하기 위해서 파일명을 랜덤값_날짜시간_파일명으로 지정
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+            Date nowDate = new Date();
+
+            String nowDateStr = format.format(nowDate);
+
+            UUID uuid = UUID.randomUUID();
+
+            String fileName = uuid.toString() + "_" + nowDateStr + "_" + multipartFile.getOriginalFilename();
+
+            // Object Storage에 파일 업로드
+            try(InputStream fileInputStream = multipartFile.getInputStream()) {
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+                objectMetadata.setContentType(multipartFile.getContentType());
+
+                PutObjectRequest putObjectRequest = new PutObjectRequest(
+                        bucketName,
+                        directory + fileName,
+                        fileInputStream,
+                        objectMetadata
+                ).withCannedAcl(CannedAccessControlList.PublicRead);
+
+                s3.putObject(putObjectRequest);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+            File uploadFile = new File(directory + fileName);
+            String type = "";
+
+            try {
+                type = Files.probeContentType(uploadFile.toPath());
+            } catch(IOException ie) {
+                System.out.println(ie.getMessage());
+            }
+
+            if (!type.equals("")) {
+                if (type.startsWith("image")) {
+                    if (isProfile) {
+                        userDetailDto.setProfileImgType("image");
+                    } else {
+                        userDetailDto.setBackgroundImgType("image");
+                    }
+                } else {
+                    if (isProfile) {
+                        userDetailDto.setProfileImgType("etc");
+                    } else {
+                        userDetailDto.setBackgroundImgType("etc");
+                    }
+                }
+            } else {
+                if (isProfile) {
+                    userDetailDto.setProfileImgType("etc");
+                } else {
+                    userDetailDto.setBackgroundImgType("etc");
+                }
+            }
+
+            // DTO에 정보 설정
+            if (isProfile) {
+                userDetailDto.setProfileImgName(fileName);
+                userDetailDto.setProfileImgOriginname(multipartFile.getOriginalFilename());
+                userDetailDto.setProfileImageUrl(directory + fileName);
+                userDetailDto.setProfileImgType("image"); // 타입 설정 (간단화)
+            } else {
+                userDetailDto.setBackgroundImgName(fileName);
+                userDetailDto.setBackgroundImgOriginname(multipartFile.getOriginalFilename());
+                userDetailDto.setBackgroundImageUrl(directory + fileName);
+                userDetailDto.setBackgroundImgType("image"); // 타입 설정 (간단화)
+            }
+
+            return userDetailDto;
+        }
+
+        public void deleteImg(String directory, String fileName) {
+            String bucketName = "dataink";
+
+            s3.deleteObject(new DeleteObjectRequest(bucketName, directory + fileName));
+        }
+    }
