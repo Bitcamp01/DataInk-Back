@@ -34,7 +34,7 @@ public class Project {
     private User user;
 
     // Project와 UserProject는 일대다 관계
-    @OneToMany(mappedBy = "id.project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<UserProject> userProjects;
 
     @Column(name = "name", nullable = false, length = 255)
