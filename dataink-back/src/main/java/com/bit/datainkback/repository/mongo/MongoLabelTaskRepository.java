@@ -14,6 +14,4 @@ public interface MongoLabelTaskRepository extends MongoRepository<Tasks, String>
 
     Optional<Tasks> findByParentFolderIdAndTaskName(String parentFolderId, String taskName);
 
-    @Query("{ 'parentFolderId': { $in: ?0 }, 'taskName': { $regex: ?1, $options: 'i' }, 'status': ?2 }")
-    List<Tasks> findTasksByFolderIdsAndTaskNameAndStatus(List<String> folderIds, String taskName, String status);
 }
