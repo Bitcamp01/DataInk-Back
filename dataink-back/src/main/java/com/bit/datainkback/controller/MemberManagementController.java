@@ -3,8 +3,10 @@ package com.bit.datainkback.controller;
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.ResponseDto;
 import com.bit.datainkback.dto.UserDto;
+import com.bit.datainkback.entity.User;
 import com.bit.datainkback.service.MemberManagementService;
 import com.bit.datainkback.service.MemberProjectService;
+import com.bit.datainkback.service.ProjectService;
 import com.bit.datainkback.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,6 +31,14 @@ public class MemberManagementController {
     @Autowired
     private final MemberProjectService memberProjectService;
     private final MemberManagementService memberManagementService;
+    private final UserService userService;
+
+    @PostMapping("/saveUsers")
+    public ResponseEntity<String> saveUsers(@RequestBody List<User> users) {
+        userService.saveUsers(users);
+        return ResponseEntity.ok("멤버 저장 성공");
+    }
+
 
 
     @GetMapping("/modal")

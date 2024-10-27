@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public  class ProjectServiceImpl implements ProjectService {
+
     @Autowired
     private ProjectRepository projectRepository;
     //급해서 추가함, 추후 변경 필요
