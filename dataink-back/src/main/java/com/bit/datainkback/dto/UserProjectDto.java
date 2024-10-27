@@ -4,7 +4,6 @@ import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.UserProject;
 import com.bit.datainkback.entity.UserProjectId;
-import com.bit.datainkback.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -19,7 +18,6 @@ import java.sql.Timestamp;
 public class UserProjectDto {
     private Long userId;
     private Long projectId;
-    private UserRole role;
     private int userWorkcnt;
     private int totalWorkcnt;
     private int pendingInspection;
@@ -33,7 +31,6 @@ public class UserProjectDto {
 
         return UserProject.builder()
                 .id(userProjectId) // 복합 키 설정
-                .role(this.role)
                 .userWorkcnt(this.userWorkcnt)
                 .totalWorkcnt(this.totalWorkcnt)
                 .pendingInspection(this.pendingInspection)
