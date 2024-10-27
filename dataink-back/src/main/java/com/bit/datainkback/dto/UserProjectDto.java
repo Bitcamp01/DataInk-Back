@@ -25,6 +25,8 @@ public class UserProjectDto {
     private int pendingInspection;
     private int completedInspection;
 
+    private ProjectDto projectDto;
+
     @JsonProperty("isBookmarked")
     private boolean isBookmarked;
 
