@@ -2,6 +2,7 @@ package com.bit.datainkback.entity;
 
 import com.bit.datainkback.dto.UserProjectDto;
 import com.bit.datainkback.enums.UserRole;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,6 +43,9 @@ public class UserProject {
     @Column(name = "completed_inspection")
     private int completedInspection; // 완료된 검사 수
 
+    @Column(name = "is_bookmarked", nullable = false)
+    private boolean isBookmarked = false; // 기본값 false로 설정
+
     public UserProjectDto toDto() {
         return UserProjectDto.builder()
                 .userId(this.id.getUserId())  // userId는 Long 타입
@@ -51,6 +55,7 @@ public class UserProject {
                 .totalWorkcnt(this.totalWorkcnt)
                 .pendingInspection(this.pendingInspection)
                 .completedInspection(this.completedInspection)
+                .isBookmarked(this.isBookmarked)
                 .build();
     }
 }

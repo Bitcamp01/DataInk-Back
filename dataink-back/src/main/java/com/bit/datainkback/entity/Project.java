@@ -1,6 +1,7 @@
 package com.bit.datainkback.entity;
 
 import com.bit.datainkback.dto.ProjectDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -35,6 +36,7 @@ public class Project {
 
     // Project와 UserProject는 일대다 관계
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @JsonIgnore // 순환 참조 방지
     private List<UserProject> userProjects;
 
     @Column(name = "name", nullable = false, length = 255)
