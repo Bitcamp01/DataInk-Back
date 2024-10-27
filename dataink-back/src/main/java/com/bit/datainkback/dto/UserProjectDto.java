@@ -5,6 +5,7 @@ import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.UserProject;
 import com.bit.datainkback.entity.UserProjectId;
 import com.bit.datainkback.enums.UserRole;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.sql.Timestamp;
@@ -24,6 +25,9 @@ public class UserProjectDto {
     private int pendingInspection;
     private int completedInspection;
 
+    @JsonProperty("isBookmarked")
+    private boolean isBookmarked;
+
     public UserProject toEntity(User user, Project project) {
         UserProjectId userProjectId = new UserProjectId(user.getUserId(), project.getProjectId()); // 복합 키 생성
 
@@ -34,6 +38,7 @@ public class UserProjectDto {
                 .totalWorkcnt(this.totalWorkcnt)
                 .pendingInspection(this.pendingInspection)
                 .completedInspection(this.completedInspection)
+                .isBookmarked(this.isBookmarked)
                 .build();
     }
 }

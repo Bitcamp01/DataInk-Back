@@ -3,6 +3,7 @@ package com.bit.datainkback.service.impl;
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.UserProjectDto;
 import com.bit.datainkback.entity.UserProject;
+import com.bit.datainkback.entity.UserProjectId;
 import com.bit.datainkback.repository.UserProjectRepository;
 import com.bit.datainkback.service.UserProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +23,34 @@ public class UserProjectServiceImpl implements UserProjectService {
     }
 
     @Override
-    public List<ProjectDto> getUserProjectsByUserId(Long userId) {
-        // User ID로 UserProject 목록 조회
-        List<UserProject> userProjects = userProjectRepository.findByUserUserId(userId);
-
-        // UserProject 목록에서 Project 엔티티 추출 후 DTO로 변환
-        return userProjects.stream()
+    public List<ProjectDto> getProjectDtosByUserId(Long userId) {
+        // User ID로 UserProject 목록 조회 후 Project만 추출하여 DTO로 변환
+        return userProjectRepository.findByUserUserId(userId).stream()
                 .map(userProject -> userProject.getProject().toDto())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserProjectDto> getUserProjectDtosByUserId(Long userId) {
+        // User ID로 UserProject 목록 조회 후 UserProject를 DTO로 변환
+        return userProjectRepository.findByUserUserId(userId).stream()
+                .map(UserProject::toDto)
+                .collect(Collectors.toList());
+    }
+
+    // 북마크 상태 업데이트 메서드
+    public UserProjectDto updateBookmarkStatus(Long userId, Long projectId, boolean isBookmarked) {
+        // UserProject 엔티티를 가져옴, 없으면 예외 발생
+        UserProject userProject = userProjectRepository.findById(new UserProjectId(userId, projectId))
+                .orElseThrow(() -> new RuntimeException("UserProject entry not found"));
+
+        // 북마크 상태 업데이트
+        userProject.setBookmarked(isBookmarked);
+
+        // 변경된 엔티티를 저장
+        userProjectRepository.save(userProject);
+
+        // 업데이트된 UserProject를 DTO로 반환
+        return userProject.toDto();
     }
 }
