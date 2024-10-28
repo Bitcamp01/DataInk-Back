@@ -515,7 +515,12 @@ public class ProjectController {
 
         return ResponseEntity.ok(getProject);
     }
-
+    @GetMapping("/test")
+    public ResponseEntity<ProjectDto> getProjects(@RequestParam("projectId") Long projectId) {
+        ProjectDto getProject=projectService.getProjectWithFolder(projectId);
+        log.info(getProject.toString());
+        return ResponseEntity.ok(getProject);
+    }
     @GetMapping("/pdf/{label}")
     public ResponseEntity<String> getPdfUrl(@PathVariable String label) {
         log.info("pdf file url {}", fileUtils.getPdfFileUrl(label));
