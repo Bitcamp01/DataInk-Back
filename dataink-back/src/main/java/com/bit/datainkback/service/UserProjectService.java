@@ -10,7 +10,7 @@ public interface UserProjectService {
     List<ProjectDto> getProjectDtosByUserId(Long userId);
 
     List<UserProjectDto> getUserProjectDtosByUserId(Long userId);
-
+    UserProject updateUserProject(Long projectId,Long userId);
     // 북마크 상태 업데이트 메서드
     UserProjectDto updateBookmarkStatus(Long userId, Long projectId, boolean isBookmarked);
 }
