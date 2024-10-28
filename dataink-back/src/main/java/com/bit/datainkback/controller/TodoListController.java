@@ -5,6 +5,7 @@ import com.bit.datainkback.entity.CustomUserDetails;
 import com.bit.datainkback.entity.TodoList;
 import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.UserDetail;
+import com.bit.datainkback.repository.TodoListRepository;
 import com.bit.datainkback.repository.UserDetailRepository;
 import com.bit.datainkback.service.TodoListService;
 import com.bit.datainkback.service.UserService;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -29,6 +32,8 @@ public class TodoListController {
     private UserService userService;
     @Autowired
     private UserDetailRepository userDetailRepository;
+    @Autowired
+    private TodoListRepository todoListRepository;
 
     // 특정 유저의 투두리스트 중 todoContent 검색
     @GetMapping("/todoContent")
@@ -44,6 +49,22 @@ public class TodoListController {
                         todo.isCompleted() // isCompleted
                 ))
                 .collect(Collectors.toList());
+    }
+
+    @PutMapping("/todoUpdate/{id}")
+    public ResponseEntity<?> updateTodo(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+        // 해당 ID로 할 일 찾기
+        Optional<TodoList> optionalTodo = todoListRepository.findById(id);
+        if (optionalTodo.isPresent()) {
+            TodoList todoList = optionalTodo.get();
+            // 완료 상태 업데이트
+            todoList.setCompleted((Boolean) updates.get("completed"));
+            todoListRepository.save(todoList); // 변경 사항 저장
+
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // 새로운 투두리스트 생성
@@ -76,13 +97,18 @@ public class TodoListController {
 
 
     // 투두리스트 삭제
-    @DeleteMapping("/todoDelete")
+    @DeleteMapping("/todoDelete/{todoId}")
     public ResponseEntity<String> deleteTodo(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long todoId) {
         // userDetails에서 userId를 가져옴
         Long userId = userDetails.getUser().getUserId();
 
-        // 해당 투두를 찾음
-        TodoList todo = (TodoList) todoListService.getTodosByUserId(todoId);
+        // 특정 투두 아이디로 투두 항목 조회
+        TodoList todo = todoListService.getTodoById(todoId);
+
+        // 투두 항목이 존재하지 않을 때
+        if (todo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("투두 항목이 존재하지 않습니다.");
+        }
 
         // 투두가 현재 사용자 소유인지 확인
         if (!todo.getUserDetail().getUser().getUserId().equals(userId)) {
@@ -93,6 +119,7 @@ public class TodoListController {
         todoListService.deleteTodoById(todoId);
         return ResponseEntity.ok("투두가 성공적으로 삭제되었습니다.");
     }
+
 
 
 }

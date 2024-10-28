@@ -28,6 +28,11 @@ public class TodoListServiceImpl implements TodoListService {
     }
 
     @Override
+    public TodoList getTodoById(Long todoId) {
+        return todoListRepository.findById(todoId).orElse(null);
+    }
+
+    @Override
     public TodoList saveTodo(TodoList todo) {
         todo.setCreateDate(Timestamp.valueOf(LocalDateTime.now()));
         return todoListRepository.save(todo);
