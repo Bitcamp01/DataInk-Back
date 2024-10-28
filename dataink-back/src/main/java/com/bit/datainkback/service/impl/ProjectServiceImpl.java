@@ -78,6 +78,7 @@ public  class ProjectServiceImpl implements ProjectService {
         folder.setLabel(folder1.getLabel());
         folder.setLastModifiedDate(folder1.getLastModifiedDate());
         folder.setChildren(new ArrayList<>());
+        folder.setFolder(folder1.isFolder());
 
         if (folder1.getChildren() != null && !folder1.getChildren().isEmpty()) {
             for (Folder childFolder : folder1.getChildren()) {
