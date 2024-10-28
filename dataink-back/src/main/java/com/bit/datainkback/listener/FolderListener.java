@@ -56,6 +56,7 @@ public class FolderListener extends AbstractMongoEventListener<Folder> {
         } else {
             // 없으면 새로 생성
             tasks = new Tasks();
+            tasks.setId(file.getId());  // file의 기존 _id를 그대로 사용
             tasks.setParentFolderId(parentFolderId);
         }
 

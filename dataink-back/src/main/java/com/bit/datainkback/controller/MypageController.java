@@ -53,7 +53,7 @@ public class MypageController {
 
     // 프로필 업데이트 API 추가
     @PutMapping("/update-profile")
-    public ResponseEntity<?> updateProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody UserDetailDto userDetailDto) {
+    public ResponseEntity<ResponseDto<UserDetailDto>> updateProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody UserDetailDto userDetailDto) {
         ResponseDto<UserDetailDto> responseDto = new ResponseDto<>();
 
         try {
@@ -73,10 +73,34 @@ public class MypageController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<UserDetailDto> getMypageInfo(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    @GetMapping("/details")
+    public ResponseEntity<UserDetailDto> getUserDetail(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long loggedInUserId = customUserDetails.getUser().getUserId();
-        UserDetailDto userDetail = mypageService.getUserDetail(loggedInUserId);
-        return ResponseEntity.ok(userDetail);
+        UserDetailDto userDetailDto = mypageService.getUserDetail(loggedInUserId);
+        return ResponseEntity.ok(userDetailDto);
     }
+
+    @GetMapping("/profile-intro")
+    public ResponseEntity<String> getProfileIntro(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        Long loggedInUserId = customUserDetails.getUser().getUserId();
+        String profileIntro = mypageService.getUserProfileIntro(loggedInUserId);
+        return ResponseEntity.ok(profileIntro);
+    }
+
+    @PostMapping("/profile-intro")
+    public ResponseEntity<UserDetailDto> updateProfileIntro(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody String profileIntro) {
+        Long loggedInUserId = customUserDetails.getUser().getUserId();
+        UserDetailDto updatedDetail = mypageService.updateUserProfileIntro(loggedInUserId, profileIntro);
+        return ResponseEntity.ok(updatedDetail);
+    }
+
+
+
+
+
+
+
+
 }

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Embeddable
 @Getter
@@ -16,12 +17,21 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProjectId implements Serializable {
-    @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    private User user;
+    private Long userId;
+    private Long projectId;
 
-    @ManyToOne
-    @JoinColumn(name = "project_id", referencedColumnName = "project_id")
-    private Project project;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserProjectId that = (UserProjectId) o;
+        return Objects.equals(userId, that.userId) &&
+                Objects.equals(projectId, that.projectId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, projectId);
+    }
 }
 

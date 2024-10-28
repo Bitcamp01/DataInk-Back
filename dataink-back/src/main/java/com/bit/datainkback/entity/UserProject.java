@@ -1,7 +1,7 @@
 package com.bit.datainkback.entity;
 
 import com.bit.datainkback.dto.UserProjectDto;
-import com.bit.datainkback.enums.UserRole;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,8 +17,15 @@ public class UserProject {
     @EmbeddedId
     private UserProjectId id;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role; // 역할 Enum
+    @MapsId("userId")
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @MapsId("projectId")
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
 
     @Column(name = "user_worknt")
     private int userWorkcnt; // 작업 유형
@@ -32,15 +39,18 @@ public class UserProject {
     @Column(name = "completed_inspection")
     private int completedInspection; // 완료된 검사 수
 
+    @Column(name = "is_bookmarked", nullable = false)
+    private boolean isBookmarked = false; // 기본값 false로 설정
+
     public UserProjectDto toDto() {
         return UserProjectDto.builder()
-                .userId(this.id.getUser().getUserId())  // userId는 Long 타입
-                .projectId(this.id.getProject().getProjectId())
-                .role(this.role)
+                .userId(this.id.getUserId())  // userId는 Long 타입
+                .projectId(this.id.getProjectId())
                 .userWorkcnt(this.userWorkcnt)
                 .totalWorkcnt(this.totalWorkcnt)
                 .pendingInspection(this.pendingInspection)
                 .completedInspection(this.completedInspection)
+                .isBookmarked(this.isBookmarked)
                 .build();
     }
 }

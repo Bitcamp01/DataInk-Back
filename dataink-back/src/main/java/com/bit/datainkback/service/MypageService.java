@@ -9,9 +9,13 @@ public interface MypageService {
 
     UserDetailDto updateUserProfile(Long loggedInUserId, UserDetailDto userDetailDto);
 
-    UserDetailDto getUserDetail(Long id);
+    UserDetailDto getUserDetail(Long loggedInUserId);
 
     UserDetailDto updateUserProfileImage(Long loggedInUserId,String backgroundImgType, String profileImgName, String profileImageUrl, MultipartFile file);
 
     UserDetailDto updateUserBackgroundImage(Long loggedInUserId,String backgroundImgType, String backgroundImgName, String backgroundImageUrl, MultipartFile file);
+
+    UserDetailDto updateUserProfileIntro(Long loggedInUserId, String profileIntro);
+
+    String getUserProfileIntro(Long loggedInUserId);
 }

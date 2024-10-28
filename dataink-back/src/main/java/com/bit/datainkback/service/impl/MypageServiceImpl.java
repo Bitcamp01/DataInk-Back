@@ -45,8 +45,8 @@ public class MypageServiceImpl implements MypageService {
     }
 
     @Override
-    public UserDetailDto getUserDetail(Long userId) {
-        UserDetail userDetail = userDetailRepository.findById(userId)
+    public UserDetailDto getUserDetail(Long loggedInUserId) {
+        UserDetail userDetail = userDetailRepository.findById(loggedInUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return userDetail.toDto();
     }
@@ -87,5 +87,21 @@ public class MypageServiceImpl implements MypageService {
 
         // 업데이트된 엔티티를 DTO로 변환 후 반환
         return userDetail.toDto();
+    }
+
+    @Override
+    public UserDetailDto updateUserProfileIntro(Long loggedInUserId, String profileIntro) {
+        UserDetail userDetail = userDetailRepository.findById(loggedInUserId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        userDetail.setProfileIntro(profileIntro);
+        userDetailRepository.save(userDetail);
+        return userDetail.toDto();
+    }
+
+    @Override
+    public String getUserProfileIntro(Long loggedInUserId) {
+        UserDetail userDetail = userDetailRepository.findById(loggedInUserId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userDetail.getProfileIntro();
     }
 }
