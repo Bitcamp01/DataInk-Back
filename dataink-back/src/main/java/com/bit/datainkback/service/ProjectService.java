@@ -28,4 +28,6 @@ public interface ProjectService {
     List<JSONObject> getJson(HashMap<String, String> hasConversion);
 
     List<JSONObject> getJsonProjectStructure(HashMap<String, String> hasConversion);
+
+    ProjectDto getProjectWithFolder(Long projectId);
 }
