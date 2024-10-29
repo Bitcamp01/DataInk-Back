@@ -49,7 +49,10 @@ public class UserProject {
     public UserProjectDto toDto() {
         return UserProjectDto.builder()
                 .userId(this.id.getUserId())  // userId는 Long 타입
-                .projectId(this.id.getProjectId())
+                .userName(this.user != null ? this.user.getName() : null) // User의 이름 추가
+                .department(this.user != null && this.user.getUserDetail() != null
+                        ? this.user.getUserDetail().getDep() : "부서 정보 없음") // 부서 정보 추가
+                .projectId(this.project.getProjectId())
                 .role(this.role)
                 .userWorkcnt(this.userWorkcnt)
                 .totalWorkcnt(this.totalWorkcnt)

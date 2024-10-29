@@ -3,11 +3,9 @@ package com.bit.datainkback.controller;
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.ResponseDto;
 import com.bit.datainkback.dto.UserDto;
+import com.bit.datainkback.dto.UserProjectDto;
 import com.bit.datainkback.entity.User;
-import com.bit.datainkback.service.MemberManagementService;
-import com.bit.datainkback.service.MemberProjectService;
-import com.bit.datainkback.service.ProjectService;
-import com.bit.datainkback.service.UserService;
+import com.bit.datainkback.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +19,79 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/member")
 @RequiredArgsConstructor
 @Slf4j
 public class MemberManagementController {
 
-    @Autowired
     private final MemberProjectService memberProjectService;
     private final MemberManagementService memberManagementService;
-    private final UserService userService;
+    private final UserProjectService userProjectService;
 
-    @PostMapping("/saveUsers")
-    public ResponseEntity<String> saveUsers(@RequestBody List<User> users) {
-        userService.saveUsers(users);
-        return ResponseEntity.ok("멤버 저장 성공");
+
+
+
+    // 특정 프로젝트의 멤버 리스트 조회
+    @GetMapping("/modal-project/{projectId}")
+    public ResponseEntity<?> getProjectMembers(@PathVariable("projectId") Long projectId) {
+        ResponseDto<UserDto> responseDto = new ResponseDto<>();
+        try {
+            List<UserDto> members = userProjectService.getMembersByProjectId(projectId);
+            responseDto.setItems(members);
+            responseDto.setStatusCode(HttpStatus.OK.value());
+            responseDto.setStatusMessage("ok");
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            log.error("Error fetching project members for projectId {}: {}", projectId, e.getMessage());
+
+            // 오류 발생 시 응답 세팅
+            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseDto.setStatusMessage("Error fetching project members");
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+        }
+    }
+
+    // 프로젝트에 멤버 추가
+    @PostMapping("/modal-add/{projectId}")
+    public ResponseEntity<List<UserProjectDto>> addMembersToProject(@PathVariable("projectId") Long projectId, @RequestBody List<Long> newMembers) {
+        List<UserProjectDto> members  = userProjectService.addMembersToProject(projectId, newMembers);
+        return ResponseEntity.ok(members);
+    }
+
+    // 프로젝트에서 멤버 삭제
+    @DeleteMapping("/modal-delete")
+    public ResponseEntity<Void> removeMembersFromProject(@PathVariable Long projectId, @RequestBody List<Long> userIds) {
+        userProjectService.removeMembersFromProject(projectId, userIds);
+        return ResponseEntity.ok().build();
+    }
+
+    //프로젝트 별 참여자 가져오기
+    @GetMapping("/joined-projects/{projectId}")
+    public ResponseEntity<?> joinedProjects(@PathVariable("projectId") Long projectId) {
+        ResponseDto<String> responseDto = new ResponseDto<>();
+
+        try {
+            List<String> joinedUserNames = userProjectService.getJoinedUserIds(projectId);
+
+            // ResponseDto에 데이터 세팅
+            responseDto.setItems(joinedUserNames);
+            responseDto.setStatusCode(HttpStatus.OK.value());
+            responseDto.setStatusMessage("ok");
+
+            // 응답 반환
+            return ResponseEntity.ok(responseDto);
+
+        } catch (Exception e) {
+            log.error("Error fetching modal users: {}", e.getMessage());
+
+            // 오류 발생 시 응답 세팅
+            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseDto.setStatusMessage("Error fetching modal users");
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+        }
     }
 
 

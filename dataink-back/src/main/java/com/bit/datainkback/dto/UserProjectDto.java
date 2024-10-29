@@ -18,12 +18,15 @@ import java.sql.Timestamp;
 @ToString
 public class UserProjectDto {
     private Long userId;
+    private String userName;
+    private String department;
     private Long projectId;
     private UserRole role;
     private int userWorkcnt;
     private int totalWorkcnt;
     private int pendingInspection;
     private int completedInspection;
+
 
     @JsonProperty("isBookmarked")
     private boolean isBookmarked;
