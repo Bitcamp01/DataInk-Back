@@ -4,7 +4,9 @@ import com.bit.datainkback.entity.LabelTask;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface LabelTaskRepository extends JpaRepository<LabelTask, Long> {
-    // 필요 시 사용자 정의 메서드 추가 가능
+    Optional<LabelTask> findByRefTaskId(String refTaskId); // fieldId로 조회
 }

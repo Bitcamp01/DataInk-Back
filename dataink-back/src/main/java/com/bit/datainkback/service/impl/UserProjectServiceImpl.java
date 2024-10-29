@@ -12,14 +12,17 @@ import com.bit.datainkback.repository.UserProjectRepository;
 import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.UserProjectService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserProjectServiceImpl implements UserProjectService {
     private final UserProjectRepository userProjectRepository;
     private final UserRepository userRepository;
@@ -39,6 +42,31 @@ public class UserProjectServiceImpl implements UserProjectService {
         return userProjectRepository.findByUserUserId(userId).stream()
                 .map(UserProject::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserProject updateUserProject(Long projectId, Long userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<Project> projectOptional = projectRepository.findById(projectId);
+
+        if (userOptional.isPresent() && projectOptional.isPresent()) {
+            UserProjectId userProjectId = new UserProjectId(userId, projectId);
+            UserProject userProject=new UserProject();
+            userProject.setId(userProjectId);
+            userProject.setUser(userOptional.get());
+            userProject.setProject(projectOptional.get());
+            userProject.setUserWorkcnt(0);
+            userProject.setBookmarked(false);
+            userProject.setCompletedInspection(0);
+            userProject.setPendingInspection(0);
+            userProject.setTotalWorkcnt(0);
+            return userProjectRepository.save(userProject);
+        }
+        else {
+            throw new RuntimeException("user or project not found");
+        }
+
+
     }
 
     // 북마크 상태 업데이트 메서드

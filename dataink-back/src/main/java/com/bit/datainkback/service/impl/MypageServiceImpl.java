@@ -45,8 +45,8 @@ public class MypageServiceImpl implements MypageService {
     }
 
     @Override
-    public UserDetailDto getUserDetail(Long userId) {
-        UserDetail userDetail = userDetailRepository.findById(userId)
+    public UserDetailDto getUserDetail(Long loggedInUserId) {
+        UserDetail userDetail = userDetailRepository.findById(loggedInUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return userDetail.toDto();
     }

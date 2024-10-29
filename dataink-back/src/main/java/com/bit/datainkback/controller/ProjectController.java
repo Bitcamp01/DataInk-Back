@@ -1,18 +1,23 @@
 package com.bit.datainkback.controller;
 
 
+import com.bit.datainkback.common.FileUtils;
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.mongo.FolderDto;
 import com.bit.datainkback.entity.CustomUserDetails;
+import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.mongo.Field;
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
+import com.bit.datainkback.entity.mongo.Tasks;
 import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.service.FileService;
 import com.bit.datainkback.service.ProjectService;
+import com.bit.datainkback.service.UserProjectService;
 import com.bit.datainkback.service.mongo.FieldService;
 import com.bit.datainkback.service.mongo.FolderService;
+import com.bit.datainkback.service.mongo.MongoLabelTaskService;
 import com.bit.datainkback.service.mongo.MongoProjectDataService;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.beans.Encoder;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -51,14 +58,23 @@ public class ProjectController {
     private FieldService fieldService;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private FileUtils fileUtils;
+    @Autowired
+    private MongoLabelTaskService mongoLabelTaskService;
+    @Autowired
+    private UserProjectService userProjectService;
     // 프로젝트 생성 API (MySQL 및 MongoDB에 저장)
     @PostMapping("/create")
+    @Transactional
     public ResponseEntity<ProjectDto> createProject(@RequestBody ProjectDto projectDto,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         // 프로젝트 생성 (RDBMS 저장)
         ProjectDto savedProject = projectService.createProject(projectDto,customUserDetails.getUser().getUserId());
-
-        // MongoDB에 폴더 및 라벨링 데이터를 저장 (폴더, tasks 포함)
         mongoProjectDataService.createMongoProjectData(savedProject.getProjectId());
+        log.info("projectDto {}",savedProject);
+        userProjectService.updateUserProject(savedProject.getProjectId(),customUserDetails.getUser().getUserId());
+        // MongoDB에 폴더 및 라벨링 데이터를 저장 (폴더, tasks 포함)
+
 
         return new ResponseEntity<>(savedProject, HttpStatus.CREATED);
     }
@@ -157,45 +173,63 @@ public class ProjectController {
 
     }
     @PostMapping("/conversion")
-    public ResponseEntity<String> itemConversion(@RequestBody List<String> conversionList) {
-
-        //재귀적으로 변환될 아이디를 찾기
-        Queue<String> conversionListIds = new ArrayDeque<>();
-        HashMap<String,Boolean> hasConversion = new HashMap<>();
+    public ResponseEntity<String> itemConversion(@RequestBody Map<String, Object> requestData) {
+        // requestData에서 각 필드를 추출
+        List<String> conversionList = (List<String>) requestData.get("conversionList");
+        boolean includeProjectStructure = (boolean) requestData.get("includeProjectStructure");
+        //파일에 대한 id하고 해당 파일이 속한 프로젝트 아이디 쌍
+        //이걸로 task에서 파일 id로 작업 정보를 불러올 수 있음
+        HashMap<String,String> hasConversion=new HashMap<>();
         for (String s:conversionList){
             String[] split = s.split("_");
-            //프로젝트 전체에 대해 동작
+            //프로젝트에 대한 요청
             if (split[0].equals(split[1])){
                 List<Folder> folders=projectService.getProjectById(Long.parseLong(split[1])).getFolders();
+                //프로젝트에 속한 각 폴더 가져옴
                 for (Folder folder:folders){
+                    log.info("conversion folders {}",folder);
+                    //폴더일 경우 각 폴더를 탐색 요청큐에 추가
                     if (folder.isFolder()){
-                        conversionListIds.add(folder.getId());
+                        conversionList.add(folder.getId()+"_"+split[1]);
                     }
+                    //파일인 경우, task에 대한 값이므로 변환 대상으로 선정
                     else{
                         if (!hasConversion.containsKey(folder.getId())){
-                            hasConversion.put(folder.getId(),true);
+                            log.info("hasConversion insert");
+                            hasConversion.put(folder.getId(),split[1]);
                         }
                     }
                 }
             }
             else {
-                conversionListIds.add(split[0]);
-            }
-        }
-        while (!conversionListIds.isEmpty()){
-            Folder folder=folderService.getFolderById(conversionListIds.poll());
-            if (folder.isFolder() && folder.getChildren().size()>0){
-                for (Folder childFolder:folder.getChildren()){
-                    conversionListIds.add(childFolder.getId());
-                }
-            }
-            else{
-                if (!folder.isFolder()){
-                    if (!hasConversion.containsKey(folder.getId())){
-                        hasConversion.put(folder.getId(),true);
+                Folder folder=folderService.getFolderById(split[0]);
+                //폴더 요청이 들어오면 요청큐에 하위 폴더 추가
+                if (folder.isFolder()){
+                    for (Folder children:folder.getChildren()){
+                        conversionList.add(children.getId()+"_"+split[1]);
                     }
                 }
+                //파일 인 경우, 변환 작업 목록에 추가
+                else{
+                    hasConversion.put(split[0],split[1]);
+                }
             }
+            // 재귀적으로 큐의 모든 폴더를 순회하며 하위 폴더 및 파일을 hasConversion에 추가
+        }
+        log.info("conversionListIds {}",hasConversion);
+        //미완성된 작업에 대해 프로젝트 구조까지 포함하여 보냄,
+        //이때 프로젝트 부터 시작하여 작업까지 포함하여 함
+        //따라서 프로젝트에 속한 모든 작업이 하나의 json으로 만들어지고 다른 프로젝트가 있다면
+        //json으로 만들어 각각의 json을 jsonl형식으로 만듦
+        //완성되지 않은 작업은 제외하고 전체 프로젝트 구조를 가지고
+        if (includeProjectStructure){
+            var s=projectService.getJsonProjectStructure(hasConversion);
+            log.info("return {}",s);
+        }
+        //프로젝트 구조도 필요없고, 완성되지 않은 작업도 제외하고 jsonl형식으로 변환
+        else{
+            var s=projectService.getJson(hasConversion);
+            log.info("return {}",s);
         }
         return ResponseEntity.ok("ok");
 
@@ -208,7 +242,7 @@ public class ProjectController {
         List<Folder> folders=new ArrayList<>();
         for (MultipartFile file : files) {
             // 파일 처리 로직 (예: S3에 업로드, DB에 메타데이터 저장 등)
-            String fileName = fileService.uploadFile(file, "/pdf_file");
+            String fileName = fileService.uploadFile(file, "pdf_file/");
             //파일 업로드에 대한 폴더 생성
             Folder newFolder=new Folder();
             newFolder.setFolder(false);
@@ -481,6 +515,17 @@ public class ProjectController {
 
         return ResponseEntity.ok(getProject);
     }
+    @GetMapping("/test")
+    public ResponseEntity<ProjectDto> getProjects(@RequestParam("projectId") Long projectId) {
+        ProjectDto getProject=projectService.getProjectWithFolder(projectId);
+        log.info(getProject.toString());
+        return ResponseEntity.ok(getProject);
+    }
+    @GetMapping("/pdf/{label}")
+    public ResponseEntity<String> getPdfUrl(@PathVariable String label) {
+        log.info("pdf file url {}", fileUtils.getPdfFileUrl(label));
+        return ResponseEntity.ok(fileUtils.getPdfFileUrl(label));
+    }
     @GetMapping("/items")
     public ResponseEntity<List<Field>> getItems(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long id=customUserDetails.getUser().getUserId();
@@ -498,16 +543,23 @@ public class ProjectController {
     // 프로젝트 데이터 조회 및 트리구조 반환 API
     @GetMapping("/{projectId}/folders")
     public ResponseEntity<List<FolderDto>> getProjectFolders(@PathVariable Long projectId) {
+        log.info("project ID {}",projectId);
         // 1. 프로젝트 ID로 폴더 ID들 조회
         List<String> folderIds = mongoProjectDataService.getFolderIdsByProjectId(projectId);
-
+        log.info("folderIds {}",folderIds);
         // 2. 해당 폴더 ID에 맞는 폴더 트리 조회
         List<FolderDto> folderTree = folderService.getFolderTreeByIds(folderIds);
-
+        log.info("folder Tree",folderTree);
         // 3. 폴더 구조를 트리 형태로 반환
         return ResponseEntity.ok(folderTree);
     }
-
+    @GetMapping("/progress/{projectId}")
+    public ResponseEntity<Double> getProjectProgress(@PathVariable Long projectId,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<String> folders = mongoProjectDataService.getFolderIdsByProjectId(projectId);
+        double progress= projectService.getProjectProgress(folders);
+        log.info("progress {}",progress);
+        return ResponseEntity.ok(progress*100);
+    }
 
     // 프로젝트의 마감일 가져오기
     @GetMapping("/enddate/{projectId}")

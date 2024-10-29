@@ -1,7 +1,6 @@
 package com.bit.datainkback.entity;
 
 import com.bit.datainkback.dto.UserProjectDto;
-import com.bit.datainkback.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,9 +27,6 @@ public class UserProject {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role; // 역할 Enum
-
     @Column(name = "user_worknt")
     private int userWorkcnt; // 작업 유형
 
@@ -49,11 +45,7 @@ public class UserProject {
     public UserProjectDto toDto() {
         return UserProjectDto.builder()
                 .userId(this.id.getUserId())  // userId는 Long 타입
-                .userName(this.user != null ? this.user.getName() : null) // User의 이름 추가
-                .department(this.user != null && this.user.getUserDetail() != null
-                        ? this.user.getUserDetail().getDep() : "부서 정보 없음") // 부서 정보 추가
-                .projectId(this.project.getProjectId())
-                .role(this.role)
+                .projectId(this.id.getProjectId())
                 .userWorkcnt(this.userWorkcnt)
                 .totalWorkcnt(this.totalWorkcnt)
                 .pendingInspection(this.pendingInspection)
