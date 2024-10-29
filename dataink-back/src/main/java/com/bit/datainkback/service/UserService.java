@@ -19,4 +19,6 @@ public interface UserService {
     User getUserById(Long userId);
 
     void changePassword(Long id, String currentPassword, String newPassword);
+
+    void saveUsers(List<User> users);
 }

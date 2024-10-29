@@ -9,6 +9,9 @@ public interface TodoListService {
     // 특정 유저의 투두리스트 가져오기(최신순으로)
     List<TodoList> getTodosByUserId(Long userId);
 
+    // 투두리스트의 아이디 가져오기
+    TodoList getTodoById(Long todoId);
+
     // 투두리스트 저장
     TodoList saveTodo(TodoList todo);
 

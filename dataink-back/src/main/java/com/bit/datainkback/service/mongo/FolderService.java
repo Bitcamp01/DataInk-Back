@@ -176,6 +176,21 @@ public class FolderService {
         Folder copiedFolder = recursiveCopyFolder(originalFolder);
         return folderRepository.save(copiedFolder);  // MongoDB에 저장
     }
+    public String getOriginalFileName(String fileName) {
+        // 언더스코어(_)를 기준으로 파일 이름을 분리
+        String[] parts = fileName.split("_");
+
+        // 세 번째 요소부터 끝까지 결합하여 실제 파일 이름을 생성
+        StringBuilder originalFileName = new StringBuilder();
+        for (int i = 2; i < parts.length; i++) {
+            originalFileName.append(parts[i]);
+            if (i < parts.length - 1) {
+                originalFileName.append("_"); // 중간에 언더스코어 추가
+            }
+        }
+
+        return originalFileName.toString();
+    }
 
     // 재귀적 복사 메서드
     private Folder recursiveCopyFolder(Folder folderToCopy) {
@@ -189,7 +204,7 @@ public class FolderService {
         newFolder.setFolder(folderToCopy.isFolder());
         newFolder.setFinished(folderToCopy.isFinished());
         if (!folderToCopy.isFolder()){
-            String realFileName = folderToCopy.getLabel().split("_")[2];
+            String realFileName = getOriginalFileName(folderToCopy.getLabel());
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
             Date nowDate = new Date();
             String nowDateStr = format.format(nowDate);
