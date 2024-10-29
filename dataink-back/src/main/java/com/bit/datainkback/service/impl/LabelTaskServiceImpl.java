@@ -32,47 +32,47 @@ public class LabelTaskServiceImpl implements LabelTaskService {
     private final FieldRepository fieldRepository;
     private final MongoTemplate mongoTemplate;
 
-    @Override
-    public void rejectLabelTask(String taskId, String refTaskId, String rejectionReason) {
-        // MongoDB에서 Tasks 문서를 조회
-        Tasks tasks = mongoLabelTaskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Tasks not found"));
-
-        // MySQL에서 refTaskId에 해당하는 LabelTask 조회
-        LabelTask labelTask = labelTaskRepository.findByRefTaskId(refTaskId)
-                .orElseThrow(() -> new RuntimeException("LabelTask not found"));
-
-        // LabelTask 업데이트
-        labelTask.setRejectionReason(rejectionReason);
-        labelTask.setStatus(TaskStatus.IN_PROGRESS);
-        labelTask.setReviewed(new Timestamp(System.currentTimeMillis()));
-        labelTaskRepository.save(labelTask);
-
-        // Tasks 상태 업데이트
-        tasks.setStatus("in_progress");
-        mongoTemplate.save(tasks);
-    }
-
-    @Override
-    public void approveLabelTask(String taskId, String refTaskId, String comment) {
-        // MongoDB에서 Tasks 문서를 조회
-        Tasks tasks = mongoLabelTaskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Tasks not found"));
-
-        // MySQL에서 refTaskId에 해당하는 LabelTask 조회
-        LabelTask labelTask = labelTaskRepository.findByRefTaskId(refTaskId)
-                .orElseThrow(() -> new RuntimeException("LabelTask not found"));
-
-        // LabelTask 업데이트
-        labelTask.setComment(comment);
-        labelTask.setStatus(TaskStatus.REVIEWED);
-        labelTask.setReviewed(new Timestamp(System.currentTimeMillis()));
-        labelTaskRepository.save(labelTask);
-
-        // Tasks 상태 업데이트
-        tasks.setStatus("reviewed");
-        mongoTemplate.save(tasks);
-    }
+//    @Override
+//    public void rejectLabelTask(String taskId, String refTaskId, String rejectionReason) {
+//        // MongoDB에서 Tasks 문서를 조회
+//        Tasks tasks = mongoLabelTaskRepository.findById(taskId)
+//                .orElseThrow(() -> new RuntimeException("Tasks not found"));
+//
+//        // MySQL에서 refTaskId에 해당하는 LabelTask 조회
+//        LabelTask labelTask = labelTaskRepository.findByRefTaskId(refTaskId)
+//                .orElseThrow(() -> new RuntimeException("LabelTask not found"));
+//
+//        // LabelTask 업데이트
+//        labelTask.setRejectionReason(rejectionReason);
+//        labelTask.setStatus(TaskStatus.IN_PROGRESS);
+//        labelTask.setReviewed(new Timestamp(System.currentTimeMillis()));
+//        labelTaskRepository.save(labelTask);
+//
+//        // Tasks 상태 업데이트
+//        tasks.setStatus("in_progress");
+//        mongoTemplate.save(tasks);
+//    }
+//
+//    @Override
+//    public void approveLabelTask(String taskId, String refTaskId, String comment) {
+//        // MongoDB에서 Tasks 문서를 조회
+//        Tasks tasks = mongoLabelTaskRepository.findById(taskId)
+//                .orElseThrow(() -> new RuntimeException("Tasks not found"));
+//
+//        // MySQL에서 refTaskId에 해당하는 LabelTask 조회
+//        LabelTask labelTask = labelTaskRepository.findByRefTaskId(refTaskId)
+//                .orElseThrow(() -> new RuntimeException("LabelTask not found"));
+//
+//        // LabelTask 업데이트
+//        labelTask.setComment(comment);
+//        labelTask.setStatus(TaskStatus.REVIEWED);
+//        labelTask.setReviewed(new Timestamp(System.currentTimeMillis()));
+//        labelTaskRepository.save(labelTask);
+//
+//        // Tasks 상태 업데이트
+//        tasks.setStatus("reviewed");
+//        mongoTemplate.save(tasks);
+//    }
 
     @Override
     public List<LabelTaskDto> getAllLabelTasks() {

@@ -11,10 +11,10 @@ import java.util.List;
 @Service
 public interface LabelTaskService {
 
-    // 반려 시
-    void rejectLabelTask(String taskId, String refTaskId, String rejectionReason);
-    // 승인 시
-    void approveLabelTask(String taskId, String refTaskId, String comment);
+//    // 반려 시
+//    void rejectLabelTask(String taskId, String refTaskId, String rejectionReason);
+//    // 승인 시
+//    void approveLabelTask(String taskId, String refTaskId, String comment);
 
     List<LabelTaskDto> getAllLabelTasks();
 
