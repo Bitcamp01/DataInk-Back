@@ -553,7 +553,12 @@ public class ProjectController {
         // 3. 폴더 구조를 트리 형태로 반환
         return ResponseEntity.ok(folderTree);
     }
-
+    @GetMapping("/progress/{projectId}")
+    public ResponseEntity<String> getProjectProgress(@PathVariable Long projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("프로젝트를 찾을 수 없습니다."));
+        String progress= String.valueOf(projectService.getProjectProgress(project.toDto().getFolders()));
+        return ResponseEntity.ok(progress);
+    }
 
     // 프로젝트의 마감일 가져오기
     @GetMapping("/enddate/{projectId}")

@@ -2,6 +2,7 @@ package com.bit.datainkback.service;
 
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.entity.Project;
+import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
@@ -30,4 +31,6 @@ public interface ProjectService {
     List<JSONObject> getJsonProjectStructure(HashMap<String, String> hasConversion);
 
     ProjectDto getProjectWithFolder(Long projectId);
+
+    double getProjectProgress(List<Folder> folders);
 }
