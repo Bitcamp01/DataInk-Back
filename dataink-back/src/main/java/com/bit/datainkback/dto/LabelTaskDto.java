@@ -31,22 +31,6 @@ public class LabelTaskDto {
     private Timestamp approved;
     private Long sourceDataId;
     private Long labelFieldId;
+    private String refTaskId;
 
-//    public LabelTask toEntity(Project project, User user, SourceData sourceData) {
-//        return LabelTask.builder()
-//                .taskId(this.taskId)
-//                .project(project)
-//                .user(user)
-//                .status(this.status)
-//                .level(this.level)
-//                .comment(this.comment)
-//                .rejectionReason(this.rejectionReason)
-//                .createdAt(this.create)
-//                .updatedAt(this.update)
-//                .submittedAt(this.submit)
-//                .reviewedAt(this.review)
-//                .approvedAt(this.approve)
-//                .sourceData(sourceData)
-//                .build();
-//    }
 }
