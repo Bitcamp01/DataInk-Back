@@ -12,6 +12,8 @@ import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
 import com.bit.datainkback.entity.mongo.Tasks;
 import com.bit.datainkback.repository.ProjectRepository;
+import com.bit.datainkback.repository.mongo.FolderRepository;
+import com.bit.datainkback.repository.mongo.MongoProjectDataRepository;
 import com.bit.datainkback.service.FileService;
 import com.bit.datainkback.service.ProjectService;
 import com.bit.datainkback.service.UserProjectService;
@@ -46,6 +48,8 @@ import java.time.LocalDate;
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
+    @Autowired
+    private MongoProjectDataRepository projectDataRepository;
 
     @Autowired
     private MongoProjectDataService mongoProjectDataService;
@@ -64,6 +68,9 @@ public class ProjectController {
     private MongoLabelTaskService mongoLabelTaskService;
     @Autowired
     private UserProjectService userProjectService;
+    @Autowired
+    private FolderRepository folderRepository;
+
     // 프로젝트 생성 API (MySQL 및 MongoDB에 저장)
     @PostMapping("/create")
     @Transactional
@@ -554,9 +561,10 @@ public class ProjectController {
         return ResponseEntity.ok(folderTree);
     }
     @GetMapping("/progress/{projectId}")
-    public ResponseEntity<String> getProjectProgress(@PathVariable Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("프로젝트를 찾을 수 없습니다."));
-        String progress= String.valueOf(projectService.getProjectProgress(project.toDto().getFolders()));
+    public ResponseEntity<Double> getProjectProgress(@PathVariable Long projectId) {
+        MongoProjectData project = projectDataRepository.findByProjectId(projectId).orElseThrow(() -> new ResourceNotFoundException("프로젝트를 찾을 수 없습니다."));
+        List<Folder> folderIds = folderRepository.findByIdIn(project.getFolders());
+        double progress= projectService.getProjectProgress(folderIds);
         return ResponseEntity.ok(progress);
     }
 

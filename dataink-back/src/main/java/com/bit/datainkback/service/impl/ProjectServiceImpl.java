@@ -69,8 +69,8 @@ public  class ProjectServiceImpl implements ProjectService {
 
     @Override
     public double getProjectProgress(List<Folder> folders) {
-        long allTask=0;
-        long finishedTask=0;
+        double allTask=0;
+        double finishedTask=0;
         Queue<Folder> searchFolders=new ArrayDeque<>();
         for (Folder folder : folders) {
             searchFolders.add(folder);
@@ -86,11 +86,17 @@ public  class ProjectServiceImpl implements ProjectService {
             else{
                 Tasks tasks=labelTaskRepository.findById(folder.getId()).orElseThrow(()-> new RuntimeException("not found task"));
                 allTask++;
-                if (tasks.getStatus().equals(TaskStatus.APPROVED)){
+                if (tasks.getStatus().equals("approved")){
                     finishedTask++;
+                    log.info("finishedTask: "+finishedTask);
                 }
             }
         }
+        // allTask나 finishedTask가 0일 경우 0을 반환
+        if (allTask == 0 || finishedTask == 0) {
+            return 0;
+        }
+
         return finishedTask/allTask;
     }
 
