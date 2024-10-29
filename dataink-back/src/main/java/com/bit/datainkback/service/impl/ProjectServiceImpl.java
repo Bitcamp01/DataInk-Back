@@ -68,30 +68,39 @@ public  class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public double getProjectProgress(List<Folder> folders) {
+    public double getProjectProgress(List<String> folders) {
         long allTask=0;
         long finishedTask=0;
-        Queue<Folder> searchFolders=new ArrayDeque<>();
-        for (Folder folder : folders) {
-            searchFolders.add(folder);
+        Queue<String> searchFolderIds=new ArrayDeque<>();
+        for (String folder : folders) {
+            searchFolderIds.add(folder);
         }
-        while (!searchFolders.isEmpty()) {
-            Folder getFolder = searchFolders.poll();
-            Folder folder=folderRepository.findById(getFolder.getId()).orElseThrow(()-> new RuntimeException("not found folder"));
+        while (!searchFolderIds.isEmpty()) {
+            String getFolder = searchFolderIds.poll();
+            Folder folder=folderRepository.findById(getFolder).orElseThrow(()-> new RuntimeException("not found folder"));
             if (folder.isFolder()){
                 for (Folder childFolder: folder.getChildren()){
-                    searchFolders.add(childFolder);
+                    searchFolderIds.add(childFolder.getId());
                 }
             }
             else{
                 Tasks tasks=labelTaskRepository.findById(folder.getId()).orElseThrow(()-> new RuntimeException("not found task"));
                 allTask++;
-                if (tasks.getStatus().equals(TaskStatus.APPROVED)){
-                    finishedTask++;
+                try {
+                    if (tasks.getStatus() != null && TaskStatus.APPROVED == TaskStatus.valueOf(tasks.getStatus().toUpperCase())) {
+                        finishedTask++;
+                    }
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid task status: " + tasks.getStatus());
                 }
             }
         }
-        return finishedTask/allTask;
+        log.info("all task {}",allTask);
+        log.info("finished task {}",finishedTask);
+        if (allTask ==0){
+            return 0;
+        }
+        return (double)finishedTask/allTask;
     }
 
     public Folder getFolderTree(String folderId) {

@@ -32,5 +32,5 @@ public interface ProjectService {
 
     ProjectDto getProjectWithFolder(Long projectId);
 
-    double getProjectProgress(List<Folder> folders);
+    double getProjectProgress(List<String> folders);
 }
