@@ -19,28 +19,28 @@ public class LabelTaskController {
     private final LabelTaskService labelTaskService;
 
     // 반려 사유 전달하고 작업 상태(status)를 in_progress로 바꾼다.
-    @PatchMapping("/reject")
-    public ResponseEntity<Void> rejectTask(
-            @RequestParam String taskId, // taskId로 변경
-            @RequestParam String rejectionReason,
-            @RequestParam String refTaskId
-    ) {
-        log.info("Rejecting task with Task ID: {} and reason: {}", taskId, rejectionReason);
-        labelTaskService.rejectLabelTask(taskId, refTaskId, rejectionReason); // 서비스 호출
-        return ResponseEntity.ok().build();
-    }
-
-    // 검수 승인(검수 승인 코멘트를 보내고 작업 상태(status)를 reviewed로 바꾼다)
-    @PatchMapping("/approve")
-    public ResponseEntity<Void> approveTask(
-            @RequestParam String taskId, // MongoDB의 Tasks ID를 사용
-            @RequestParam String comment,
-            @RequestParam String refTaskId
-    ) {
-        log.info("Approving task with Tasks ID: {} and comment: {}", taskId, comment);
-        labelTaskService.approveLabelTask(taskId, refTaskId, comment); // MongoDB와 MySQL 동시에 처리
-        return ResponseEntity.ok().build();
-    }
+//    @PatchMapping("/reject")
+//    public ResponseEntity<Void> rejectTask(
+//            @RequestParam String taskId, // taskId로 변경
+//            @RequestParam String rejectionReason,
+//            @RequestParam String refTaskId
+//    ) {
+//        log.info("Rejecting task with Task ID: {} and reason: {}", taskId, rejectionReason);
+//        labelTaskService.rejectLabelTask(taskId, refTaskId, rejectionReason); // 서비스 호출
+//        return ResponseEntity.ok().build();
+//    }
+//
+//    // 검수 승인(검수 승인 코멘트를 보내고 작업 상태(status)를 reviewed로 바꾼다)
+//    @PatchMapping("/approve")
+//    public ResponseEntity<Void> approveTask(
+//            @RequestParam String taskId, // MongoDB의 Tasks ID를 사용
+//            @RequestParam String comment,
+//            @RequestParam String refTaskId
+//    ) {
+//        log.info("Approving task with Tasks ID: {} and comment: {}", taskId, comment);
+//        labelTaskService.approveLabelTask(taskId, refTaskId, comment); // MongoDB와 MySQL 동시에 처리
+//        return ResponseEntity.ok().build();
+//    }
 
     // 데이터를 가져오는 엔드포인트 추가
     @GetMapping("/data")
