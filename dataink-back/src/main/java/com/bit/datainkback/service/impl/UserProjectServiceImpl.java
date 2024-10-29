@@ -11,11 +11,16 @@ import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.repository.UserProjectRepository;
 import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.UserProjectService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -155,4 +160,14 @@ public class UserProjectServiceImpl implements UserProjectService {
                 .collect(Collectors.toList());
         return joinedUserNames;
     }
+
+  //    @Override
+//    public Page<ProjectDto> findAll(String searchCondition, String searchKeyword, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate, Long loggedInUserId) {
+//        List<Long> projectIds = userProjectRepository.findBy();
+//
+//        return projectRepository
+//                .searchAll(searchCondition, searchKeyword, pageable, startDate, endDate, loggedInUserId)
+//                .map(Project::toDto);
+//    }
+
 }
