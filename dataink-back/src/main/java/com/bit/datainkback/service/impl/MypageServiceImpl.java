@@ -1,16 +1,25 @@
 package com.bit.datainkback.service.impl;
 
 import com.bit.datainkback.common.FileUtils;
+import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.UserDetailDto;
+import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.UserDetail;
+import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.repository.UserDetailRepository;
+import com.bit.datainkback.repository.UserProjectRepository;
 import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.MypageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +27,8 @@ public class MypageServiceImpl implements MypageService {
     private final UserRepository userRepository;
     private final UserDetailRepository userDetailRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProjectRepository projectRepository;
+    private final UserProjectRepository userProjectRepository;
 
     @Override
     public boolean checkPassword(String loggedInUserId, String inputPassword) {

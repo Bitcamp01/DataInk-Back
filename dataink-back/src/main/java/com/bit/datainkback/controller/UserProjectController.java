@@ -12,11 +12,15 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,5 +96,33 @@ public class UserProjectController {
         }
     }
 
+//    @GetMapping
+//    public ResponseEntity<?> getProjectsBySearch(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+//                                                 @RequestParam("searchCondition") String searchCondtion,
+//                                                 @RequestParam("searchKeyword") String searchKeyword,
+//                                                 @RequestParam("startDate") LocalDateTime startDate,
+//                                                 @RequestParam("endDate") LocalDateTime endDate,
+//                                                 @PageableDefault(page = 0, size = 10) Pageable pageable) {
+//        ResponseDto<ProjectDto> responseDto = new ResponseDto<>();
+//        Long loggedInUserId = customUserDetails.getUser().getUserId();
+//
+//        try {
+//            Page<ProjectDto> projectDtoList = userProjectService.findAll(searchCondtion, searchKeyword, pageable, startDate, endDate, loggedInUserId);
+//            responseDto.setPageItems(projectDtoList);
+//            responseDto.setItem(ProjectDto.builder()
+//                    .searchCondition(searchCondtion)
+//                    .searchKeyword(searchKeyword)
+//                    .build());
+//            responseDto.setStatusCode(HttpStatus.OK.value());
+//            responseDto.setStatusMessage("ok");
+//
+//            return ResponseEntity.ok(responseDto);
+//        } catch(Exception e) {
+//            log.error("getProjectsBySearch error: {}", e.getMessage());
+//            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+//            responseDto.setStatusMessage(e.getMessage());
+//            return ResponseEntity.internalServerError().body(responseDto);
+//        }
+//    }
 
 }

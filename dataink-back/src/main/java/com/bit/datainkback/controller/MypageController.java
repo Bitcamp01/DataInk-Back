@@ -1,11 +1,15 @@
 package com.bit.datainkback.controller;
 
+import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.ResponseDto;
 import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.service.MypageService;
+import com.bit.datainkback.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import com.bit.datainkback.dto.UserDetailDto;
 import com.bit.datainkback.entity.CustomUserDetails;
@@ -14,12 +18,15 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/mypage")
 @RequiredArgsConstructor
 @Slf4j
 public class MypageController {
     private final MypageService mypageService;
+    private final ProjectService projectService;
 
     @PostMapping("/password-check")
     public ResponseEntity<?> checkPassword(@AuthenticationPrincipal UserDetails userDetails, @RequestBody UserDto userDto) {
@@ -95,12 +102,4 @@ public class MypageController {
         UserDetailDto updatedDetail = mypageService.updateUserProfileIntro(loggedInUserId, profileIntro);
         return ResponseEntity.ok(updatedDetail);
     }
-
-
-
-
-
-
-
-
 }

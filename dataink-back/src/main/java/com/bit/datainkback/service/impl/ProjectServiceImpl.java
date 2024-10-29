@@ -1,7 +1,6 @@
 package com.bit.datainkback.service.impl;
 
 import com.bit.datainkback.dto.ProjectDto;
-import com.bit.datainkback.dto.mongo.FolderDto;
 import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.mongo.Folder;
@@ -12,22 +11,22 @@ import com.bit.datainkback.repository.mongo.FieldRepository;
 import com.bit.datainkback.repository.mongo.FolderRepository;
 import com.bit.datainkback.repository.mongo.MongoProjectDataRepository;
 import com.bit.datainkback.service.ProjectService;
-import com.bit.datainkback.service.mongo.FolderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public  class ProjectServiceImpl implements ProjectService {
+public class ProjectServiceImpl implements ProjectService {
     @Autowired
     private ProjectRepository projectRepository;
     //급해서 추가함, 추후 변경 필요
@@ -164,4 +163,5 @@ public  class ProjectServiceImpl implements ProjectService {
         project.setName(label);
         return projectRepository.save(project);
     }
+
 }

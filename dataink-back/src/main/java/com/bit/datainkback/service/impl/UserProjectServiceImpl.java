@@ -2,13 +2,17 @@ package com.bit.datainkback.service.impl;
 
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.UserProjectDto;
+import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.UserProject;
 import com.bit.datainkback.entity.UserProjectId;
 import com.bit.datainkback.repository.UserProjectRepository;
 import com.bit.datainkback.service.UserProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,4 +57,13 @@ public class UserProjectServiceImpl implements UserProjectService {
         // 업데이트된 UserProject를 DTO로 반환
         return userProject.toDto();
     }
+
+//    @Override
+//    public Page<ProjectDto> findAll(String searchCondition, String searchKeyword, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate, Long loggedInUserId) {
+//        List<Long> projectIds = userProjectRepository.findBy();
+//
+//        return projectRepository
+//                .searchAll(searchCondition, searchKeyword, pageable, startDate, endDate, loggedInUserId)
+//                .map(Project::toDto);
+//    }
 }
