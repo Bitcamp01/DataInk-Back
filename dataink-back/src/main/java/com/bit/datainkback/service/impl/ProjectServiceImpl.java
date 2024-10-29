@@ -66,10 +66,36 @@ public  class ProjectServiceImpl implements ProjectService {
         returnProject.setFolders(folders);
         return returnProject;
     }
+
+    @Override
+    public double getProjectProgress(List<Folder> folders) {
+        long allTask=0;
+        long finishedTask=0;
+        Queue<Folder> searchFolders=new ArrayDeque<>();
+        for (Folder folder : folders) {
+            searchFolders.add(folder);
+        }
+        while (!searchFolders.isEmpty()) {
+            Folder getFolder = searchFolders.poll();
+            Folder folder=folderRepository.findById(getFolder.getId()).orElseThrow(()-> new RuntimeException("not found folder"));
+            if (folder.isFolder()){
+                for (Folder childFolder: folder.getChildren()){
+                    searchFolders.add(childFolder);
+                }
+            }
+            else{
+                Tasks tasks=labelTaskRepository.findById(folder.getId()).orElseThrow(()-> new RuntimeException("not found task"));
+                allTask++;
+                if (tasks.getStatus().equals(TaskStatus.APPROVED)){
+                    finishedTask++;
+                }
+            }
+        }
+        return finishedTask/allTask;
+    }
+
     public Folder getFolderTree(String folderId) {
-        Folder folder1 = folderRepository.findById(folderId).orElse(null);
-        //현재 db 에 문제 있음, 추후 db 전부 밀고 다시 시작하면 해결
-//                .orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
+        Folder folder1 = folderRepository.findById(folderId).orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
         if (Objects.isNull(folder1)) {
             return null;
         }
@@ -82,13 +108,14 @@ public  class ProjectServiceImpl implements ProjectService {
 
         if (folder1.getChildren() != null && !folder1.getChildren().isEmpty()) {
             for (Folder childFolder : folder1.getChildren()) {
-                Folder childFolderDto = getFolderTree(childFolder.getId());
-                if (Objects.nonNull(childFolderDto)) {
-                    folder.getChildren().add(childFolderDto);
+                if(childFolder.isFolder()){
+                    Folder childFolderDto = getFolderTree(childFolder.getId());
+                    if (Objects.nonNull(childFolderDto)) {
+                        folder.getChildren().add(childFolderDto);
+                    }
                 }
             }
         }
-
         return folder;
     }
     @Override
