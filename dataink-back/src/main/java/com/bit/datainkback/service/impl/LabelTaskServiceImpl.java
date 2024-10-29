@@ -46,8 +46,8 @@ public class LabelTaskServiceImpl implements LabelTaskService {
 
         // LabelTask 업데이트
         labelTask.setRejectionReason(rejectionReason);
-        labelTask.setStatus(TaskStatus.IN_PROGRESS);
-        labelTask.setReviewed(new Timestamp(System.currentTimeMillis()));
+//        labelTask.setStatus(TaskStatus.IN_PROGRESS);
+//        labelTask.setReviewed(new Timestamp(System.currentTimeMillis()));
 
         labelTaskRepository.save(labelTask);
 
@@ -70,8 +70,8 @@ public class LabelTaskServiceImpl implements LabelTaskService {
 
         // LabelTask 업데이트
         labelTask.setComment(comment);
-        labelTask.setStatus(TaskStatus.REVIEWED);
-        labelTask.setReviewed(new Timestamp(System.currentTimeMillis()));
+//        labelTask.setStatus(TaskStatus.REVIEWED);
+//        labelTask.setReviewed(new Timestamp(System.currentTimeMillis()));
         labelTaskRepository.save(labelTask);
 
         // Tasks 상태 업데이트
@@ -98,7 +98,7 @@ public class LabelTaskServiceImpl implements LabelTaskService {
     // 1028 필드밸류 가져오기 위한 메서드 새로 만들어 봄
     public List<Field> getLabelTaskDetails(String taskId) {
         // Step 1: MongoDB에서 Tasks 조회
-        Tasks tasks = mongoLabelTaskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Tasks not found"));
+        Tasks tasks = mongoLabelTaskRepository.findById(taskId).orElseThrow(() -> new RuntimeException("Tasks not found")) ;
         // Step 2: 조회한 Tasks에서 itemIds 꺼내오기
         List<String> itemIds = tasks.getItemIds();
 

@@ -32,27 +32,13 @@ public class LabelTask {
     private Long taskId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Enumerated(EnumType.STRING)
-    private TaskStatus status;
-
-    @Enumerated(EnumType.STRING)
-    private TaskLevel level;
     private String comment;
 
     @Column(name = "rejection_reason")
     private String rejectionReason;
-    private Timestamp created;
-    private Timestamp updated;
-    private Timestamp submitted;
-    private Timestamp reviewed;
-    private Timestamp approved;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_id")
@@ -68,17 +54,9 @@ public class LabelTask {
     public LabelTaskDto toDto() {
         return LabelTaskDto.builder()
                 .taskId(this.taskId)
-                .projectId(this.project.getProjectId())
-//                .userId(this.user.getUserId())
-                .status(this.status)
-                .level(this.level)
+                .userId(user.getUserId())
                 .comment(this.comment)
                 .rejectionReason(this.rejectionReason)
-                .created(this.created)
-                .updated(this.updated)
-                .submitted(this.submitted)
-                .reviewed(this.reviewed)
-                .approved(this.approved)
                 .sourceDataId(this.sourceData.getSourceId())
                 .refTaskId(this.refTaskId)
                 .build();

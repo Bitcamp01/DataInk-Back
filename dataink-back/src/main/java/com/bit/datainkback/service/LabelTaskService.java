@@ -12,9 +12,9 @@ import java.util.Map;
 @Service
 public interface LabelTaskService {
 
-    // 반려 시
+//    // 반려 시
     void rejectLabelTask(String taskId, String rejectionReason, Map<String, Object> transformedData);
-    // 승인 시
+//    // 승인 시
     void approveLabelTask(String taskId, String comment, Map<String, Object> transformedData);
 
     List<LabelTaskDto> getAllLabelTasks();

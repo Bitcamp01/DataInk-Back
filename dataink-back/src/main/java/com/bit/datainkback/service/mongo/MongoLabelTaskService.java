@@ -1,8 +1,11 @@
 package com.bit.datainkback.service.mongo;
 
 import com.bit.datainkback.dto.mongo.TaskSearchCriteria;
+import com.bit.datainkback.entity.LabelTask;
+import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.mongo.Tasks;
+import com.bit.datainkback.repository.LabelTaskRepository;
 import com.bit.datainkback.repository.mongo.MongoLabelTaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -12,12 +15,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class MongoLabelTaskService {
 
     @Autowired
     private MongoLabelTaskRepository mongoLabelTaskRepository;
+
+    @Autowired
+    private LabelTaskRepository labelTaskRepository;
 
     private final MongoTemplate mongoTemplate;
 
@@ -95,5 +103,26 @@ public class MongoLabelTaskService {
         }
 
         return mongoTemplate.find(query, Tasks.class);
+    }
+
+    // tasks 데이터들을 status를 submiited로 변경, label_task 테이블에 저장
+    public List<Tasks> submitForReview(List<String> taskIds, User joinedUser) {
+        // taskId로 해당 task들을 찾아 상태를 업데이트
+        List<Tasks> tasksToUpdate = mongoLabelTaskRepository.findAllById(taskIds);
+
+        tasksToUpdate.forEach(task -> task.setStatus("submitted")); // 상태를 submitted로 변경
+        mongoLabelTaskRepository.saveAll(tasksToUpdate);  // 변경된 task들을 저장
+
+        List<LabelTask> labelTasks = taskIds.stream()
+                .map(taskId -> LabelTask.builder()
+                        .refTaskId(taskId)
+                        .user(joinedUser)  // joinedUser로 설정
+                        .build()
+                )
+                .collect(Collectors.toList());
+
+        labelTaskRepository.saveAll(labelTasks);
+
+        return tasksToUpdate;
     }
 }

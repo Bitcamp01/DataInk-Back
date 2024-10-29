@@ -554,10 +554,11 @@ public class ProjectController {
         return ResponseEntity.ok(folderTree);
     }
     @GetMapping("/progress/{projectId}")
-    public ResponseEntity<String> getProjectProgress(@PathVariable Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ResourceNotFoundException("프로젝트를 찾을 수 없습니다."));
-        String progress= String.valueOf(projectService.getProjectProgress(project.toDto().getFolders()));
-        return ResponseEntity.ok(progress);
+    public ResponseEntity<Double> getProjectProgress(@PathVariable Long projectId,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<String> folders = mongoProjectDataService.getFolderIdsByProjectId(projectId);
+        double progress= projectService.getProjectProgress(folders);
+        log.info("progress {}",progress);
+        return ResponseEntity.ok(progress*100);
     }
 
     // 프로젝트의 마감일 가져오기
