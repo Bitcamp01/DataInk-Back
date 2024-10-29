@@ -18,6 +18,7 @@ public interface UserProjectService {
     List<UserProjectDto> getUserProjectDtosByUserId(Long userId);
 
     UserProject updateUserProject(Long projectId, Long userId);
+
     // 북마크 상태 업데이트 메서드
     UserProjectDto updateBookmarkStatus(Long userId, Long projectId, boolean isBookmarked);
 
@@ -27,7 +28,7 @@ public interface UserProjectService {
     void removeMembersFromProject(Long projectId, List<Long> userIds);
 
     List<String> getJoinedUserIds(Long projectId);
-  
-  //    Page<ProjectDto> findAll(String searchCondtion, String searchKeyword, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate, Long loggedInUserId);
+
+    Page<ProjectDto> findAll(String searchCondtion, String searchKeyword, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate, Long loggedInUserId);
 
 }

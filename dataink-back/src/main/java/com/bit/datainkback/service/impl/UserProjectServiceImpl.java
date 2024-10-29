@@ -161,13 +161,15 @@ public class UserProjectServiceImpl implements UserProjectService {
         return joinedUserNames;
     }
 
-  //    @Override
-//    public Page<ProjectDto> findAll(String searchCondition, String searchKeyword, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate, Long loggedInUserId) {
-//        List<Long> projectIds = userProjectRepository.findBy();
-//
-//        return projectRepository
-//                .searchAll(searchCondition, searchKeyword, pageable, startDate, endDate, loggedInUserId)
-//                .map(Project::toDto);
-//    }
+    @Override
+    public Page<ProjectDto> findAll(String searchCondition, String searchKeyword, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate, Long loggedInUserId) {
+        List<Long> projectIds = userProjectRepository.findByUserUserId(loggedInUserId).stream()
+                .map(userProject -> userProject.getProject().getProjectId())
+                .collect(Collectors.toList());
+
+        return projectRepository
+                .searchAll(searchCondition, searchKeyword, pageable, startDate, endDate, projectIds)
+                .map(Project::toDto);
+    }
 
 }

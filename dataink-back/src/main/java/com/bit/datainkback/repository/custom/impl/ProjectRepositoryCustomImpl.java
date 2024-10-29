@@ -23,9 +23,12 @@ public class ProjectRepositoryCustomImpl implements ProjectRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<Project> searchAll(String searchCondition, String searchKeyword, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate, Long loggedInUserId) {
+    public Page<Project> searchAll(String searchCondition, String searchKeyword, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate, List<Long> projectIds) {
         BooleanBuilder booleanBuilder = getSearch(searchCondition, searchKeyword);
-        booleanBuilder.and(project.user.userId.eq(loggedInUserId)); // 유저 ID 조건 추가
+        // projectIds 리스트에 포함된 프로젝트만 조회
+        if (projectIds != null && !projectIds.isEmpty()) {
+            booleanBuilder.and(project.projectId.in(projectIds));
+        }
 
         // 시작일과 종료일이 모두 존재할 때만 조건 추가
         if (startDate != null && endDate != null) {
