@@ -23,9 +23,10 @@ public class LabelTaskController {
     @PatchMapping("/reject")
     public ResponseEntity<Void> rejectTask(
             @RequestParam String taskId, // taskId로 변경
-            @RequestParam String rejectionReason,
-            @RequestBody Map<String, Object> transformedData
+            @RequestBody Map<String, Object> requestBody
     ) {
+        String rejectionReason = (String) requestBody.get("rejectionReason");
+        Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
         log.info("Rejecting task with Task ID: {} and reason: {}", taskId, rejectionReason);
         labelTaskService.rejectLabelTask(taskId, rejectionReason, transformedData); // 서비스 호출
         return ResponseEntity.ok().build();
@@ -35,11 +36,12 @@ public class LabelTaskController {
     @PatchMapping("/approve")
     public ResponseEntity<Void> approveTask(
             @RequestParam String taskId, // MongoDB의 Tasks ID를 사용
-            @RequestParam String comment,
-            @RequestBody Map<String, Object> transformedData
+            @RequestBody Map<String, Object> requestBody
     ) {
-        log.info("Approving task with Tasks ID: {} and comment: {}", taskId, comment);
-        labelTaskService.approveLabelTask(taskId, comment, transformedData); // MongoDB와 MySQL 동시에 처리
+        String comment = (String) requestBody.get("comment");
+        Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
+        log.info("Rejecting task with Task ID: {} and reason: {}", taskId, comment);
+        labelTaskService.rejectLabelTask(taskId, comment, transformedData); // 서비스 호출
         return ResponseEntity.ok().build();
     }
 
