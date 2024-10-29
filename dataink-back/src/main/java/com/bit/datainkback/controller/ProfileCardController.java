@@ -34,10 +34,22 @@ public class ProfileCardController {
     private UserRepository userRepository;
 
     @GetMapping("/notices")
-    public List<NoticeDto> getNotices() {
+    public List<NoticeDto> getNotices(@AuthenticationPrincipal CustomUserDetails userDetails) {
+
         List<Notice> notices = noticeRepository.findAll();
         return notices.stream()
-                .map(notice -> new NoticeDto(notice.getTitle(), notice.getContent(), notice.getNoticeId(), notice.getCreated()))
+                .map(notice -> {
+                    // 공지사항을 작성한 유저의 ID를 사용하여 User 정보 조회
+                    UserDetail userDetail = userRepository.findById(notice.getUser().getUserId()).orElse(null).getUserDetail();
+                    String dep = (userDetail != null) ? userDetail.getDep() : "배정되지 않음";
+
+                    return new NoticeDto(
+                            notice.getContent(),
+                            notice.getNoticeId(),
+                            notice.getCreated(),
+                            dep
+                    );
+                })
                 .collect(Collectors.toList());
     }
 
