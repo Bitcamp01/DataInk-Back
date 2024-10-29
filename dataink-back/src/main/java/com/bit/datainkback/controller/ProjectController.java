@@ -137,6 +137,7 @@ public class ProjectController {
             return ResponseEntity.ok(folder);
         }
     }
+    @Transactional
     @PostMapping("/delete")
     public ResponseEntity<String> deleteFolder(@RequestBody Map<String, Object> requestData) {
         List<String> ids = (List<String>) requestData.get("ids");
@@ -334,7 +335,6 @@ public class ProjectController {
     public ResponseEntity<String> itemcreate(@RequestBody Map<String, Object> requestData,
                                              @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-
         String label = requestData.get("itemName").toString();
         Map<String, Object> map = (Map<String, Object>) requestData.get("data");
 
@@ -494,16 +494,10 @@ public class ProjectController {
         }
         else {
             log.info("특정 폴더 정보 {}",folderService.getFolderById(selectedFolder).toString());
-            Folder updateFolder=folderService.getFolderById(selectedFolder);
             List<Folder> folders=new ArrayList<>();
             for (Folder folder:folderService.getFolderById(selectedFolder).getChildren()){
                 Folder getFolder=folderService.getFolderById(folder.getId());
-                if (getFolder == null){
-//                    updateFolder.getChildren().stream().filter(x-> x.getId() != folder.getId());
-                }
-                else {
-                    folders.add(getFolder);
-                }
+                folders.add(getFolder);
             }
             return ResponseEntity.ok(folders);
         }
@@ -512,7 +506,7 @@ public class ProjectController {
     public ResponseEntity<List<ProjectDto>> getAllProjects(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long id=customUserDetails.getUser().getUserId();
         List<ProjectDto> getProject=projectService.getProjectByUser(id);
-
+        log.info("all {}",getProject.toString());
         return ResponseEntity.ok(getProject);
     }
     @GetMapping("/test")

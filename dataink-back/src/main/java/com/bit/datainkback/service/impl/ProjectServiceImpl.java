@@ -136,15 +136,11 @@ public  class ProjectServiceImpl implements ProjectService {
         List<ProjectDto> projectDtos = new ArrayList<>();
 
         for (Project project : projects) {
-
             var mongoProjectData = mongoProjectDataRepository.findByProjectId(project.getProjectId());
             List<String> folderIds = new ArrayList<>();
-
             if (mongoProjectData.isPresent()) {
                 folderIds = mongoProjectData.get().getFolders();
             }
-
-
             List<Folder> folders = new ArrayList<>();
             for (String folderId : folderIds) {
                 Folder folder=getFolderTree(folderId);
@@ -153,12 +149,8 @@ public  class ProjectServiceImpl implements ProjectService {
                     folders.add(folder);
                 }
             }
-
-
             var projectDto = project.toDto();
             projectDto.setFolders(folders);
-
-
             projectDtos.add(projectDto);
         }
 
@@ -222,7 +214,7 @@ public  class ProjectServiceImpl implements ProjectService {
             Tasks tasks = labelTaskRepository.findById(folderId).orElseThrow(()->new RuntimeException("not found task"));
             JSONObject folderJson = new JSONObject();
             log.info("task {}",tasks);
-            if (tasks.getStatus().equals(TaskStatus.APPROVED)){
+            if (tasks.getStatus() != null && TaskStatus.APPROVED == TaskStatus.valueOf(tasks.getStatus().toUpperCase())) {
                 try{
                     folderJson.put("taskName",tasks.getTaskName());
                     folderJson.put("field",tasks.getFieldValue());
@@ -233,6 +225,7 @@ public  class ProjectServiceImpl implements ProjectService {
             }
             jsonList.add(folderJson);
         }
+
         return jsonList;
     }
     // 폴더 트리를 순회하면서 hasConversion 키에 포함되지 않는 파일을 제거하는 메서드
@@ -251,22 +244,43 @@ public  class ProjectServiceImpl implements ProjectService {
         folder.setChildren(filteredChildren); // 필터링된 자식들로 갱신
         return folder;
     }
+    public Folder getFolderTreeAll(String folderId) {
+        Folder folder1 = folderRepository.findById(folderId).orElseThrow(() -> new RuntimeException("폴더를 찾을 수 없습니다."));
+        if (Objects.isNull(folder1)) {
+            return null;
+        }
+        Folder folder= new Folder();
+        folder.setId(folder1.getId());
+        folder.setLabel(folder1.getLabel());
+        folder.setLastModifiedDate(folder1.getLastModifiedDate());
+        folder.setChildren(new ArrayList<>());
+        folder.setFolder(folder1.isFolder());
+
+        if (folder1.getChildren() != null && !folder1.getChildren().isEmpty()) {
+            for (Folder childFolder : folder1.getChildren()) {
+                    Folder childFolderDto = getFolderTreeAll(childFolder.getId());
+                    if (Objects.nonNull(childFolderDto)) {
+                        folder.getChildren().add(childFolderDto);
+                    }
+            }
+        }
+        return folder;
+    }
     @Override
     public List<JSONObject> getJsonProjectStructure(HashMap<String, String> hasConversion) {
         Map<String, List<Folder>> projectFolders = new HashMap<>();
+        //프로젝트 탐색 여부를 사용하기 위한 부분
         HashMap<String, String> projectIds = new HashMap<>();
-
         for (String projectId : hasConversion.values()) {
             if (!projectIds.containsKey(projectId)) {
                 projectIds.put(projectId, projectId);
                 Set<String> keys = hasConversion.keySet();
-
                 MongoProjectData project = mongoProjectDataRepository.findByProjectId(Long.parseLong(projectId))
                         .orElseThrow(() -> new RuntimeException("Project not found"));
 
                 List<Folder> folders = new ArrayList<>();
                 for (String folderId : project.getFolders()) {
-                    Folder folderTree = getFolderTree(folderId);
+                    Folder folderTree = getFolderTreeAll(folderId);
                     // 지정된 키에 포함되지 않는 파일을 제거한 폴더 트리를 가져옵니다.
                     Folder filteredFolderTree = filterFolderTree(folderTree, keys);
                     if (filteredFolderTree != null) {
