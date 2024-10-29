@@ -520,7 +520,7 @@ public class ProjectController {
 
         return ResponseEntity.ok(getProject);
     }
-  
+
     @GetMapping("/test")
     public ResponseEntity<ProjectDto> getProjects(@RequestParam("projectId") Long projectId) {
         ProjectDto getProject=projectService.getProjectWithFolder(projectId);
