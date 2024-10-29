@@ -58,9 +58,12 @@ public class LabelTask {
     @JoinColumn(name = "source_id")
     private SourceData sourceData;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "field_id")
-    private LabelField labelField;
+//    // **LabelField 대신 Tasks의 ID를 필드로 사용**
+//    @Column(name = "field_id")
+//    private String fieldId; // MongoDB의 Tasks 문서의 ID를 저장
+
+    @Column(name = "ref_task_id")
+    private String refTaskId;
 
     public LabelTaskDto toDto() {
         return LabelTaskDto.builder()
@@ -77,7 +80,7 @@ public class LabelTask {
                 .reviewed(this.reviewed)
                 .approved(this.approved)
                 .sourceDataId(this.sourceData.getSourceId())
-                .labelFieldId(this.labelField.getFieldId())
+                .refTaskId(this.refTaskId)
                 .build();
     }
 

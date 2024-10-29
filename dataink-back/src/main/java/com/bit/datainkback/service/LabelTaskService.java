@@ -2,6 +2,7 @@ package com.bit.datainkback.service;
 
 import com.bit.datainkback.dto.LabelTaskDto;
 import com.bit.datainkback.dto.RejectReasonDto;
+import com.bit.datainkback.entity.mongo.Field;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -11,9 +12,13 @@ import java.util.List;
 public interface LabelTaskService {
 
     // 반려 시
-    void rejectLabelTask(Long taskId, String rejectionReason, Timestamp reviewedTimestamp);
+    void rejectLabelTask(String taskId, String refTaskId, String rejectionReason);
     // 승인 시
-    void approveLabelTask(Long taskId, String comment, Timestamp reviewedTimestamp);
+    void approveLabelTask(String taskId, String refTaskId, String comment);
 
     List<LabelTaskDto> getAllLabelTasks();
+
+    LabelTaskDto getLabelTaskById(Long taskId);
+
+    List<Field> getLabelTaskDetails(String taskId);
 }
