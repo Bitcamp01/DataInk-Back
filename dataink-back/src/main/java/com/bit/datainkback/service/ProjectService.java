@@ -4,9 +4,10 @@ import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDateTime;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-
-
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,7 +15,6 @@ public interface ProjectService {
     public ProjectDto createProject(ProjectDto projectDto, Long userId);
 
     List<ProjectDto> getProjectByUser(Long id);
-
 
     ProjectDto getProjectById(Long selectedProject);
 
@@ -32,5 +32,6 @@ public interface ProjectService {
 
     ProjectDto getProjectWithFolder(Long projectId);
 
-    double getProjectProgress(List<Folder> folders);
+    double getProjectProgress(List<String> folders);
+
 }

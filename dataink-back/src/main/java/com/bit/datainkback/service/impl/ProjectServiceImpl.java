@@ -17,16 +17,23 @@ import com.bit.datainkback.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-
+import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public  class ProjectServiceImpl implements ProjectService {
+
+public class ProjectServiceImpl implements ProjectService {
+
     @Autowired
     private ProjectRepository projectRepository;
     //급해서 추가함, 추후 변경 필요
@@ -68,36 +75,39 @@ public  class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public double getProjectProgress(List<Folder> folders) {
-        double allTask=0;
-        double finishedTask=0;
-        Queue<Folder> searchFolders=new ArrayDeque<>();
-        for (Folder folder : folders) {
-            searchFolders.add(folder);
+    public double getProjectProgress(List<String> folders) {
+        long allTask=0;
+        long finishedTask=0;
+        Queue<String> searchFolderIds=new ArrayDeque<>();
+        for (String folder : folders) {
+            searchFolderIds.add(folder);
         }
-        while (!searchFolders.isEmpty()) {
-            Folder getFolder = searchFolders.poll();
-            Folder folder=folderRepository.findById(getFolder.getId()).orElseThrow(()-> new RuntimeException("not found folder"));
+        while (!searchFolderIds.isEmpty()) {
+            String getFolder = searchFolderIds.poll();
+            Folder folder=folderRepository.findById(getFolder).orElseThrow(()-> new RuntimeException("not found folder"));
             if (folder.isFolder()){
                 for (Folder childFolder: folder.getChildren()){
-                    searchFolders.add(childFolder);
+                    searchFolderIds.add(childFolder.getId());
                 }
             }
             else{
                 Tasks tasks=labelTaskRepository.findById(folder.getId()).orElseThrow(()-> new RuntimeException("not found task"));
                 allTask++;
-                if (tasks.getStatus().equals("approved")){
-                    finishedTask++;
-                    log.info("finishedTask: "+finishedTask);
+                try {
+                    if (tasks.getStatus() != null && TaskStatus.APPROVED == TaskStatus.valueOf(tasks.getStatus().toUpperCase())) {
+                        finishedTask++;
+                    }
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid task status: " + tasks.getStatus());
                 }
             }
         }
-        // allTask나 finishedTask가 0일 경우 0을 반환
-        if (allTask == 0 || finishedTask == 0) {
+        log.info("all task {}",allTask);
+        log.info("finished task {}",finishedTask);
+        if (allTask ==0){
             return 0;
         }
-
-        return finishedTask/allTask;
+        return (double)finishedTask/allTask;
     }
 
     public Folder getFolderTree(String folderId) {
@@ -211,6 +221,7 @@ public  class ProjectServiceImpl implements ProjectService {
         project.setName(label);
         return projectRepository.save(project);
     }
+
     @Override
     public List<JSONObject> getJson(HashMap<String, String> hasConversion) {
         List<JSONObject> jsonList = new ArrayList<>();
@@ -320,5 +331,6 @@ public  class ProjectServiceImpl implements ProjectService {
         }
         return folderJsonList;
     }
+
 
 }

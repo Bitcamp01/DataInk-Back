@@ -3,6 +3,7 @@ package com.bit.datainkback.controller;
 
 import com.bit.datainkback.common.FileUtils;
 import com.bit.datainkback.dto.ProjectDto;
+import com.bit.datainkback.dto.ResponseDto;
 import com.bit.datainkback.dto.mongo.FolderDto;
 import com.bit.datainkback.entity.CustomUserDetails;
 import com.bit.datainkback.entity.User;
@@ -12,8 +13,6 @@ import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
 import com.bit.datainkback.entity.mongo.Tasks;
 import com.bit.datainkback.repository.ProjectRepository;
-import com.bit.datainkback.repository.mongo.FolderRepository;
-import com.bit.datainkback.repository.mongo.MongoProjectDataRepository;
 import com.bit.datainkback.service.FileService;
 import com.bit.datainkback.service.ProjectService;
 import com.bit.datainkback.service.UserProjectService;
@@ -26,6 +25,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -48,8 +51,6 @@ import java.time.LocalDate;
 public class ProjectController {
     @Autowired
     private ProjectService projectService;
-    @Autowired
-    private MongoProjectDataRepository projectDataRepository;
 
     @Autowired
     private MongoProjectDataService mongoProjectDataService;
@@ -68,9 +69,6 @@ public class ProjectController {
     private MongoLabelTaskService mongoLabelTaskService;
     @Autowired
     private UserProjectService userProjectService;
-    @Autowired
-    private FolderRepository folderRepository;
-
     // 프로젝트 생성 API (MySQL 및 MongoDB에 저장)
     @PostMapping("/create")
     @Transactional
@@ -522,6 +520,7 @@ public class ProjectController {
 
         return ResponseEntity.ok(getProject);
     }
+
     @GetMapping("/test")
     public ResponseEntity<ProjectDto> getProjects(@RequestParam("projectId") Long projectId) {
         ProjectDto getProject=projectService.getProjectWithFolder(projectId);
@@ -533,6 +532,7 @@ public class ProjectController {
         log.info("pdf file url {}", fileUtils.getPdfFileUrl(label));
         return ResponseEntity.ok(fileUtils.getPdfFileUrl(label));
     }
+
     @GetMapping("/items")
     public ResponseEntity<List<Field>> getItems(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
         Long id=customUserDetails.getUser().getUserId();
@@ -561,11 +561,11 @@ public class ProjectController {
         return ResponseEntity.ok(folderTree);
     }
     @GetMapping("/progress/{projectId}")
-    public ResponseEntity<Double> getProjectProgress(@PathVariable Long projectId) {
-        MongoProjectData project = projectDataRepository.findByProjectId(projectId).orElseThrow(() -> new ResourceNotFoundException("프로젝트를 찾을 수 없습니다."));
-        List<Folder> folderIds = folderRepository.findByIdIn(project.getFolders());
-        double progress= projectService.getProjectProgress(folderIds);
-        return ResponseEntity.ok(progress);
+    public ResponseEntity<Double> getProjectProgress(@PathVariable Long projectId,@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<String> folders = mongoProjectDataService.getFolderIdsByProjectId(projectId);
+        double progress= projectService.getProjectProgress(folders);
+        log.info("progress {}",progress);
+        return ResponseEntity.ok(progress*100);
     }
 
     // 프로젝트의 마감일 가져오기
