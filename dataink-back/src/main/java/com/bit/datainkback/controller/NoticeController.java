@@ -26,10 +26,12 @@ import java.util.Arrays;
 @RequestMapping("/notice")
 @RequiredArgsConstructor
 @Slf4j
-
+@CrossOrigin(origins = "http://localhost:3000")
 public class NoticeController {
     private final NoticeService noticeService;
 
+
+    // 공지사항 생성 메소드
     @PostMapping
 //    multipartFile이 추가된 데이터는 @RequestPart로 받아준다.
     public ResponseEntity<?> post(@RequestPart("noticeDto") NoticeDto noticeDto,
@@ -87,6 +89,7 @@ public class NoticeController {
         }
     }
 
+    // 공지사항 삭제 메소드
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteById(@PathVariable("id") Long id) {
         ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
@@ -108,42 +111,34 @@ public class NoticeController {
         }
     }
 
-    @PatchMapping
-    public ResponseEntity<?> modify(@RequestPart("noticeDto" )NoticeDto noticeDto,
-                                    @RequestPart(value="uploadFiles", required = false) MultipartFile[] uploadFiles,
-                                    @RequestPart(value="changeFiles", required = false) MultipartFile[] changeFiles,
-                                    @RequestPart(value="originFiles", required = false) String originFiles,
-                                    @AuthenticationPrincipal User user){
+    // 공지사항 수정 메소드
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> modify(
+            @RequestBody NoticeDto noticeDto,  // @RequestPart 대신 @RequestBody 사용
+            @AuthenticationPrincipal User user
+    ) {
         ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
 
         try {
             log.info("modify noticeDto: {}", noticeDto);
 
-            if (uploadFiles != null && uploadFiles.length > 0)
-                Arrays.stream(uploadFiles).forEach(file ->
-                        log.info("modify uploadFile: {}", file.getOriginalFilename()));
-
-            if (changeFiles != null && changeFiles.length > 0)
-                Arrays.stream(uploadFiles).forEach(file ->
-                        log.info("modify changeFile: {}", file.getOriginalFilename()));
-
-            log.info("modify originFile: {}", originFiles);
-
-            NoticeDto modifiedNoticeDto = noticeService.modify(noticeDto, uploadFiles,
-                    changeFiles, originFiles, user.getUserId());
+            // 내용 수정 처리
+            NoticeDto modifiedNoticeDto = noticeService.modify(noticeDto, user.getUserId());
 
             responseDto.setItem(modifiedNoticeDto);
             responseDto.setStatusCode(HttpStatus.OK.value());
             responseDto.setStatusMessage("ok");
 
             return ResponseEntity.ok(responseDto);
-            }catch(Exception e){
+        } catch (Exception e) {
             log.error("modify error: {}", e.getMessage());
             responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             responseDto.setStatusMessage(e.getMessage());
             return ResponseEntity.internalServerError().body(responseDto);
         }
     }
+
+
 
 
 }
