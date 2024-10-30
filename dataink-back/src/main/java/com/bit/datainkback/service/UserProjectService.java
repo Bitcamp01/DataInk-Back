@@ -1,6 +1,7 @@
 package com.bit.datainkback.service;
 
 import com.bit.datainkback.dto.ProjectDto;
+import com.bit.datainkback.dto.ProjectMemberUpdateRequestDto;
 import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.dto.UserProjectDto;
 import com.bit.datainkback.entity.UserProject;
@@ -24,11 +25,12 @@ public interface UserProjectService {
 
     //프로젝트멤버 모달 메서드
     List<UserDto> getMembersByProjectId(Long projectId);
-    List<UserProjectDto> addMembersToProject(Long projectId, List<Long> newMembers);
-    void removeMembersFromProject(Long projectId, List<Long> userIds);
+//    List<UserProjectDto> addMembersToProject(Long projectId, List<Long> newMembers);
+//    void removeMembersFromProject(Long projectId, List<Long> userIds);
 
     List<String> getJoinedUserIds(Long projectId);
 
     Page<ProjectDto> findAll(String searchCondtion, String searchKeyword, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate, Long loggedInUserId);
 
+    List<UserProjectDto> updateProjectMembers(ProjectMemberUpdateRequestDto requestDto);
 }
