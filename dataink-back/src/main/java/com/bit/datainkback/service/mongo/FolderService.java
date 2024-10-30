@@ -149,7 +149,7 @@ public class FolderService {
         if (parentFolder == null) {
             //프로젝트 folders에 있는 아이디 목록 갱신
             MongoProjectData mongoProjectData=mongoProjectDataRepository.findByFolders(folder.getId());
-            List<String> updateFolderIds= mongoProjectData.getFolders().stream().filter(childFolder -> childFolder.equals(folder.getId())).collect(Collectors.toList());
+            List<String> updateFolderIds= mongoProjectData.getFolders().stream().filter(childFolder -> !childFolder.equals(folder.getId())).collect(Collectors.toList());
             mongoProjectData.setFolders(updateFolderIds);
             mongoProjectDataRepository.save(mongoProjectData);
         }

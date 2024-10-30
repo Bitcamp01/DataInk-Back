@@ -433,6 +433,7 @@ public class ProjectController {
     }
     //자르고 붙여넣기의 경우 자른 폴더의 상위 폴더에서 children배열에서 제거하고 붙여넣을 폴더의 children배열에 추가하는 방식
     @PostMapping("/cut_paste")
+    @Transactional
     public ResponseEntity<String> cutPaste(@RequestParam("selectedFolder") String selectedFolder,
                                            @RequestParam("selectedProject") Long selectedProject,
                                            @RequestBody List<String> requestData) {
@@ -458,6 +459,7 @@ public class ProjectController {
 
     }
     @PostMapping("/copy_paste")
+    @Transactional
     public ResponseEntity<List<Folder>> copyPaste(@RequestParam("selectedFolder") String selectedFolder,
                                            @RequestParam("selectedProject") Long selectedProject,
                                            @RequestBody List<String> requestData) {
