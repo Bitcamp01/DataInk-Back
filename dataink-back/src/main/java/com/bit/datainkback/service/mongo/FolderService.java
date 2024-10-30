@@ -144,7 +144,7 @@ public class FolderService {
     //삭제 대상이 되는 폴더를 넘김, 그러면 상위 폴더의 children을 수정, 폴더는 삭제 하지 않음
     public void deleteParentFolderChildren(Folder folder) {
         // 삭제될 폴더의 상위 폴더를 가져옴
-        Folder parentFolder = folderRepository.findByChildrenId(folder.getId()).get();
+        Folder parentFolder = folderRepository.findByChildrenId(folder.getId()).orElse(null);
         //상위 폴더가 프로젝트임
         if (parentFolder == null) {
             //프로젝트 folders에 있는 아이디 목록 갱신
