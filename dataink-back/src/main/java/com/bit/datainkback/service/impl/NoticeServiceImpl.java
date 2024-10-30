@@ -147,6 +147,10 @@ public class NoticeServiceImpl implements NoticeService {
         notice.setContent(noticeDto.getContent());
         notice.setModdate(new Timestamp(System.currentTimeMillis()));
 
+        if (noticeDto.getContent() == null) {
+            throw new RuntimeException("Content cannot be null");
+        }
+
         uFileList.forEach(
                 noticeFileDto -> {
                     if (noticeFileDto.getFileStatus().equalsIgnoreCase("U")
