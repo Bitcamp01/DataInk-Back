@@ -1,9 +1,6 @@
 package com.bit.datainkback.controller;
 
-import com.bit.datainkback.dto.ProjectDto;
-import com.bit.datainkback.dto.ResponseDto;
-import com.bit.datainkback.dto.UserDto;
-import com.bit.datainkback.dto.UserProjectDto;
+import com.bit.datainkback.dto.*;
 import com.bit.datainkback.entity.User;
 import com.bit.datainkback.service.*;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/member")
@@ -53,19 +51,31 @@ public class MemberManagementController {
         }
     }
 
-    // 프로젝트에 멤버 추가
-    @PostMapping("/modal-add/{projectId}")
-    public ResponseEntity<List<UserProjectDto>> addMembersToProject(@PathVariable("projectId") Long projectId, @RequestBody List<Long> newMembers) {
-        List<UserProjectDto> members  = userProjectService.addMembersToProject(projectId, newMembers);
-        return ResponseEntity.ok(members);
+    // 프로젝트에 멤버 변경사항 저장
+    @PostMapping("/modal-save/{projectId}")
+    public ResponseEntity<List<UserProjectDto>> saveProjectMembers(
+            @PathVariable("projectId") Long projectId,
+            @RequestBody ProjectMemberUpdateRequestDto requestDto) {
+
+        // projectId가 일치하는지 검증 (NullPointerException 방지)
+        if (!Objects.equals(requestDto.getProjectId(), projectId)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // 요청 DTO의 projectId를 명확히 설정
+        requestDto.setProjectId(projectId);
+
+        //서비스 레이어에서 변경사항 처리
+        List<UserProjectDto> updatedMembers  = userProjectService.updateProjectMembers(requestDto);
+        return ResponseEntity.ok(updatedMembers);
     }
 
-    // 프로젝트에서 멤버 삭제
-    @DeleteMapping("/modal-delete")
-    public ResponseEntity<Void> removeMembersFromProject(@PathVariable Long projectId, @RequestBody List<Long> userIds) {
-        userProjectService.removeMembersFromProject(projectId, userIds);
-        return ResponseEntity.ok().build();
-    }
+//    // 프로젝트에서 멤버 삭제
+//    @DeleteMapping("/modal-delete")
+//    public ResponseEntity<Void> removeMembersFromProject(@PathVariable Long projectId, @RequestBody List<Long> userIds) {
+//        userProjectService.removeMembersFromProject(projectId, userIds);
+//        return ResponseEntity.ok().build();
+//    }
 
     //프로젝트 별 참여자 가져오기
     @GetMapping("/joined-projects/{projectId}")
