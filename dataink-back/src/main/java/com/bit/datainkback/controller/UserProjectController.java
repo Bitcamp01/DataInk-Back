@@ -108,10 +108,11 @@ public class UserProjectController {
                                                  @PageableDefault(page = 0, size = 10) Pageable pageable) {
         ResponseDto<ProjectDto> responseDto = new ResponseDto<>();
         Long loggedInUserId = customUserDetails.getUser().getUserId();
-        log.info("Finding 제발 startDate: {}, endDate: {}", startDate, endDate);
 
         try {
             Page<ProjectDto> projectDtoList = userProjectService.findAll(searchCondtion, searchKeyword, pageable, startDate, endDate, loggedInUserId);
+            log.info("projectDtoList: {}", projectDtoList);
+
             responseDto.setPageItems(projectDtoList);
             responseDto.setItem(ProjectDto.builder()
                     .searchCondition(searchCondtion)

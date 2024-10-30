@@ -25,8 +25,11 @@ public class ProjectRepositoryCustomImpl implements ProjectRepositoryCustom {
     @Override
     public Page<Project> searchAll(String searchCondition, String searchKeyword, Pageable pageable, LocalDateTime startDate, LocalDateTime endDate, List<Long> projectIds) {
         BooleanBuilder booleanBuilder = getSearch(searchCondition, searchKeyword);
-        // projectIds 리스트에 포함된 프로젝트만 조회
-        if (projectIds != null && !projectIds.isEmpty()) {
+
+        // projectIds 리스트에 포함된 프로젝트만 조회하고, projectIds가 비어 있으면 빈 결과 반환
+        if (projectIds == null || projectIds.isEmpty()) {
+            booleanBuilder.and(project.projectId.isNull()); // 항상 거짓인 조건 추가
+        } else {
             booleanBuilder.and(project.projectId.in(projectIds));
         }
 
