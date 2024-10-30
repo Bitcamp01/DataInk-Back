@@ -21,4 +21,8 @@ public interface LabelTaskService {
     LabelTaskDto getLabelTaskById(Long taskId);
 
     List<Field> getLabelTaskDetails(String taskId);
+
+    List<Object> getLabelDetails(String taskId);
+
+    void saveLabelDetail(String taskId, Map<String, Object> transformedData);
 }

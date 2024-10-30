@@ -23,4 +23,6 @@ public class Tasks {
     private List<String> itemIds;  // 연결된 필드 ID
     private String status;  // 작업 상태 (in_progress, submitted 등)
     private Map<String, Object> fieldValue;  // 필드값들
+
+
 }

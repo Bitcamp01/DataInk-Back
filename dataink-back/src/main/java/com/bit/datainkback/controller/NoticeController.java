@@ -6,6 +6,8 @@ import com.bit.datainkback.dto.ResponseDto;
 import com.bit.datainkback.entity.CustomUserDetails;
 import com.bit.datainkback.entity.Notice;
 import com.bit.datainkback.entity.User;
+import com.bit.datainkback.entity.UserDetail;
+import com.bit.datainkback.repository.NoticeRepository;
 import com.bit.datainkback.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.sql.Timestamp;
 import java.util.Arrays;
 
 
@@ -29,7 +32,7 @@ import java.util.Arrays;
 @CrossOrigin(origins = "http://localhost:3000")
 public class NoticeController {
     private final NoticeService noticeService;
-
+    private final NoticeRepository noticeRepository;
 
     // 공지사항 생성 메소드
     @PostMapping
@@ -114,17 +117,28 @@ public class NoticeController {
     // 공지사항 수정 메소드
     @PatchMapping("/{id}")
     public ResponseEntity<?> modify(
-            @RequestBody NoticeDto noticeDto,  // @RequestPart 대신 @RequestBody 사용
-            @AuthenticationPrincipal User user
+            @PathVariable("id") Long noticeId,  // URL에서 noticeId를 가져옵니다.
+            @RequestBody NoticeDto noticeDto,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
+        Long userId = customUserDetails.getUser().getUserId();
         ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
 
+        // ID로 Notice 엔티티 찾기
+        Notice notice = noticeRepository.findById(noticeId).orElseThrow(
+                () -> new RuntimeException("notice not exist")
+        );
+
         try {
-            log.info("modify noticeDto: {}", noticeDto);
+            // NoticeDto에 새 내용 설정
+            notice.setContent(noticeDto.getContent());
+            notice.setModdate(new Timestamp(System.currentTimeMillis())); // 수정 시간 업데이트
 
-            // 내용 수정 처리
-            NoticeDto modifiedNoticeDto = noticeService.modify(noticeDto, user.getUserId());
+            // 수정된 Notice 저장
+            noticeRepository.save(notice);
 
+            // Notice를 NoticeDto로 변환하여 응답
+            NoticeDto modifiedNoticeDto = notice.toDto();
             responseDto.setItem(modifiedNoticeDto);
             responseDto.setStatusCode(HttpStatus.OK.value());
             responseDto.setStatusMessage("ok");
@@ -137,6 +151,7 @@ public class NoticeController {
             return ResponseEntity.internalServerError().body(responseDto);
         }
     }
+
 
 
 

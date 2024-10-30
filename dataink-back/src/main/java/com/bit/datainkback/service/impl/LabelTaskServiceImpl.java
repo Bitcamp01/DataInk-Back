@@ -70,8 +70,6 @@ public class LabelTaskServiceImpl implements LabelTaskService {
 
         // LabelTask 업데이트
         labelTask.setComment(comment);
-//        labelTask.setStatus(TaskStatus.REVIEWED);
-//        labelTask.setReviewed(new Timestamp(System.currentTimeMillis()));
         labelTaskRepository.save(labelTask);
 
         // Tasks 상태 업데이트
@@ -109,6 +107,35 @@ public class LabelTaskServiceImpl implements LabelTaskService {
             fieldList.add(field);
         });
         return fieldList;
+    }
+
+    // 위의 getLabelTaskDetails처럼 List<Tasks>로 바꾸었는데 <> 안에 들어가는 것들 기준이 뭐야
+    public List<Object> getLabelDetails(String taskId) {
+        // Step 1: MongoDB에서 Tasks 조회
+        Tasks tasks = mongoLabelTaskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Tasks not found"));
+
+        // Step 2: 조회한 Tasks에서 fieldValue 가져오기
+        Map<String, Object> fieldValuesMap = tasks.getFieldValue(); // Map<String, Object> 형태
+
+        // Step 3: Map의 값들을 List로 변환
+        List<Object> fieldValuesList = new ArrayList<>(fieldValuesMap.values());
+
+        // fieldValues 확인 출력 (디버깅 목적)
+        fieldValuesList.forEach(System.out::println);
+
+        return fieldValuesList;
+    }
+
+    @Override
+    public void saveLabelDetail(String taskId, Map<String, Object> transformedData) {
+        // MongoDB에서 Tasks 문서를 조회
+        Tasks tasks = mongoLabelTaskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Tasks not found"));
+
+        // Tasks의 fieldValue 업데이트
+        tasks.setFieldValue(transformedData); // transformedData를 fieldValue에 저장
+        mongoTemplate.save(tasks); // MongoDB에 저장
     }
 
 

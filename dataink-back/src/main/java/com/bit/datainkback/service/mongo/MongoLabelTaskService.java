@@ -109,7 +109,6 @@ public class MongoLabelTaskService {
     public List<Tasks> submitForReview(List<String> taskIds, User joinedUser) {
         // taskId로 해당 task들을 찾아 상태를 업데이트
         List<Tasks> tasksToUpdate = mongoLabelTaskRepository.findAllById(taskIds);
-
         tasksToUpdate.forEach(task -> task.setStatus("submitted")); // 상태를 submitted로 변경
         mongoLabelTaskRepository.saveAll(tasksToUpdate);  // 변경된 task들을 저장
 
