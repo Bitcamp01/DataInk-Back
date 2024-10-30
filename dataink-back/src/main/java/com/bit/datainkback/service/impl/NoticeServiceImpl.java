@@ -73,6 +73,11 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
+    public NoticeDto modify(NoticeDto noticeDto, Long userId) {
+        return null;
+    }
+
+    @Override
     public NoticeDto modify(NoticeDto noticeDto, MultipartFile[] uploadFiles, MultipartFile[] changeFiles, String originFiles, Long userId) {
         List<NoticeFileDto> originFileList = new ArrayList<>();
 
