@@ -35,8 +35,13 @@ public class EventController {
 
     @PutMapping("/{id}")
     public ResponseEntity<EventDto> updateEvent(@PathVariable("id") Long id, @RequestBody EventDto eventDto) {
-        EventDto updatedEvent = eventService.updateEvent(id, eventDto);
-        return ResponseEntity.ok(updatedEvent);
+        try {
+            EventDto updatedEvent = eventService.updateEvent(id, eventDto);
+            return ResponseEntity.ok(updatedEvent);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError().body(null);
+        }
     }
 
     @DeleteMapping("/{id}")
