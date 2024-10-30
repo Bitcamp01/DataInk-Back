@@ -6,10 +6,12 @@ import jakarta.persistence.*;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Entity
 @Table(name = "PROJECT")
 @Getter
@@ -54,6 +56,11 @@ public class Project {
     @Column(name = "mongo_data_id")
     private String mongoDataId;
 
+    @Transient
+    private String searchKeyword;
+    @Transient
+    private String searchCondition;
+
     public ProjectDto toDto() {
         return ProjectDto.builder()
                 .projectId(this.projectId)
@@ -62,6 +69,8 @@ public class Project {
                 .startDate(this.startDate)
                 .endDate(this.endDate)
                 .description(this.description)
-                .mongoDataId(this.mongoDataId).build();
+                .mongoDataId(this.mongoDataId)
+                .searchKeyword(this.searchKeyword)
+                .searchCondition(this.searchCondition).build();
     }
 }

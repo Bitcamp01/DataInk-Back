@@ -1,6 +1,7 @@
 package com.bit.datainkback.controller;
 
 import com.bit.datainkback.dto.LabelTaskDto;
+import com.bit.datainkback.dto.RejectReasonDto;
 import com.bit.datainkback.entity.mongo.Field;
 import com.bit.datainkback.service.LabelTaskService;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -22,11 +24,12 @@ public class LabelTaskController {
     @PatchMapping("/reject")
     public ResponseEntity<Void> rejectTask(
             @RequestParam String taskId, // taskId로 변경
-            @RequestParam String rejectionReason,
-            @RequestParam String refTaskId
-    ) {
+            @RequestBody RejectReasonDto rejectReasonDto
+            ) {
+        String rejectionReason = rejectReasonDto.getRejectionReason();
+        Map<String, Object> transformedData = rejectReasonDto.getTransformedData();
         log.info("Rejecting task with Task ID: {} and reason: {}", taskId, rejectionReason);
-        labelTaskService.rejectLabelTask(taskId, refTaskId, rejectionReason); // 서비스 호출
+        labelTaskService.rejectLabelTask(taskId, rejectionReason, transformedData); // 서비스 호출
         return ResponseEntity.ok().build();
     }
 
@@ -34,11 +37,12 @@ public class LabelTaskController {
     @PatchMapping("/approve")
     public ResponseEntity<Void> approveTask(
             @RequestParam String taskId, // MongoDB의 Tasks ID를 사용
-            @RequestParam String comment,
-            @RequestParam String refTaskId
+            @RequestBody Map<String, Object> requestBody
     ) {
-        log.info("Approving task with Tasks ID: {} and comment: {}", taskId, comment);
-        labelTaskService.approveLabelTask(taskId, refTaskId, comment); // MongoDB와 MySQL 동시에 처리
+        String comment = (String) requestBody.get("comment");
+        Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
+        log.info("Rejecting task with Task ID: {} and reason: {}", taskId, comment);
+        labelTaskService.approveLabelTask(taskId, comment, transformedData); // 서비스 호출
         return ResponseEntity.ok().build();
     }
 

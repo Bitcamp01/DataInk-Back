@@ -3,14 +3,11 @@ package com.bit.datainkback.service.impl;
 import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.UserDetail;
-import com.bit.datainkback.enums.AuthenType;
 import com.bit.datainkback.jwt.JwtProvider;
 import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +15,6 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -113,6 +109,10 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    public void saveUsers(List<User> users){
+        userRepository.saveAll(users);
+    }
 
 //    @Override
 //    public WorkoutPlanDto addWorkoutPlan(List<WorkoutRoutineDto> workoutRoutineDtoList) {
