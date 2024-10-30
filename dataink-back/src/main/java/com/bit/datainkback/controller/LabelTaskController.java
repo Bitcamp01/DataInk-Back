@@ -72,4 +72,25 @@ public class LabelTaskController {
         List<Field> labelTaskDto = labelTaskService.getLabelTaskDetails(taskId);
         return ResponseEntity.ok(labelTaskDto);
     }
+
+//    // 1030 데이터 값 가져와서 라벨러의 수정하는 부분 새로 작성해 봄
+    @GetMapping("/labelDetails/{taskId}")
+    public ResponseEntity<List<Object>> getLabelDetails(@PathVariable String taskId) {
+        List<Object> labelTaskDto = labelTaskService.getLabelDetails(taskId);
+        return ResponseEntity.ok(labelTaskDto);
+    }
+
+    // 반려 사유 전달하고 작업 상태(status)를 in_progress로 바꾼다.
+    @PatchMapping("/labelDetailsSave")
+    public ResponseEntity<Void> saveTask(
+            @RequestParam String taskId, // taskId로 변경
+            @RequestBody Map<String, Object> requestBody
+    ) {
+        Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
+        log.info("Rejecting task with Task ID: {} and reason: {}", taskId);
+        labelTaskService.saveLabelDetail(taskId, transformedData); // 서비스 호출
+        return ResponseEntity.ok().build();
+    }
+
+
 }
