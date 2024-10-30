@@ -52,7 +52,7 @@ public class LabelTaskServiceImpl implements LabelTaskService {
         labelTaskRepository.save(labelTask);
 
         // Tasks 상태 업데이트
-        tasks.setStatus("in_progress");
+        tasks.setStatus("rejected");
         tasks.setFieldValue(transformedData); // transformedData를 fieldValue에 저장
         mongoTemplate.save(tasks);
     }

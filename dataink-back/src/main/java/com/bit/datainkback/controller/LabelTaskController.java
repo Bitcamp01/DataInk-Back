@@ -1,6 +1,7 @@
 package com.bit.datainkback.controller;
 
 import com.bit.datainkback.dto.LabelTaskDto;
+import com.bit.datainkback.dto.RejectReasonDto;
 import com.bit.datainkback.entity.mongo.Field;
 import com.bit.datainkback.service.LabelTaskService;
 import lombok.AllArgsConstructor;
@@ -23,10 +24,10 @@ public class LabelTaskController {
     @PatchMapping("/reject")
     public ResponseEntity<Void> rejectTask(
             @RequestParam String taskId, // taskId로 변경
-            @RequestBody Map<String, Object> requestBody
-    ) {
-        String rejectionReason = (String) requestBody.get("rejectionReason");
-        Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
+            @RequestBody RejectReasonDto rejectReasonDto
+            ) {
+        String rejectionReason = rejectReasonDto.getRejectionReason();
+        Map<String, Object> transformedData = rejectReasonDto.getTransformedData();
         log.info("Rejecting task with Task ID: {} and reason: {}", taskId, rejectionReason);
         labelTaskService.rejectLabelTask(taskId, rejectionReason, transformedData); // 서비스 호출
         return ResponseEntity.ok().build();
@@ -41,7 +42,7 @@ public class LabelTaskController {
         String comment = (String) requestBody.get("comment");
         Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
         log.info("Rejecting task with Task ID: {} and reason: {}", taskId, comment);
-        labelTaskService.rejectLabelTask(taskId, comment, transformedData); // 서비스 호출
+        labelTaskService.approveLabelTask(taskId, comment, transformedData); // 서비스 호출
         return ResponseEntity.ok().build();
     }
 

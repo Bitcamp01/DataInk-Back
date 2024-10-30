@@ -1,7 +1,6 @@
 package com.bit.datainkback.service;
 
 import com.bit.datainkback.dto.LabelTaskDto;
-import com.bit.datainkback.dto.RejectReasonDto;
 import com.bit.datainkback.entity.mongo.Field;
 import org.springframework.stereotype.Service;
 
