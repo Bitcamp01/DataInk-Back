@@ -215,26 +215,52 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<JSONObject> getJson(HashMap<String, String> hasConversion) {
-        List<JSONObject> jsonList = new ArrayList<>();
-        log.info("hasConversion {}",hasConversion);
+    public List<Map<String, String>> getJson(HashMap<String, String> hasConversion) {
+        List<Map<String, Object>> jsonList = new ArrayList<>();
+        log.info("hasConversion {}", hasConversion);
         for (String folderId : hasConversion.keySet()) {
-            Tasks tasks = labelTaskRepository.findById(folderId).orElseThrow(()->new RuntimeException("not found task"));
-            JSONObject folderJson = new JSONObject();
-            log.info("task {}",tasks);
+            Tasks tasks = labelTaskRepository.findById(folderId).orElseThrow(() -> new RuntimeException("not found task"));
+            log.info("task {}", tasks);
             if (tasks.getStatus() != null && TaskStatus.APPROVED == TaskStatus.valueOf(tasks.getStatus().toUpperCase())) {
-                try{
-                    folderJson.put("taskName",tasks.getTaskName());
-                    folderJson.put("field",tasks.getFieldValue());
-                }
-                catch (Exception e){
-
-                }
+                Map<String, Object> folderMap = new HashMap<>();
+                folderMap.put("taskName", tasks.getTaskName());
+                folderMap.put("field", tasks.getFieldValue());
+                log.info("json map {}",folderMap);
+                jsonList.add(folderMap);
             }
-            jsonList.add(folderJson);
+        }
+        log.info("jsonList {}",transformData(jsonList));
+        return transformData(jsonList);
+    }
+    public static List<Map<String, String>> transformData(List<Map<String, Object>> data) {
+        List<Map<String, String>> transformed = new ArrayList<>();
+
+        for (Map<String, Object> item : data) {
+            String taskName = (String) item.get("taskName");
+            Map<String, Map<String, Object>> fields = (Map<String, Map<String, Object>>) item.get("field");
+
+            for (Map.Entry<String, Map<String, Object>> fieldEntry : fields.entrySet()) {
+                Map<String, Object> fieldData = fieldEntry.getValue();
+                Map<String, String> transformedEntry = new HashMap<>();
+
+                transformedEntry.put("taskName", taskName);
+                transformedEntry.put("content", (String) fieldData.get("content"));
+
+                // hierarchy keys를 동적으로 level로 변환
+                int level = 1;
+                for (Map.Entry<String, Object> fieldDetail : fieldData.entrySet()) {
+                    String key = fieldDetail.getKey();
+                    if (key.startsWith("hierarchy")) {
+                        transformedEntry.put("level_" + level, (String) fieldDetail.getValue());
+                        level++;
+                    }
+                }
+
+                transformed.add(transformedEntry);
+            }
         }
 
-        return jsonList;
+        return transformed;
     }
     // 폴더 트리를 순회하면서 hasConversion 키에 포함되지 않는 파일을 제거하는 메서드
     private Folder filterFolderTree(Folder folder, Set<String> keys) {

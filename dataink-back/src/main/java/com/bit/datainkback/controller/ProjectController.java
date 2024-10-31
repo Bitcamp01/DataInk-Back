@@ -27,6 +27,7 @@ import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.stream.Task;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -179,65 +180,74 @@ public class ProjectController {
 
     }
     @PostMapping("/conversion")
-    public ResponseEntity<String> itemConversion(@RequestBody Map<String, Object> requestData) {
+    public ResponseEntity<?> itemConversion(@RequestBody Map<String, Object> requestData) {
         // requestData에서 각 필드를 추출
         List<String> conversionList = (List<String>) requestData.get("conversionList");
-        boolean includeProjectStructure = (boolean) requestData.get("includeProjectStructure");
+//        boolean includeProjectStructure = (boolean) requestData.get("includeProjectStructure");
         //파일에 대한 id하고 해당 파일이 속한 프로젝트 아이디 쌍
         //이걸로 task에서 파일 id로 작업 정보를 불러올 수 있음
-        HashMap<String,String> hasConversion=new HashMap<>();
-        for (String s:conversionList){
+        log.info("conversionList {}",conversionList);
+        HashMap<String, String> hasConversion = new HashMap<>();
+        Stack<String> stack = new Stack<>();
+        stack.addAll(conversionList);  // 초기 항목들을 스택에 추가
+
+        while (!stack.isEmpty()) {
+            String s = stack.pop();
+            log.info("string {}", s);
             String[] split = s.split("_");
-            //프로젝트에 대한 요청
-            if (split[0].equals(split[1])){
-                List<Folder> folders=projectService.getProjectById(Long.parseLong(split[1])).getFolders();
-                //프로젝트에 속한 각 폴더 가져옴
-                for (Folder folder:folders){
-                    log.info("conversion folders {}",folder);
-                    //폴더일 경우 각 폴더를 탐색 요청큐에 추가
-                    if (folder.isFolder()){
-                        conversionList.add(folder.getId()+"_"+split[1]);
-                    }
-                    //파일인 경우, task에 대한 값이므로 변환 대상으로 선정
-                    else{
-                        if (!hasConversion.containsKey(folder.getId())){
+
+            if (split[0].equals(split[1])) {
+                List<Folder> folders = projectService.getProjectById(Long.parseLong(split[1])).getFolders();
+
+                for (Folder folder : folders) {
+                    Folder realFolder = folderService.getFolderById(folder.getId());
+                    log.info("conversion folders {}", folder);
+
+                    if (realFolder.isFolder()) {
+                        log.info("add folder to stack");
+                        stack.push(realFolder.getId() + "_" + split[1]);  // 스택에 폴더 추가
+                    } else {
+                        if (!hasConversion.containsKey(realFolder.getId())) {
                             log.info("hasConversion insert");
-                            hasConversion.put(folder.getId(),split[1]);
+                            hasConversion.put(realFolder.getId(), split[1]);
                         }
                     }
                 }
-            }
-            else {
-                Folder folder=folderService.getFolderById(split[0]);
-                //폴더 요청이 들어오면 요청큐에 하위 폴더 추가
-                if (folder.isFolder()){
-                    for (Folder children:folder.getChildren()){
-                        conversionList.add(children.getId()+"_"+split[1]);
+            } else {
+                Folder folder = folderService.getFolderById(split[0]);
+                log.info("conversion folders {}", folder);
+
+                if (folder.isFolder()) {
+                    for (Folder child : folder.getChildren()) {
+                        log.info("add child folder to stack");
+                        stack.push(child.getId() + "_" + split[1]);  // 스택에 하위 폴더 추가
+                    }
+                } else {
+                    if (!hasConversion.containsKey(folder.getId())) {
+                        log.info("hasConversion insert");
+                        hasConversion.put(split[0], split[1]);
                     }
                 }
-                //파일 인 경우, 변환 작업 목록에 추가
-                else{
-                    hasConversion.put(split[0],split[1]);
-                }
             }
-            // 재귀적으로 큐의 모든 폴더를 순회하며 하위 폴더 및 파일을 hasConversion에 추가
+            // 스택이 비워질 때까지 계속 반복하며 하위 폴더 및 파일을 hasConversion에 추가
         }
-        log.info("conversionListIds {}",hasConversion);
+        log.info("conversionListIds {}", hasConversion);
+
         //미완성된 작업에 대해 프로젝트 구조까지 포함하여 보냄,
         //이때 프로젝트 부터 시작하여 작업까지 포함하여 함
         //따라서 프로젝트에 속한 모든 작업이 하나의 json으로 만들어지고 다른 프로젝트가 있다면
         //json으로 만들어 각각의 json을 jsonl형식으로 만듦
         //완성되지 않은 작업은 제외하고 전체 프로젝트 구조를 가지고
-        if (includeProjectStructure){
-            var s=projectService.getJsonProjectStructure(hasConversion);
-            log.info("return {}",s);
-        }
-        //프로젝트 구조도 필요없고, 완성되지 않은 작업도 제외하고 jsonl형식으로 변환
-        else{
+//        if (includeProjectStructure){
+//            var s=projectService.getJsonProjectStructure(hasConversion);
+//            log.info("return {}",s);
+//        }
+//        //프로젝트 구조도 필요없고, 완성되지 않은 작업도 제외하고 jsonl형식으로 변환
+//        else{
             var s=projectService.getJson(hasConversion);
             log.info("return {}",s);
-        }
-        return ResponseEntity.ok("ok");
+//        }
+        return ResponseEntity.ok(s);
 
     }
     @PostMapping("/upload")
@@ -303,7 +313,11 @@ public class ProjectController {
                     while (!folderIdStack.isEmpty()) {
                         String currentFolderId = folderIdStack.pop();
                         folderService.updateFolderFields(currentFolderId, List.of(selectedItemId));
-
+                        Tasks task=mongoLabelTaskService.getTaskById(currentFolderId);
+                        if (task != null){
+                            task.setItemIds(List.of(selectedItemId));
+                            mongoLabelTaskService.saveTask(task);
+                        }
                         Folder currentFolder = folderService.getFolderById(currentFolderId);
 
                         // 자식 폴더가 있으면 스택에 추가
@@ -320,7 +334,11 @@ public class ProjectController {
                     while (!folderIdStack.isEmpty()) {
                         String currentFolderId = folderIdStack.pop();
                         folderService.updateFolderFields(currentFolderId, List.of(selectedItemId));
-
+                        Tasks task=mongoLabelTaskService.getTaskById(currentFolderId);
+                        if (task != null){
+                            task.setItemIds(List.of(selectedItemId));
+                            mongoLabelTaskService.saveTask(task);
+                        }
                         Folder currentFolder = folderService.getFolderById(currentFolderId);
 
                         // 자식 폴더가 있으면 스택에 추가

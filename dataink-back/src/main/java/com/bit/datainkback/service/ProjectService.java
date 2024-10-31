@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface ProjectService {
     public ProjectDto createProject(ProjectDto projectDto, Long userId);
@@ -26,7 +27,7 @@ public interface ProjectService {
 
     Project modifyProjectName(String label, Long selectedProject);
 
-    List<JSONObject> getJson(HashMap<String, String> hasConversion);
+    List<Map<String, String>> getJson(HashMap<String, String> hasConversion);
 
     List<JSONObject> getJsonProjectStructure(HashMap<String, String> hasConversion);
 
