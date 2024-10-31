@@ -10,7 +10,7 @@ public interface EventService {
 
     List<EventDto> getEventsByUserId(Long loggedInUserId);
 
-    EventDto updateEvent(Long id, EventDto eventDto);
+    List<EventDto> updateEvent(Long id, EventDto eventDto, Long userId);
 
-    void deleteEvent(Long id);
+    List<EventDto> deleteEvent(Long id, Long userId);
 }
