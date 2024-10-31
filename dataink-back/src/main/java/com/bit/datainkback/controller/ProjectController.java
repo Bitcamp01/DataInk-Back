@@ -12,8 +12,11 @@ import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
 import com.bit.datainkback.entity.mongo.Tasks;
+import com.bit.datainkback.repository.LabelTaskRepository;
 import com.bit.datainkback.repository.ProjectRepository;
+import com.bit.datainkback.repository.mongo.MongoLabelTaskRepository;
 import com.bit.datainkback.service.FileService;
+import com.bit.datainkback.service.LabelTaskService;
 import com.bit.datainkback.service.ProjectService;
 import com.bit.datainkback.service.UserProjectService;
 import com.bit.datainkback.service.mongo.FieldService;
@@ -25,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.stream.Task;
@@ -70,6 +74,12 @@ public class ProjectController {
     private MongoLabelTaskService mongoLabelTaskService;
     @Autowired
     private UserProjectService userProjectService;
+    @Autowired
+    private LabelTaskService labelTaskService;
+    @Autowired
+    private MongoLabelTaskRepository mongoLabelTaskRepository;
+    @Autowired
+    private LabelTaskRepository labelTaskRepository;
     // 프로젝트 생성 API (MySQL 및 MongoDB에 저장)
     @PostMapping("/create")
     @Transactional
@@ -168,12 +178,18 @@ public class ProjectController {
             else {
                 //삭제 될 폴더 가져옴
                 Folder folder=folderService.getFolderById(entry.getKey());
+
                 //삭제 될 폴더의 상위 폴더에서 children배열 제거
                 folderService.deleteParentFolderChildren(folder);
                 //삭제 시 하위 폴더까지 포함해서 제거, 이때 삭제 대상의 폴더의 children을 줌
                 folderService.deleteFolderAndChildFolder(folder.getChildren());
                 //삭제 대상이 된 폴더 제거
                 folderService.deleteFolder(entry.getKey());
+                if (!folder.isFolder()){
+
+                    labelTaskRepository.deleteByRefTaskId(folder.getId());
+                    mongoLabelTaskService.deleteTask(entry.getKey());
+                }
             }
         }
         return ResponseEntity.ok("ok");
@@ -269,7 +285,8 @@ public class ProjectController {
             newFolder.setLastModifiedDate(LocalDateTime.now().toString());
             newFolder.setLastModifiedUserId(customUserDetails.getUser().getId());
             //폴더 하나 생성
-            folderService.createFolder(newFolder);
+            Folder savedFolder=folderService.createFolder(newFolder);
+            labelTaskService.createNewTask(savedFolder.getId());
             //프로젝트 바로 아래에 추가시-현재는 고려 X
             if (selectedFolder.equals(selectedProject.toString())){
                 mongoProjectDataService.addFolderToProject(selectedProject,newFolder);
@@ -360,7 +377,7 @@ public class ProjectController {
 
         String label = requestData.get("itemName").toString();
         Map<String, Object> map = (Map<String, Object>) requestData.get("data");
-
+        log.info("map {}",map);
         try {
             // JSON 문자열을 Map으로 변환
             Field rootField = new Field();
@@ -376,6 +393,7 @@ public class ProjectController {
                     log.info("Non-map value: " + entry.getValue().toString());
                 }
             }
+            log.info("fields {}",fields);
             rootField.setSubFields(fields);
             rootField.setFieldName(label);
             rootField.setParentField(true);

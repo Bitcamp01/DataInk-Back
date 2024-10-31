@@ -3,8 +3,10 @@ package com.bit.datainkback.service.mongo;
 import com.bit.datainkback.dto.mongo.FolderDto;
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
+import com.bit.datainkback.repository.LabelTaskRepository;
 import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.repository.mongo.FolderRepository;
+import com.bit.datainkback.repository.mongo.MongoLabelTaskRepository;
 import com.bit.datainkback.repository.mongo.MongoProjectDataRepository;
 import com.bit.datainkback.service.FileService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,12 @@ public class FolderService {
     private FileService fileService;
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private MongoLabelTaskRepository mongoLabelTaskRepository;
+    @Autowired
+    private LabelTaskRepository labelTaskRepository;
+
     // 폴더 생성
     public Folder createFolder(Folder folder) {
         return folderRepository.save(folder);
@@ -134,6 +142,10 @@ public class FolderService {
     public void deleteFolderAndChildFolder(List<Folder> childrenFolder) {
         for (Folder folder : childrenFolder) {
             Folder subFolder= folderRepository.findById(folder.getId()).orElseThrow(()->new RuntimeException("not found folder"));
+            if (!subFolder.isFolder()){
+                mongoLabelTaskRepository.deleteById(subFolder.getId());
+                labelTaskRepository.deleteByRefTaskId(subFolder.getId());
+            }
             if (subFolder.getChildren() != null && !subFolder.getChildren().isEmpty()) {
                 deleteFolderAndChildFolder(subFolder.getChildren());
             }
