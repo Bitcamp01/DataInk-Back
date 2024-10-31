@@ -87,8 +87,20 @@ public class LabelTaskController {
             @RequestBody Map<String, Object> requestBody
     ) {
         Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
-        log.info("Rejecting task with Task ID: {} and reason: {}", taskId);
+        log.info("Rejecting task with Task ID: {}", taskId);
         labelTaskService.saveLabelDetail(taskId, transformedData); // 서비스 호출
+        return ResponseEntity.ok().build();
+    }
+
+    // 관리자가 승인 버튼을 눌렀을 때
+    @PatchMapping("/adminApprove")
+    public ResponseEntity<Void> adminApproveTask(
+            @RequestParam String taskId, // MongoDB의 Tasks ID를 사용
+            @RequestBody Map<String, Object> requestBody
+    ) {
+        Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
+        log.info("Rejecting task with Task ID: {}", taskId);
+        labelTaskService.adminApprove(taskId, transformedData); // 서비스 호출
         return ResponseEntity.ok().build();
     }
 

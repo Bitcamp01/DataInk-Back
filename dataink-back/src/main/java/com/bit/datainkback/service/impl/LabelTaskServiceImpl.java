@@ -139,6 +139,18 @@ public class LabelTaskServiceImpl implements LabelTaskService {
         mongoTemplate.save(tasks); // MongoDB에 저장
     }
 
+    @Override
+    public void adminApprove(String taskId, Map<String, Object> transformedData) {
+        // MongoDB에서 Tasks 문서를 조회
+        Tasks tasks = mongoLabelTaskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Tasks not found"));
+
+        // Tasks의 fieldValue 업데이트
+        tasks.setFieldValue(transformedData); // transformedData를 fieldValue에 저장
+        tasks.setStatus("approved");
+        mongoTemplate.save(tasks); // MongoDB에 저장
+    }
+
 
 }
 
