@@ -80,7 +80,6 @@ public class NoticeController {
     @GetMapping
     public ResponseEntity<?> getBoards(@RequestParam("searchCondition") String searchCondition,
                                        @RequestParam("searchKeyword") String searchKeyword,
-                                       @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                        @PageableDefault(page=0, size=15) Pageable pageale){
         ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
 
@@ -91,6 +90,10 @@ public class NoticeController {
                 User noticeAuthor = userRepository.findById(notice.getUserId())
                         .orElseThrow(() -> new RuntimeException("User not found"));
                 notice.setProfileImg(noticeAuthor.getUserDetail().getProfileImageUrl());
+
+                // 부서 정보 추가
+                String department = noticeAuthor.getUserDetail().getDep();
+                notice.setDep(department != null ? department : "부서 정보 없음");
             });
 
             responseDto.setPageItems(noticeDtoList);
