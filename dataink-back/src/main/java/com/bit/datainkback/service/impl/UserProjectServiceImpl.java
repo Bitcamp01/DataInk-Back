@@ -175,10 +175,6 @@ public class UserProjectServiceImpl implements UserProjectService {
         return UserProjectDto.builder()
                 .userId(userProject.getUser().getUserId())
                 .projectId(userProject.getProject().getProjectId())
-                .userWorkcnt(userProject.getUserWorkcnt())
-                .totalWorkcnt(userProject.getTotalWorkcnt())
-                .pendingInspection(userProject.getPendingInspection())
-                .completedInspection(userProject.getCompletedInspection())
                 .isBookmarked(userProject.isBookmarked())
                 .build();
     }
