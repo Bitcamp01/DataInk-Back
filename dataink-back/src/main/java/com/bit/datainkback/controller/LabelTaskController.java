@@ -32,7 +32,7 @@ public class LabelTaskController {
         labelTaskService.rejectLabelTask(taskId, rejectionReason, transformedData); // 서비스 호출
         return ResponseEntity.ok().build();
     }
-
+ 
     // 검수 승인(검수 승인 코멘트를 보내고 작업 상태(status)를 reviewed로 바꾼다)
     @PatchMapping("/approve")
     public ResponseEntity<Void> approveTask(
