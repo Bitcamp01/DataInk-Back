@@ -48,7 +48,12 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Event ID"));
 
+        Calendar calendar = calendarRepository.findById(eventDto.getCalendarId())
+                        .orElseThrow(() -> new RuntimeException("캘린더가 없습니다."));
+
+
         event.setTitle(eventDto.getTitle());
+        event.setCalendar(calendar);
         event.setStartDate(eventDto.getStartDate());
         event.setEndDate(eventDto.getEndDate());
         event.setMemo(eventDto.getMemo());

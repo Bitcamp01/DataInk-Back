@@ -73,6 +73,11 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
+    public NoticeDto modify(NoticeDto noticeDto, Long userId) {
+        return null;
+    }
+
+    @Override
     public NoticeDto modify(NoticeDto noticeDto, MultipartFile[] uploadFiles, MultipartFile[] changeFiles, String originFiles, Long userId) {
         List<NoticeFileDto> originFileList = new ArrayList<>();
 
@@ -141,6 +146,10 @@ public class NoticeServiceImpl implements NoticeService {
         notice.setTitle(noticeDto.getTitle());
         notice.setContent(noticeDto.getContent());
         notice.setModdate(new Timestamp(System.currentTimeMillis()));
+
+        if (noticeDto.getContent() == null) {
+            throw new RuntimeException("Content cannot be null");
+        }
 
         uFileList.forEach(
                 noticeFileDto -> {
