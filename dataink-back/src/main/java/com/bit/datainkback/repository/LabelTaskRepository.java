@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface LabelTaskRepository extends JpaRepository<LabelTask, Long> {
     Optional<LabelTask> findByRefTaskId(String refTaskId); // fieldId로 조회
+
+    void deleteByRefTaskId(String id);
 }

@@ -27,4 +27,6 @@ public interface LabelTaskService {
     void saveLabelDetail(String taskId, Map<String, Object> transformedData);
 
     void adminApprove(String taskId, Map<String, Object> transformedData);
+
+    void createNewTask(String id);
 }

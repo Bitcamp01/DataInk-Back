@@ -151,6 +151,13 @@ public class LabelTaskServiceImpl implements LabelTaskService {
         mongoTemplate.save(tasks); // MongoDB에 저장
     }
 
+    @Override
+    public void createNewTask(String id) {
+        LabelTask labelTask = new LabelTask();
+        labelTask.setRefTaskId(id);
+        labelTaskRepository.save(labelTask);
+    }
+
 
 }
 
