@@ -26,6 +26,7 @@ public class NoticeDto {
     private String searchCondition;
     private List<NoticeFileDto> noticeFileDtoList;
     private String dep;
+    private String profileImg;
 
     public NoticeDto(String title, Long noticeId, Timestamp created, String dep) {
         this.title = title;
