@@ -80,7 +80,7 @@ public class LabelTaskController {
         return ResponseEntity.ok(labelTaskDto);
     }
 
-    // 반려 사유 전달하고 작업 상태(status)를 in_progress로 바꾼다.
+    // 저장하는 로직
     @PatchMapping("/labelDetailsSave")
     public ResponseEntity<Void> saveTask(
             @RequestParam String taskId, // taskId로 변경

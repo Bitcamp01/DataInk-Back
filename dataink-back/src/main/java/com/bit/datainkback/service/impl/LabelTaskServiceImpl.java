@@ -135,6 +135,7 @@ public class LabelTaskServiceImpl implements LabelTaskService {
 
         // Tasks의 fieldValue 업데이트
         tasks.setFieldValue(transformedData); // transformedData를 fieldValue에 저장
+        tasks.setStatus("submitted");
         mongoTemplate.save(tasks); // MongoDB에 저장
     }
 
