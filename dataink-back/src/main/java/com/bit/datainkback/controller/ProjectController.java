@@ -384,14 +384,13 @@ public class ProjectController {
             List<Field> fields = new ArrayList<>();
             // 중첩된 필드 처리
             for (Map.Entry<String, Object> entry : map.entrySet()) {
-                if (entry.getValue() instanceof Map) {
+                if (entry.getValue() == null || entry.getValue().equals("")){
+                    entry.setValue(new HashMap<>());
+                }
                     // Map 처리
                     Field field = mapJsonToField(entry.getKey(), (Map<String, Object>) entry.getValue());
                     field.setParentField(false);
                     fields.add(field);
-                } else {
-                    log.info("Non-map value: " + entry.getValue().toString());
-                }
             }
             log.info("fields {}",fields);
             rootField.setSubFields(fields);
@@ -419,14 +418,13 @@ public class ProjectController {
             List<Field> fields = new ArrayList<>();
             // 중첩된 필드 처리
             for (Map.Entry<String, Object> entry : map.entrySet()) {
-                if (entry.getValue() instanceof Map) {
-                    // Map 처리
-                    Field field = mapJsonToField(entry.getKey(), (Map<String, Object>) entry.getValue());
-                    field.setParentField(false);
-                    fields.add(field);
-                } else {
-                    log.info("Non-map value: " + entry.getValue().toString());
+                if (entry.getValue() == null || entry.getValue().equals("")){
+                    entry.setValue(new HashMap<>());
                 }
+                // Map 처리
+                Field field = mapJsonToField(entry.getKey(), (Map<String, Object>) entry.getValue());
+                field.setParentField(false);
+                fields.add(field);
             }
             rootField.setSubFields(fields);
             rootField.setFieldName(label);
