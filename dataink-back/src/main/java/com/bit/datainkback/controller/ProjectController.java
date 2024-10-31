@@ -81,7 +81,7 @@ public class ProjectController {
         userProjectService.updateUserProject(savedProject.getProjectId(),customUserDetails.getUser().getUserId());
         // MongoDB에 폴더 및 라벨링 데이터를 저장 (폴더, tasks 포함)
 
-
+        log.info("");
         return new ResponseEntity<>(savedProject, HttpStatus.CREATED);
     }
     //하위 폴더 생성
