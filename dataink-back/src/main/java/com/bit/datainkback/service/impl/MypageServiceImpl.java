@@ -59,6 +59,9 @@ public class MypageServiceImpl implements MypageService {
     public UserDetailDto getUserDetail(Long loggedInUserId) {
         UserDetail userDetail = userDetailRepository.findById(loggedInUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 저장된 엔티티를 DB에 반영
+        userDetailRepository.save(userDetail);
         return userDetail.toDto();
     }
 
