@@ -28,6 +28,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	// https://mvnrepository.com/artifact/redis.clients/jedis
 	implementation 'redis.clients:jedis:5.1.5'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
