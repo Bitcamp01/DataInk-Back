@@ -44,7 +44,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDto updateEvent(Long eventId, EventDto eventDto) {
+    public List<EventDto> updateEvent(Long eventId, EventDto eventDto, Long userId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Event ID"));
 
@@ -60,11 +60,21 @@ public class EventServiceImpl implements EventService {
 
         Event updatedEvent = eventRepository.save(event);
 
-        return updatedEvent.toDto();
+        List<Event> events = eventRepository.findByUser_UserId(userId);
+
+        return events.stream()
+                .map(Event::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void deleteEvent(Long eventId) {
+    public List<EventDto> deleteEvent(Long eventId, Long userId) {
         eventRepository.deleteById(eventId);
+
+        // 삭제 후, 남은 이벤트 목록을 조회하여 반환
+        List<Event> remainingEvents = eventRepository.findByUser_UserId(userId);
+        return remainingEvents.stream()
+                .map(Event::toDto)
+                .collect(Collectors.toList());
     }
 }
