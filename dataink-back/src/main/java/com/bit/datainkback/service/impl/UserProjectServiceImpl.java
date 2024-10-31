@@ -58,11 +58,7 @@ public class UserProjectServiceImpl implements UserProjectService {
             userProject.setId(userProjectId);
             userProject.setUser(userOptional.get());
             userProject.setProject(projectOptional.get());
-            userProject.setUserWorkcnt(0);
             userProject.setBookmarked(false);
-            userProject.setCompletedInspection(0);
-            userProject.setPendingInspection(0);
-            userProject.setTotalWorkcnt(0);
             return userProjectRepository.save(userProject);
         }
         else {

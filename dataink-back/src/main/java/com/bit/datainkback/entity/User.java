@@ -56,9 +56,8 @@ public class User {
     @Column(nullable = false)
     private String status;
 
-//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
-//    private UserDetail userDetail;
-    // UserDetail이 두 개 있어서 주석처리
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>(); // 유저의 알림 리스트
 
     public UserDto toDto() {
         return UserDto.builder()

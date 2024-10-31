@@ -27,18 +27,6 @@ public class UserProject {
     @JoinColumn(name = "project_id")
     private Project project;
 
-    @Column(name = "user_worknt")
-    private int userWorkcnt; // 작업 유형
-
-    @Column(name = "total_worknt")
-    private int totalWorkcnt; // 총 작업 수
-
-    @Column(name = "pending_inspection")
-    private int pendingInspection; // 검사 대기 수
-
-    @Column(name = "completed_inspection")
-    private int completedInspection; // 완료된 검사 수
-
     @Column(name = "is_bookmarked", nullable = false)
     private boolean isBookmarked = false; // 기본값 false로 설정
 
@@ -46,10 +34,6 @@ public class UserProject {
         return UserProjectDto.builder()
                 .userId(this.id.getUserId())  // userId는 Long 타입
                 .projectId(this.id.getProjectId())
-                .userWorkcnt(this.userWorkcnt)
-                .totalWorkcnt(this.totalWorkcnt)
-                .pendingInspection(this.pendingInspection)
-                .completedInspection(this.completedInspection)
                 .isBookmarked(this.isBookmarked)
                 .build();
     }

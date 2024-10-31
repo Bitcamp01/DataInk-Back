@@ -18,10 +18,6 @@ import java.sql.Timestamp;
 public class UserProjectDto {
     private Long userId;
     private Long projectId;
-    private int userWorkcnt;
-    private int totalWorkcnt;
-    private int pendingInspection;
-    private int completedInspection;
 
     private ProjectDto projectDto;
 
@@ -33,10 +29,6 @@ public class UserProjectDto {
 
         return UserProject.builder()
                 .id(userProjectId) // 복합 키 설정
-                .userWorkcnt(this.userWorkcnt)
-                .totalWorkcnt(this.totalWorkcnt)
-                .pendingInspection(this.pendingInspection)
-                .completedInspection(this.completedInspection)
                 .isBookmarked(this.isBookmarked)
                 .build();
     }
