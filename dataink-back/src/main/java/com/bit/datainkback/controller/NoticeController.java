@@ -8,6 +8,7 @@ import com.bit.datainkback.entity.Notice;
 import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.UserDetail;
 import com.bit.datainkback.repository.NoticeRepository;
+import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ import java.util.Arrays;
 public class NoticeController {
     private final NoticeService noticeService;
     private final NoticeRepository noticeRepository;
+    private final UserRepository userRepository;
 
     // 공지사항 생성 메소드
     @PostMapping
@@ -48,10 +50,21 @@ public class NoticeController {
             Page<NoticeDto> noticeDtoList = noticeService.post(noticeDto, uploadFiles,
                     customUserDetails.getUser(),pageable);
 
+            // 각 공지사항 DTO에 사용자 프로필 이미지 추가
+            noticeDtoList.forEach(notice -> {
+                User noticeAuthor = userRepository.findById(notice.getUserId())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+                notice.setProfileImg(noticeAuthor.getUserDetail().getProfileImageUrl());
+            });
+
             log.info("post noticeDtoList: {}", noticeDtoList);
             responseDto.setPageItems(noticeDtoList);
             responseDto.setStatusCode(HttpStatus.CREATED.value());
             responseDto.setStatusMessage("created");
+
+            // 페이지네이션 정보 설정
+            responseDto.setTotalPages(noticeDtoList.getTotalPages());
+            responseDto.setCurrentPage(noticeDtoList.getNumber());
 
             return ResponseEntity.created(new URI("/notice")).body(responseDto);
         } catch (Exception e) {
@@ -67,11 +80,18 @@ public class NoticeController {
     @GetMapping
     public ResponseEntity<?> getBoards(@RequestParam("searchCondition") String searchCondition,
                                        @RequestParam("searchKeyword") String searchKeyword,
+                                       @AuthenticationPrincipal CustomUserDetails customUserDetails,
                                        @PageableDefault(page=0, size=15) Pageable pageale){
         ResponseDto<NoticeDto> responseDto = new ResponseDto<>();
 
         try{
             Page<NoticeDto> noticeDtoList = noticeService.findAll(searchCondition, searchKeyword, pageale);
+
+            noticeDtoList.forEach(notice -> {
+                User noticeAuthor = userRepository.findById(notice.getUserId())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+                notice.setProfileImg(noticeAuthor.getUserDetail().getProfileImageUrl());
+            });
 
             responseDto.setPageItems(noticeDtoList);
             responseDto.setItem(NoticeDto.builder()
