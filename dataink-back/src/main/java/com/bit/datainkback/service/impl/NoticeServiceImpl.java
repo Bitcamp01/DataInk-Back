@@ -49,8 +49,10 @@ public class NoticeServiceImpl implements NoticeService {
 
                     // NoticeFileDto가 null이 아닐 때만 추가
                     if (noticeFileDto != null) {
+                        noticeFileDto.setFileSize(multipartFile.getSize());
                         notice.getNoticeFileList().add(noticeFileDto.toEntity(notice));
                     }
+
                 }
             });
         }

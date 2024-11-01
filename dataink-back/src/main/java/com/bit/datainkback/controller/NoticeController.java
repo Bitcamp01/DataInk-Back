@@ -93,7 +93,6 @@ public class NoticeController {
 
     }
 
-
     @GetMapping
     public ResponseEntity<?> getBoards(@RequestParam("searchCondition") String searchCondition,
                                        @RequestParam("searchKeyword") String searchKeyword,
