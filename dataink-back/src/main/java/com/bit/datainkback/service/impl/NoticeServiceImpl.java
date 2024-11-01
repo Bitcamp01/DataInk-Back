@@ -12,6 +12,7 @@ import com.bit.datainkback.enums.NotificationType;
 import com.bit.datainkback.repository.NoticeFileRepository;
 import com.bit.datainkback.repository.NoticeRepository;
 import com.bit.datainkback.repository.NotificationRepository;
+import com.bit.datainkback.repository.redis.NotificationCacheRepository;
 import com.bit.datainkback.service.NoticeService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +38,7 @@ public class NoticeServiceImpl implements NoticeService {
     private final FileUtils fileUtils;
     private final NoticeFileRepository noticeFileRepository;
     private final NotificationRepository notificationRepository;
-    private final RedisTemplate<String, NotificationCache> redisTemplate; // RedisTemplate 사용
+    private final NotificationCacheRepository notificationCacheRepository;
 
     @Override
     public Page<NoticeDto> post(NoticeDto noticeDto, MultipartFile[] uploadFiles, User user, Pageable pageable) {
@@ -79,21 +80,19 @@ public class NoticeServiceImpl implements NoticeService {
                 .type(NotificationType.NOTICE)
                 .userId(user.getUserId())
                 .build();
-        String redisKey = "notifications:" + user.getUserId();
 
         try {
             // Redis에 알림 저장
-            redisTemplate.opsForList().rightPush(redisKey, notificationCache);
-            redisTemplate.expire(redisKey, 3600, TimeUnit.SECONDS); // TTL 설정 (1시간)
+            notificationCacheRepository.save(notificationCache);
             System.out.println("알림이 Redis에 성공적으로 저장되었습니다.");
         } catch (Exception e) {
             System.err.println("Redis에 알림 저장 실패: " + e.getMessage());
         }
 
         // Redis에 저장된 알림 확인
-        NotificationCache savedNotification = (NotificationCache) redisTemplate.opsForList().index(redisKey, -1);
-        if (savedNotification != null) {
-            System.out.println("Redis에 저장된 알림 내용: " + savedNotification.getContent());
+        Optional<NotificationCache> savedNotification = notificationCacheRepository.findById(notificationCache.getId());
+        if (savedNotification.isPresent()) {
+            System.out.println("Redis에 저장된 알림 내용: " + savedNotification.get().getContent());
         } else {
             System.out.println("Redis에 알림이 저장되지 않았습니다.");
         }

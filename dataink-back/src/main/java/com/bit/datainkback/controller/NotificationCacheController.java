@@ -18,7 +18,7 @@ import java.util.List;
 public class NotificationCacheController {
     private final NotificationCacheServiceImpl notificationCacheService;
 
-    // 최신 알림 3건 조회
+//     최신 알림 3건 조회
     @GetMapping("/latest")
     public ResponseEntity<List<NotificationCacheDto>> getLatestNotifications(
             @AuthenticationPrincipal CustomUserDetails customUserDetails) {

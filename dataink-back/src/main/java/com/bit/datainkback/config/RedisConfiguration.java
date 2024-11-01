@@ -24,7 +24,8 @@ public class RedisConfiguration {
 
         // JSON 직렬화 설정
         Jackson2JsonRedisSerializer<NotificationCache> serializer = new Jackson2JsonRedisSerializer<>(NotificationCache.class);
-        template.setDefaultSerializer(serializer);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(serializer);
 
         return template;
     }
