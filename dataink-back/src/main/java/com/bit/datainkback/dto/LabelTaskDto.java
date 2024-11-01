@@ -18,7 +18,9 @@ import java.sql.Timestamp;
 @ToString
 public class LabelTaskDto {
     private Long taskId;
-    private Long userId;
+    private Long laberId;
+    private Long reviewerId;
+    private Long adminId;
     private String comment;
     private String rejectionReason;
     private Long sourceDataId;

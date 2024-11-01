@@ -115,7 +115,7 @@ public class MongoLabelTaskService {
         List<LabelTask> labelTasks = taskIds.stream()
                 .map(taskId -> LabelTask.builder()
                         .refTaskId(taskId)
-                        .user(joinedUser)  // joinedUser로 설정
+                        .labeler(joinedUser)  // joinedUser로 설정
                         .build()
                 )
                 .collect(Collectors.toList());

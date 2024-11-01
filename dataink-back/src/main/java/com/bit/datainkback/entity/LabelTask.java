@@ -32,8 +32,16 @@ public class LabelTask {
     private Long taskId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "labeler_id")
+    private User labeler;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewer_id")
+    private User reviewer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id")
+    private User admin;
 
     private String comment;
 
@@ -54,7 +62,9 @@ public class LabelTask {
     public LabelTaskDto toDto() {
         return LabelTaskDto.builder()
                 .taskId(this.taskId)
-                .userId(user.getUserId())
+                .laberId(this.labeler.getUserId())
+                .reviewerId(this.reviewer.getUserId())
+                .adminId(this.admin.getUserId())
                 .comment(this.comment)
                 .rejectionReason(this.rejectionReason)
                 .sourceDataId(this.sourceData.getSourceId())
