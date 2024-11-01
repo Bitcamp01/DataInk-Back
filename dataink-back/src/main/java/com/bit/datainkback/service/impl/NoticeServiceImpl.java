@@ -1,14 +1,11 @@
 package com.bit.datainkback.service.impl;
 
-
 import com.bit.datainkback.common.FileUtils;
 import com.bit.datainkback.dto.NoticeDto;
 import com.bit.datainkback.dto.NoticeFileDto;
 import com.bit.datainkback.entity.NotificationCache;
 import com.bit.datainkback.entity.Notice;
-import com.bit.datainkback.entity.Notification;
 import com.bit.datainkback.entity.User;
-import com.bit.datainkback.enums.NotificationType;
 import com.bit.datainkback.repository.NoticeFileRepository;
 import com.bit.datainkback.repository.NoticeRepository;
 import com.bit.datainkback.repository.NotificationRepository;
@@ -43,7 +40,6 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public Page<NoticeDto> post(NoticeDto noticeDto, MultipartFile[] uploadFiles, User user, Pageable pageable) {
         noticeDto.setCreated(new Timestamp(System.currentTimeMillis()));
-
         Notice notice = noticeDto.toEntity(user);
 
         if (uploadFiles != null) {
@@ -97,6 +93,7 @@ public class NoticeServiceImpl implements NoticeService {
             System.out.println("Redis에 알림이 저장되지 않았습니다.");
         }
 
+        // 저장 후, 페이지 정보 반환
         return noticeRepository.findAll(pageable).map(Notice::toDto);
     }
 

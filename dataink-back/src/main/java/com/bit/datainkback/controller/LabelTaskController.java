@@ -2,11 +2,14 @@ package com.bit.datainkback.controller;
 
 import com.bit.datainkback.dto.LabelTaskDto;
 import com.bit.datainkback.dto.RejectReasonDto;
+import com.bit.datainkback.entity.CustomUserDetails;
+import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.mongo.Field;
 import com.bit.datainkback.service.LabelTaskService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,12 +27,14 @@ public class LabelTaskController {
     @PatchMapping("/reject")
     public ResponseEntity<Void> rejectTask(
             @RequestParam String taskId, // taskId로 변경
-            @RequestBody RejectReasonDto rejectReasonDto
+            @RequestBody RejectReasonDto rejectReasonDto,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
             ) {
+        User joinedUser = customUserDetails.getUser();
         String rejectionReason = rejectReasonDto.getRejectionReason();
         Map<String, Object> transformedData = rejectReasonDto.getTransformedData();
         log.info("Rejecting task with Task ID: {} and reason: {}", taskId, rejectionReason);
-        labelTaskService.rejectLabelTask(taskId, rejectionReason, transformedData); // 서비스 호출
+        labelTaskService.rejectLabelTask(taskId, rejectionReason, transformedData, joinedUser); // 서비스 호출
         return ResponseEntity.ok().build();
     }
  
@@ -37,12 +42,14 @@ public class LabelTaskController {
     @PatchMapping("/approve")
     public ResponseEntity<Void> approveTask(
             @RequestParam String taskId, // MongoDB의 Tasks ID를 사용
-            @RequestBody Map<String, Object> requestBody
+            @RequestBody Map<String, Object> requestBody,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
+        User joinedUser = customUserDetails.getUser();
         String comment = (String) requestBody.get("comment");
         Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
         log.info("Rejecting task with Task ID: {} and reason: {}", taskId, comment);
-        labelTaskService.approveLabelTask(taskId, comment, transformedData); // 서비스 호출
+        labelTaskService.approveLabelTask(taskId, comment, transformedData, joinedUser); // 서비스 호출
         return ResponseEntity.ok().build();
     }
 
@@ -84,11 +91,14 @@ public class LabelTaskController {
     @PatchMapping("/labelDetailsSave")
     public ResponseEntity<Void> saveTask(
             @RequestParam String taskId, // taskId로 변경
-            @RequestBody Map<String, Object> requestBody
-    ) {
+            @RequestBody Map<String, Object> requestBody,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            ) {
+
+        User joinedUser = customUserDetails.getUser();
         Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
-        log.info("Rejecting task with Task ID: {}", taskId);
-        labelTaskService.saveLabelDetail(taskId, transformedData); // 서비스 호출
+        log.info("Rejecting task with Task ID: {} User: {}", taskId , joinedUser);
+        labelTaskService.saveLabelDetail(taskId, transformedData, joinedUser); // 서비스 호출
         return ResponseEntity.ok().build();
     }
 
@@ -96,11 +106,13 @@ public class LabelTaskController {
     @PatchMapping("/adminApprove")
     public ResponseEntity<Void> adminApproveTask(
             @RequestParam String taskId, // MongoDB의 Tasks ID를 사용
-            @RequestBody Map<String, Object> requestBody
+            @RequestBody Map<String, Object> requestBody,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
+        User joinedUser = customUserDetails.getUser();
         Map<String, Object> transformedData = (Map<String, Object>) requestBody.get("transformedData");
         log.info("Rejecting task with Task ID: {}", taskId);
-        labelTaskService.adminApprove(taskId, transformedData); // 서비스 호출
+        labelTaskService.adminApprove(taskId, transformedData, joinedUser); // 서비스 호출
         return ResponseEntity.ok().build();
     }
 
