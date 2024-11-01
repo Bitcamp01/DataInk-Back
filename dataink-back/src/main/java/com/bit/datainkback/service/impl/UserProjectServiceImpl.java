@@ -48,6 +48,14 @@ public class UserProjectServiceImpl implements UserProjectService {
     }
 
     @Override
+    public List<UserProjectDto> getUserProjectDtosByProjectId(Long projectId) {
+        // User ID로 UserProject 목록 조회 후 UserProject를 DTO로 변환
+        return userProjectRepository.findByProjectProjectId(projectId).stream()
+                .map(UserProject::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public UserProject updateUserProject(Long projectId, Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         Optional<Project> projectOptional = projectRepository.findById(projectId);

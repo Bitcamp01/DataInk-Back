@@ -18,6 +18,8 @@ public interface UserProjectService {
 
     List<UserProjectDto> getUserProjectDtosByUserId(Long userId);
 
+    List<UserProjectDto> getUserProjectDtosByProjectId(Long projectId);
+
     UserProject updateUserProject(Long projectId, Long userId);
 
     // 북마크 상태 업데이트 메서드
