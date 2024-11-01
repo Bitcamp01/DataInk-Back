@@ -111,13 +111,6 @@ public class NoticeController {
                 String department = noticeAuthor.getUserDetail().getDep();
                 notice.setDep(department != null ? department : "부서 정보 없음");
 
-                // 파일 정보 추가
-                if (notice.getNoticeFileDtoList() != null) {
-                    for (NoticeFileDto fileDto : notice.getNoticeFileDtoList()) {
-                        // 파일 사이즈를 DTO에 추가 (사이즈는 이미 NoticeFileDto에 포함되어 있어야 함)
-                        log.info("File Name: {}, Size: {}", fileDto.getFileName(), fileDto.getFileSize());
-                    }
-                }
             });
 
             responseDto.setPageItems(noticeDtoList);

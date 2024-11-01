@@ -59,6 +59,7 @@ public class NoticeFile {
                 .fileType(fileType)
                 .fileStatus(fileStatus)
                 .fileNewName(fileNewName)
+                .fileSize(fileSize)
                 .build();
     }
 
