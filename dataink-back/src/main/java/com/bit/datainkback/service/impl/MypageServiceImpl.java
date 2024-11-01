@@ -1,6 +1,7 @@
 package com.bit.datainkback.service.impl;
 
 import com.bit.datainkback.common.FileUtils;
+import com.bit.datainkback.dto.NotificationDto;
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.UserDetailDto;
 import com.bit.datainkback.entity.Project;
@@ -27,8 +28,6 @@ public class MypageServiceImpl implements MypageService {
     private final UserRepository userRepository;
     private final UserDetailRepository userDetailRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ProjectRepository projectRepository;
-    private final UserProjectRepository userProjectRepository;
 
     @Override
     public boolean checkPassword(String loggedInUserId, String inputPassword) {
