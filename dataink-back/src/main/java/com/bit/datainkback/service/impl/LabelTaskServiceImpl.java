@@ -2,12 +2,15 @@ package com.bit.datainkback.service.impl;
 
 import com.bit.datainkback.dto.LabelTaskDto;
 import com.bit.datainkback.entity.LabelTask;
+import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.mongo.Field;
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.mongo.Tasks;
+import com.bit.datainkback.entity.Notification;
 import com.bit.datainkback.enums.TaskLevel;
 import com.bit.datainkback.enums.TaskStatus;
 import com.bit.datainkback.repository.LabelTaskRepository;
+import com.bit.datainkback.repository.NotificationRepository;
 import com.bit.datainkback.repository.mongo.FieldRepository;
 import com.bit.datainkback.repository.mongo.MongoLabelTaskRepository;
 import com.bit.datainkback.service.LabelTaskService;
@@ -16,6 +19,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.data.mongodb.core.query.Query;
+import com.bit.datainkback.enums.NotificationType;
+import java.time.LocalDateTime;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -32,9 +37,10 @@ public class LabelTaskServiceImpl implements LabelTaskService {
     private final MongoLabelTaskRepository mongoLabelTaskRepository;
     private final FieldRepository fieldRepository;
     private final MongoTemplate mongoTemplate;
+    private final NotificationRepository notificationRepository;
 
     @Override
-    public void rejectLabelTask(String taskId, String rejectionReason , Map<String, Object> transformedData) {
+    public void rejectLabelTask(String taskId, String rejectionReason , Map<String, Object> transformedData, User joinedUser) {
         // MongoDB에서 Tasks 문서를 조회
         Tasks tasks = mongoLabelTaskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Tasks not found"));
@@ -55,10 +61,24 @@ public class LabelTaskServiceImpl implements LabelTaskService {
         tasks.setStatus("rejected");
         tasks.setFieldValue(transformedData); // transformedData를 fieldValue에 저장
         mongoTemplate.save(tasks);
+
+        // 알림 테이블에 새로운 알림 생성
+        Notification notification = Notification.builder()
+                .user(joinedUser)
+                .content(joinedUser.getName() + "님이" + tasks.getTaskName() + "작업을 반려 하였습니다.")
+                .isRead(false)
+                .createdAt(LocalDateTime.now())
+                .notificationType(NotificationType.TASK_UPDATED) // 알림 유형 설정
+                .relatedId(labelTask.getTaskId()) // 프로젝트 Id(수정 필요함)
+                .build();
+        notificationRepository.save(notification); // Notification을 DB에 저장
+
+        // Redis에 알림 저장 (userId를 키로 사용)
+
     }
 
     @Override
-    public void approveLabelTask(String taskId, String comment, Map<String, Object> transformedData) {
+    public void approveLabelTask(String taskId, String comment, Map<String, Object> transformedData, User joinedUser) {
         // MongoDB에서 Tasks 문서를 조회
         Tasks tasks = mongoLabelTaskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Tasks not found"));
@@ -76,6 +96,20 @@ public class LabelTaskServiceImpl implements LabelTaskService {
         tasks.setStatus("reviewed");
         tasks.setFieldValue(transformedData); // transformedData를 fieldValue에 저장
         mongoTemplate.save(tasks);
+
+        // 알림 테이블에 새로운 알림 생성
+        Notification notification = Notification.builder()
+                .user(joinedUser)
+                .content(joinedUser.getName() + "님이" + tasks.getTaskName() + "작업을 승인 하였습니다.")
+                .isRead(false)
+                .createdAt(LocalDateTime.now())
+                .notificationType(NotificationType.TASK_UPDATED) // 알림 유형 설정
+                .relatedId(labelTask.getTaskId()) // 프로젝트 Id(수정 필요함)
+                .build();
+        notificationRepository.save(notification); // Notification을 DB에 저장
+
+        // Redis에 알림 저장 (userId를 키로 사용)
+
     }
 
     @Override
@@ -109,7 +143,6 @@ public class LabelTaskServiceImpl implements LabelTaskService {
         return fieldList;
     }
 
-    // 위의 getLabelTaskDetails처럼 List<Tasks>로 바꾸었는데 <> 안에 들어가는 것들 기준이 뭐야
     public List<Object> getLabelDetails(String taskId) {
         // Step 1: MongoDB에서 Tasks 조회
         Tasks tasks = mongoLabelTaskRepository.findById(taskId)
@@ -128,7 +161,7 @@ public class LabelTaskServiceImpl implements LabelTaskService {
     }
 
     @Override
-    public void saveLabelDetail(String taskId, Map<String, Object> transformedData) {
+    public void saveLabelDetail(String taskId, Map<String, Object> transformedData, User joinedUser) {
         // MongoDB에서 Tasks 문서를 조회
         Tasks tasks = mongoLabelTaskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Tasks not found"));
@@ -137,10 +170,32 @@ public class LabelTaskServiceImpl implements LabelTaskService {
         tasks.setFieldValue(transformedData); // transformedData를 fieldValue에 저장
         tasks.setStatus("submitted");
         mongoTemplate.save(tasks); // MongoDB에 저장
+
+        LabelTask labelTask = LabelTask.builder()
+                        .refTaskId(taskId)
+                        .labeler(joinedUser)  // joinedUser로 설정
+                        .build();
+
+        labelTaskRepository.save(labelTask);
+
+        // 알림 테이블에 새로운 알림 생성
+        Notification notification = Notification.builder()
+                .user(joinedUser)
+                .content(joinedUser.getName() + "(라벨러)님이 " + tasks.getTaskName() + " 작업을 업로드 하였습니다.")
+                //.content(joinedUser.getName() + "님이" + tasks.getTaskName() + "작업을 승인 하였습니다.")
+                //.content(joinedUser.getName() + "님이" + tasks.getTaskName() + "작업을 반려 하였습니다.")
+                .isRead(false)
+                .createdAt(LocalDateTime.now())
+                .notificationType(NotificationType.TASK_UPDATED) // 알림 유형 설정
+                .relatedId(labelTask.getTaskId()) // 프로젝트 Id(수정 필요함)
+                .build();
+        notificationRepository.save(notification); // Notification을 DB에 저장
+
+        // Redis에 알림 저장 (userId를 키로 사용)
     }
 
     @Override
-    public void adminApprove(String taskId, Map<String, Object> transformedData) {
+    public void adminApprove(String taskId, Map<String, Object> transformedData, User joinedUser) {
         // MongoDB에서 Tasks 문서를 조회
         Tasks tasks = mongoLabelTaskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Tasks not found"));
@@ -149,6 +204,21 @@ public class LabelTaskServiceImpl implements LabelTaskService {
         tasks.setFieldValue(transformedData); // transformedData를 fieldValue에 저장
         tasks.setStatus("approved");
         mongoTemplate.save(tasks); // MongoDB에 저장
+
+        // 알림 테이블에 새로운 알림 생성
+        Notification notification = Notification.builder()
+                .user(joinedUser)
+                .content(joinedUser.getName() + "님이" + tasks.getTaskName() + "작업을 최종승인 하였습니다.")
+                .isRead(false)
+                .createdAt(LocalDateTime.now())
+                .notificationType(NotificationType.TASK_UPDATED) // 알림 유형 설정
+//                .relatedId(labelTask.getTaskId()) // 프로젝트 Id(수정 필요함) , 이 부분 지금 이 메소드는 labeltask 사용 안해서 지금 선언 안해놨음
+                .build();
+        notificationRepository.save(notification); // Notification을 DB에 저장
+
+        // Redis에 알림 저장 (userId를 키로 사용)
+
+
     }
 
     @Override
@@ -157,8 +227,6 @@ public class LabelTaskServiceImpl implements LabelTaskService {
         labelTask.setRefTaskId(id);
         labelTaskRepository.save(labelTask);
     }
-
-
 }
 
 
