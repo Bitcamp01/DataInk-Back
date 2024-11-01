@@ -38,24 +38,28 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public Page<NoticeDto> post(NoticeDto noticeDto, MultipartFile[] uploadFiles, User user, Pageable pageable) {
         noticeDto.setCreated(new Timestamp(System.currentTimeMillis()));
-
         Notice notice = noticeDto.toEntity(user);
 
         if (uploadFiles != null) {
             Arrays.stream(uploadFiles).forEach(multipartFile -> {
-               if(multipartFile.getOriginalFilename() != null &&
-               !multipartFile.getOriginalFilename().equalsIgnoreCase("")){
+                String originalFilename = multipartFile.getOriginalFilename();
+                if (originalFilename != null && !originalFilename.trim().isEmpty()) {
+                    // 파일 정보 파싱
+                    NoticeFileDto noticeFileDto = fileUtils.parserFileInfo(multipartFile, "notice/");
 
-                   NoticeFileDto noticeFileDto = fileUtils.parserFileInfo(multipartFile,"notice/");
+                    // NoticeFileDto가 null이 아닐 때만 추가
+                    if (noticeFileDto != null) {
+                        notice.getNoticeFileList().add(noticeFileDto.toEntity(notice));
+                    }
+                }
+            });
+        }
 
-                   notice.getNoticeFileList().add(noticeFileDto.toEntity(notice));
-               }
-           });
-       }
-
+        // Notice 객체를 저장
         noticeRepository.save(notice);
 
-       return noticeRepository.findAll(pageable).map(Notice::toDto);
+        // 저장 후, 페이지 정보 반환
+        return noticeRepository.findAll(pageable).map(Notice::toDto);
     }
 
 

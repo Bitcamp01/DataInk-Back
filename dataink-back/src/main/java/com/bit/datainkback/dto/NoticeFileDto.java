@@ -20,6 +20,7 @@ public class NoticeFileDto {
     private String fileType;
     private String fileStatus;
     private String fileNewName;
+    private Long fileSize;
 
     public NoticeFile toEntity(Notice notice) {
         return NoticeFile.builder()
@@ -31,7 +32,8 @@ public class NoticeFileDto {
             .fileType(fileType)
             .fileStatus(this.fileStatus)
             .fileNewName(this.fileNewName)
+            .fileSize(this.fileSize)
             .build();
-
     }
+
 }
