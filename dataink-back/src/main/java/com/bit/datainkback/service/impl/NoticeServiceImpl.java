@@ -4,7 +4,7 @@ package com.bit.datainkback.service.impl;
 import com.bit.datainkback.common.FileUtils;
 import com.bit.datainkback.dto.NoticeDto;
 import com.bit.datainkback.dto.NoticeFileDto;
-import com.bit.datainkback.dto.NotificationDto;
+import com.bit.datainkback.entity.NotificationCache;
 import com.bit.datainkback.entity.Notice;
 import com.bit.datainkback.entity.Notification;
 import com.bit.datainkback.entity.User;
@@ -15,13 +15,10 @@ import com.bit.datainkback.repository.NotificationRepository;
 import com.bit.datainkback.service.NoticeService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.lettuce.core.AbstractRedisAsyncCommands;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,22 +26,18 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-
 public class NoticeServiceImpl implements NoticeService {
     private final NoticeRepository noticeRepository;
     private final FileUtils fileUtils;
     private final NoticeFileRepository noticeFileRepository;
     private final NotificationRepository notificationRepository;
-
-    @Autowired
-    private RedisTemplate<String, NotificationDto> redisTemplate;
+    private final RedisTemplate<String, NotificationCache> redisTemplate; // RedisTemplate 사용
 
     @Override
     public Page<NoticeDto> post(NoticeDto noticeDto, MultipartFile[] uploadFiles, User user, Pageable pageable) {
@@ -78,26 +71,31 @@ public class NoticeServiceImpl implements NoticeService {
 
         notificationRepository.save(notification);  // 알림 저장
 
-        // Redis에 알림 추가 및 확인
-        ListOperations<String, NotificationDto> listOps = redisTemplate.opsForList();
+        // Redis에 알림 추가
+        NotificationCache notificationCache = NotificationCache.builder()
+                .id(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE) // 고유 ID 생성
+                .timestamp(LocalDateTime.now())
+                .content("(공지) " + notice.getTitle())
+                .type(NotificationType.NOTICE)
+                .userId(user.getUserId())
+                .build();
         String redisKey = "notifications:" + user.getUserId();
 
         try {
-            listOps.rightPush(redisKey, notification.toDto());
+            // Redis에 알림 저장
+            redisTemplate.opsForList().rightPush(redisKey, notificationCache);
+            redisTemplate.expire(redisKey, 3600, TimeUnit.SECONDS); // TTL 설정 (1시간)
+            System.out.println("알림이 Redis에 성공적으로 저장되었습니다.");
         } catch (Exception e) {
             System.err.println("Redis에 알림 저장 실패: " + e.getMessage());
         }
-        Long notificationCount = listOps.size(redisKey); // Redis에 저장된 알림 개수 확인
 
-        // 최대 100개 알림만 유지
-        if (notificationCount != null && notificationCount > 100) {
-            listOps.leftPop(redisKey); // 오래된 알림 제거
-        }
-
-        // Redis에 저장된 최신 알림 확인
-        NotificationDto latestNotification = listOps.index(redisKey, -1);
-        if (latestNotification != null) {
-            System.out.println("Redis에 저장된 최신 알림: " + latestNotification.getContent());
+        // Redis에 저장된 알림 확인
+        NotificationCache savedNotification = (NotificationCache) redisTemplate.opsForList().index(redisKey, -1);
+        if (savedNotification != null) {
+            System.out.println("Redis에 저장된 알림 내용: " + savedNotification.getContent());
+        } else {
+            System.out.println("Redis에 알림이 저장되지 않았습니다.");
         }
 
         return noticeRepository.findAll(pageable).map(Notice::toDto);
