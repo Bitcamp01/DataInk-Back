@@ -56,7 +56,7 @@ public class LabelTask {
 //    @Column(name = "field_id")
 //    private String fieldId; // MongoDB의 Tasks 문서의 ID를 저장
 
-    @Column(name = "ref_task_id")
+    @Column(name = "ref_task_id", unique = true)
     private String refTaskId;
 
     public LabelTaskDto toDto() {
