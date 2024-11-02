@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Getter
 @Setter
@@ -27,6 +28,7 @@ public class UserDto {
     private String status;
     private UserDetailDto userDetailDto;
     private String token;
+    private List<NotificationDto> notifications;
 
     public User toEntity() {
         User user = User.builder()

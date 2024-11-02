@@ -20,4 +20,6 @@ public interface NoticeService {
    NoticeDto modify(NoticeDto noticeDto, MultipartFile[] uploadFiles, MultipartFile[] changeFiles, String originFiles, Long userId);
 
    void deleteById(Long noticeId);
+
+   NoticeDto modify(NoticeDto noticeDto, Long userId);
 }

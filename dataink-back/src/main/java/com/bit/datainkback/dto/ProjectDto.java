@@ -21,6 +21,8 @@ public class ProjectDto {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private String mongoDataId;
+    private String searchKeyword;
+    private String searchCondition;
     // MongoDB용 폴더 구조를 포함한 필드
     private List<Folder> folders;
 
@@ -32,7 +34,10 @@ public class ProjectDto {
                 .startDate(this.startDate)
                 .endDate(this.endDate)
                 .description(this.description)
-                .mongoDataId(this.mongoDataId).build();
+                .mongoDataId(this.mongoDataId)
+                .searchKeyword(this.searchKeyword)
+                .searchCondition(this.searchCondition)
+                .build();
     }
 }
 

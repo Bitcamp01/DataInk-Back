@@ -1,17 +1,25 @@
 package com.bit.datainkback.controller.mongo;
 
+import com.bit.datainkback.dto.ResponseDto;
 import com.bit.datainkback.dto.mongo.TaskSearchCriteria;
+import com.bit.datainkback.entity.CustomUserDetails;
+import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.mongo.Tasks;
 import com.bit.datainkback.repository.mongo.MongoLabelTaskRepository;
 import com.bit.datainkback.service.mongo.MongoLabelTaskService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/mongo/tasks")
 public class MongoLabelTaskController {
@@ -49,17 +57,26 @@ public class MongoLabelTaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    // 여러 taskId로 상태를 업데이트하는 API
+    // tasks 컬렉션 데이터들의 status를 submitted로 변경, label_table 테이블에 데이터 생성
     @PutMapping("/update-submit")
-    public ResponseEntity<?> updateTaskStatus(@RequestBody List<String> taskIds) {
-        // taskId로 해당 task들을 찾아 상태를 업데이트
-        List<Tasks> tasksToUpdate = mongoLabelTaskRepository.findAllById(taskIds);
+    public ResponseEntity<?> updateTaskStatus(@RequestBody List<String> taskIds,
+                                              @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        ResponseDto<Tasks> responseDto = new ResponseDto<>();
+        User joinedUser = customUserDetails.getUser();
 
-        tasksToUpdate.forEach(task -> task.setStatus("submitted")); // 상태를 submitted로 변경
+        try {
+            List<Tasks> submittedTasks = mongoLabelTaskService.submitForReview(taskIds, joinedUser);
+            responseDto.setStatusCode(HttpStatus.OK.value());
+            responseDto.setStatusMessage("ok");
+            responseDto.setItems(submittedTasks);
 
-        mongoLabelTaskRepository.saveAll(tasksToUpdate);  // 변경된 task들을 저장
-
-        return ResponseEntity.ok().build();  // 성공 응답 반환
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            log.error("id-check error: {}", e.getMessage());
+            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseDto.setStatusMessage(e.getMessage());
+            return ResponseEntity.internalServerError().body(responseDto);
+        }
     }
 
     @PostMapping("/search")

@@ -34,15 +34,21 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventDto> updateEvent(@PathVariable("id") Long id, @RequestBody EventDto eventDto) {
-        EventDto updatedEvent = eventService.updateEvent(id, eventDto);
-        return ResponseEntity.ok(updatedEvent);
+    public ResponseEntity<List<EventDto>> updateEvent(@PathVariable("id") Long id, @RequestBody EventDto eventDto,
+                                                @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        try {
+            List<EventDto> updatedEvents = eventService.updateEvent(id, eventDto, customUserDetails.getUser().getUserId());
+            return ResponseEntity.ok(updatedEvents);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError().body(null);
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
-        eventService.deleteEvent(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<List<EventDto>> deleteEvent(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        List<EventDto> remainingEvents = eventService.deleteEvent(id, customUserDetails.getUser().getUserId());
+        return ResponseEntity.ok(remainingEvents);
     }
 }
 

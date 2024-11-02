@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.model.*;
 import com.bit.datainkback.config.NaverConfiguration;
 import com.bit.datainkback.dto.NoticeFileDto;
 import com.bit.datainkback.dto.UserDetailDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +21,7 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
-
+@Slf4j
     @Component
     public class FileUtils {
         private final AmazonS3 s3;
@@ -46,20 +47,20 @@ import java.util.UUID;
                     )
                     .build();
         }
+        public String getPdfFileUrl(String fileName) {
+            String filePath = "pdf_file/" + fileName;
+            return s3.getUrl(bucketName, filePath).toString();
+        }
         public void copyFileInS3(String originalFileName, String copyFileName) {
-            String bucketName = "dataink";
-            String sourceKey = "/pdf_file" + originalFileName;       // 원본 파일 경로
-            String destinationKey = "/pdf_file" + copyFileName; // 복사본 파일 경로
+            String sourceKey = "pdf_file/" + originalFileName;       // 원본 파일 경로
+            String destinationKey = "pdf_file/" + copyFileName; // 복사본 파일 경로
 
             // S3 내부에서 파일 복사
             CopyObjectRequest copyObjRequest = new CopyObjectRequest(bucketName, sourceKey, bucketName, destinationKey);
             s3.copyObject(copyObjRequest);
         }
         public String parserFileInfoToProject(MultipartFile multipartFile, String directory) {
-            String bucketName = "dataink";
-
-            // 다른 사용자가 같은 파일명의 파일을 업로드 했을 때
-            // 덮어써지는 것을 방지하기 위해서 파일명을 랜덤값_날짜시간_파일명으로 지정
+            log.info("폴더 이름 {}",directory);
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
             Date nowDate = new Date();
 

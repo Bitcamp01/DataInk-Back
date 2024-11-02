@@ -32,52 +32,43 @@ public class LabelTask {
     private Long taskId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @JoinColumn(name = "labeler_id")
+    private User labeler;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "reviewer_id")
+    private User reviewer;
 
-    @Enumerated(EnumType.STRING)
-    private TaskStatus status;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id")
+    private User admin;
 
-    @Enumerated(EnumType.STRING)
-    private TaskLevel level;
     private String comment;
 
     @Column(name = "rejection_reason")
     private String rejectionReason;
-    private Timestamp created;
-    private Timestamp updated;
-    private Timestamp submitted;
-    private Timestamp reviewed;
-    private Timestamp approved;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_id")
     private SourceData sourceData;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "field_id")
-    private LabelField labelField;
+//    // **LabelField 대신 Tasks의 ID를 필드로 사용**
+//    @Column(name = "field_id")
+//    private String fieldId; // MongoDB의 Tasks 문서의 ID를 저장
+
+    @Column(name = "ref_task_id", unique = true)
+    private String refTaskId;
 
     public LabelTaskDto toDto() {
         return LabelTaskDto.builder()
                 .taskId(this.taskId)
-                .projectId(this.project.getProjectId())
-//                .userId(this.user.getUserId())
-                .status(this.status)
-                .level(this.level)
+                .laberId(this.labeler.getUserId())
+                .reviewerId(this.reviewer.getUserId())
+                .adminId(this.admin.getUserId())
                 .comment(this.comment)
                 .rejectionReason(this.rejectionReason)
-                .created(this.created)
-                .updated(this.updated)
-                .submitted(this.submitted)
-                .reviewed(this.reviewed)
-                .approved(this.approved)
                 .sourceDataId(this.sourceData.getSourceId())
-                .labelFieldId(this.labelField.getFieldId())
+                .refTaskId(this.refTaskId)
                 .build();
     }
 

@@ -3,8 +3,10 @@ package com.bit.datainkback.service.mongo;
 import com.bit.datainkback.dto.mongo.FolderDto;
 import com.bit.datainkback.entity.mongo.Folder;
 import com.bit.datainkback.entity.mongo.MongoProjectData;
+import com.bit.datainkback.repository.LabelTaskRepository;
 import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.repository.mongo.FolderRepository;
+import com.bit.datainkback.repository.mongo.MongoLabelTaskRepository;
 import com.bit.datainkback.repository.mongo.MongoProjectDataRepository;
 import com.bit.datainkback.service.FileService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,12 @@ public class FolderService {
     private FileService fileService;
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private MongoLabelTaskRepository mongoLabelTaskRepository;
+    @Autowired
+    private LabelTaskRepository labelTaskRepository;
+
     // 폴더 생성
     public Folder createFolder(Folder folder) {
         return folderRepository.save(folder);
@@ -134,6 +142,10 @@ public class FolderService {
     public void deleteFolderAndChildFolder(List<Folder> childrenFolder) {
         for (Folder folder : childrenFolder) {
             Folder subFolder= folderRepository.findById(folder.getId()).orElseThrow(()->new RuntimeException("not found folder"));
+            if (!subFolder.isFolder()){
+                mongoLabelTaskRepository.deleteById(subFolder.getId());
+                labelTaskRepository.deleteByRefTaskId(subFolder.getId());
+            }
             if (subFolder.getChildren() != null && !subFolder.getChildren().isEmpty()) {
                 deleteFolderAndChildFolder(subFolder.getChildren());
             }
@@ -144,12 +156,12 @@ public class FolderService {
     //삭제 대상이 되는 폴더를 넘김, 그러면 상위 폴더의 children을 수정, 폴더는 삭제 하지 않음
     public void deleteParentFolderChildren(Folder folder) {
         // 삭제될 폴더의 상위 폴더를 가져옴
-        Folder parentFolder = folderRepository.findByChildrenId(folder.getId()).get();
+        Folder parentFolder = folderRepository.findByChildrenId(folder.getId()).orElse(null);
         //상위 폴더가 프로젝트임
         if (parentFolder == null) {
             //프로젝트 folders에 있는 아이디 목록 갱신
             MongoProjectData mongoProjectData=mongoProjectDataRepository.findByFolders(folder.getId());
-            List<String> updateFolderIds= mongoProjectData.getFolders().stream().filter(childFolder -> childFolder.equals(folder.getId())).collect(Collectors.toList());
+            List<String> updateFolderIds= mongoProjectData.getFolders().stream().filter(childFolder -> !childFolder.equals(folder.getId())).collect(Collectors.toList());
             mongoProjectData.setFolders(updateFolderIds);
             mongoProjectDataRepository.save(mongoProjectData);
         }
@@ -176,6 +188,21 @@ public class FolderService {
         Folder copiedFolder = recursiveCopyFolder(originalFolder);
         return folderRepository.save(copiedFolder);  // MongoDB에 저장
     }
+    public String getOriginalFileName(String fileName) {
+        // 언더스코어(_)를 기준으로 파일 이름을 분리
+        String[] parts = fileName.split("_");
+
+        // 세 번째 요소부터 끝까지 결합하여 실제 파일 이름을 생성
+        StringBuilder originalFileName = new StringBuilder();
+        for (int i = 2; i < parts.length; i++) {
+            originalFileName.append(parts[i]);
+            if (i < parts.length - 1) {
+                originalFileName.append("_"); // 중간에 언더스코어 추가
+            }
+        }
+
+        return originalFileName.toString();
+    }
 
     // 재귀적 복사 메서드
     private Folder recursiveCopyFolder(Folder folderToCopy) {
@@ -189,7 +216,7 @@ public class FolderService {
         newFolder.setFolder(folderToCopy.isFolder());
         newFolder.setFinished(folderToCopy.isFinished());
         if (!folderToCopy.isFolder()){
-            String realFileName = folderToCopy.getLabel().split("_")[2];
+            String realFileName = getOriginalFileName(folderToCopy.getLabel());
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
             Date nowDate = new Date();
             String nowDateStr = format.format(nowDate);

@@ -14,4 +14,6 @@ public class ResponseDto<T> {
     private Page<T> pageItems;
     private int statusCode;
     private String statusMessage;
+    private int totalPages;
+    private int currentPage;
 }

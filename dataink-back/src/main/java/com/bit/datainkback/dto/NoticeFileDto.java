@@ -3,6 +3,7 @@ package com.bit.datainkback.dto;
 
 import com.bit.datainkback.entity.Notice;
 import com.bit.datainkback.entity.NoticeFile;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -20,6 +21,8 @@ public class NoticeFileDto {
     private String fileType;
     private String fileStatus;
     private String fileNewName;
+    @JsonProperty("fileSize")
+    private Long fileSize;
 
     public NoticeFile toEntity(Notice notice) {
         return NoticeFile.builder()
@@ -31,7 +34,8 @@ public class NoticeFileDto {
             .fileType(fileType)
             .fileStatus(this.fileStatus)
             .fileNewName(this.fileNewName)
+            .fileSize(this.fileSize)
             .build();
-
     }
+
 }

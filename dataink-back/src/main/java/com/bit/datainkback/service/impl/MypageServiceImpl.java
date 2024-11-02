@@ -1,16 +1,26 @@
 package com.bit.datainkback.service.impl;
 
 import com.bit.datainkback.common.FileUtils;
+import com.bit.datainkback.dto.NotificationDto;
+import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.UserDetailDto;
+import com.bit.datainkback.entity.Project;
 import com.bit.datainkback.entity.User;
 import com.bit.datainkback.entity.UserDetail;
+import com.bit.datainkback.repository.ProjectRepository;
 import com.bit.datainkback.repository.UserDetailRepository;
+import com.bit.datainkback.repository.UserProjectRepository;
 import com.bit.datainkback.repository.UserRepository;
 import com.bit.datainkback.service.MypageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +55,12 @@ public class MypageServiceImpl implements MypageService {
     }
 
     @Override
-    public UserDetailDto getUserDetail(Long userId) {
-        UserDetail userDetail = userDetailRepository.findById(userId)
+    public UserDetailDto getUserDetail(Long loggedInUserId) {
+        UserDetail userDetail = userDetailRepository.findById(loggedInUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 저장된 엔티티를 DB에 반영
+        userDetailRepository.save(userDetail);
         return userDetail.toDto();
     }
 

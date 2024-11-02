@@ -25,12 +25,14 @@ public class NoticeDto {
     private String searchKeyword;
     private String searchCondition;
     private List<NoticeFileDto> noticeFileDtoList;
+    private String dep;
+    private String profileImg;
 
-    public NoticeDto(String title, String content, Long noticeId, Timestamp created) {
+    public NoticeDto(String title, Long noticeId, Timestamp created, String dep) {
         this.title = title;
-        this.content = content;
         this.noticeId = noticeId;
         this.created = created;
+        this.dep = dep;
     }
 
     public Notice toEntity(User user) {
