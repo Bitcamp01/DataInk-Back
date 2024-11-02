@@ -2,6 +2,7 @@ package com.bit.datainkback.controller;
 
 
 import com.bit.datainkback.dto.NoticeDto;
+import com.bit.datainkback.dto.NoticeFileDto;
 import com.bit.datainkback.dto.ResponseDto;
 import com.bit.datainkback.entity.CustomUserDetails;
 import com.bit.datainkback.entity.Notice;
@@ -23,7 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 @RestController
@@ -55,6 +58,20 @@ public class NoticeController {
                 User noticeAuthor = userRepository.findById(notice.getUserId())
                         .orElseThrow(() -> new RuntimeException("User not found"));
                 notice.setProfileImg(noticeAuthor.getUserDetail().getProfileImageUrl());
+
+                // 업로드된 파일의 정보 추가
+                if (uploadFiles != null) {
+                    List<NoticeFileDto> noticeFileDtoList = new ArrayList<>();
+                    for (MultipartFile file : uploadFiles) {
+                        NoticeFileDto noticeFileDto = new NoticeFileDto();
+
+                        noticeFileDto.setFileName(file.getOriginalFilename());
+                        noticeFileDto.setFileType(file.getContentType());
+                        noticeFileDto.setFileSize(file.getSize()); // 파일 크기 추가
+                        noticeFileDtoList.add(noticeFileDto);
+                    }
+                    notice.setNoticeFileDtoList(noticeFileDtoList); // 공지사항에 파일 리스트 설정
+                }
             });
 
             log.info("post noticeDtoList: {}", noticeDtoList);
@@ -76,7 +93,6 @@ public class NoticeController {
 
     }
 
-
     @GetMapping
     public ResponseEntity<?> getBoards(@RequestParam("searchCondition") String searchCondition,
                                        @RequestParam("searchKeyword") String searchKeyword,
@@ -94,6 +110,7 @@ public class NoticeController {
                 // 부서 정보 추가
                 String department = noticeAuthor.getUserDetail().getDep();
                 notice.setDep(department != null ? department : "부서 정보 없음");
+
             });
 
             responseDto.setPageItems(noticeDtoList);

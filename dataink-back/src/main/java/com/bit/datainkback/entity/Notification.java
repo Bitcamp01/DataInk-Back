@@ -76,5 +76,15 @@ public class Notification {
                 .searchCondition(this.searchCondition)
                 .build();
     }
+
+    public NotificationCache toCache() {
+        return NotificationCache.builder()
+                .id(this.notificationId) // 영구 저장된 Notification ID를 사용
+                .userId(this.user.getUserId())
+                .content(this.content)
+                .type(this.notificationType)
+                .timestamp(this.createdAt)
+                .build();
+    }
 }
 

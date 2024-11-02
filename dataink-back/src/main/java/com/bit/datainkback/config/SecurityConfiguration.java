@@ -40,7 +40,8 @@ public class SecurityConfiguration {
                             "/users/id-check",
                             "/users/join",
                             "/users/tel-check",
-                            "/users/login").permitAll();
+                            "/users/login",
+                            "/login/google").permitAll();
                     authorizationManagerRequestMatcherRegistry.anyRequest().authenticated();
                 })
                 .addFilterAt(jwtAuthenticationFilter, CorsFilter.class)
