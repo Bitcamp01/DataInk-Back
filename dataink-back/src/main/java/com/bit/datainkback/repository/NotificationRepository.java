@@ -2,6 +2,7 @@ package com.bit.datainkback.repository;
 
 import com.bit.datainkback.entity.Notification;
 import com.bit.datainkback.entity.User;
+import com.bit.datainkback.repository.custom.NotificationRepositoryCustom;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
+public interface NotificationRepository extends JpaRepository<Notification, Long>, NotificationRepositoryCustom {
     // 특정 사용자의 읽지 않은 알림 조회
     List<Notification> findByUser_UserIdAndIsReadFalse(Long userId);
 

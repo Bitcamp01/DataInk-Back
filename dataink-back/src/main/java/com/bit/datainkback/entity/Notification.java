@@ -50,15 +50,30 @@ public class Notification {
     @Column(name = "related_id")
     private Long relatedId; // 관련된 데이터의 ID (예: 프로젝트 ID, 공지사항 ID 등)
 
+    @Transient
+    private LocalDateTime startDate;
+    @Transient
+    private LocalDateTime endDate;
+    @Transient
+    private String searchKeyword;
+    @Transient
+    private String searchCondition;
+
+
     public NotificationDto toDto() {
         return NotificationDto.builder()
                 .notificationId(this.notificationId)
                 .userId(this.user.getUserId())
+                .userName(this.user.getName())
                 .notificationType(this.notificationType)
                 .content(this.content)
                 .isRead(this.isRead)
                 .createdAt(this.createdAt)
                 .relatedId(this.relatedId)
+                .startDate(this.startDate)
+                .endDate(this.endDate)
+                .searchKeyword(this.searchKeyword)
+                .searchCondition(this.searchCondition)
                 .build();
     }
 
