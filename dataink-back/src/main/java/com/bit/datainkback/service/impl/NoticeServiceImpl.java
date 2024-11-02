@@ -70,30 +70,30 @@ public class NoticeServiceImpl implements NoticeService {
 
         notificationRepository.save(notification);  // 알림 저장
 
-        // Redis에 알림 추가
-        NotificationCache notificationCache = NotificationCache.builder()
-                .id(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE) // 고유 ID 생성
-                .timestamp(LocalDateTime.now())
-                .content("(공지) " + notice.getTitle())
-                .type(NotificationType.NOTICE)
-                .userId(user.getUserId())
-                .build();
-
-        try {
-            // Redis에 알림 저장
-            notificationCacheRepository.save(notificationCache);
-            System.out.println("알림이 Redis에 성공적으로 저장되었습니다.");
-        } catch (Exception e) {
-            System.err.println("Redis에 알림 저장 실패: " + e.getMessage());
-        }
-
-        // Redis에 저장된 알림 확인
-        Optional<NotificationCache> savedNotification = notificationCacheRepository.findById(notificationCache.getId());
-        if (savedNotification.isPresent()) {
-            System.out.println("Redis에 저장된 알림 내용: " + savedNotification.get().getContent());
-        } else {
-            System.out.println("Redis에 알림이 저장되지 않았습니다.");
-        }
+//        // Redis에 알림 추가
+//        NotificationCache notificationCache = NotificationCache.builder()
+//                .id(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE) // 고유 ID 생성
+//                .timestamp(LocalDateTime.now())
+//                .content("(공지) " + notice.getTitle())
+//                .type(NotificationType.NOTICE)
+//                .userId(user.getUserId())
+//                .build();
+//
+//        try {
+//            // Redis에 알림 저장
+//            notificationCacheRepository.save(notificationCache);
+//            System.out.println("알림이 Redis에 성공적으로 저장되었습니다.");
+//        } catch (Exception e) {
+//            System.err.println("Redis에 알림 저장 실패: " + e.getMessage());
+//        }
+//
+//        // Redis에 저장된 알림 확인
+//        Optional<NotificationCache> savedNotification = notificationCacheRepository.findById(notificationCache.getId());
+//        if (savedNotification.isPresent()) {
+//            System.out.println("Redis에 저장된 알림 내용: " + savedNotification.get().getContent());
+//        } else {
+//            System.out.println("Redis에 알림이 저장되지 않았습니다.");
+//        }
 
         // 저장 후, 페이지 정보 반환
         return noticeRepository.findAll(pageable).map(Notice::toDto);
