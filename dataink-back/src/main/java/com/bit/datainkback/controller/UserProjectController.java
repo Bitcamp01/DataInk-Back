@@ -2,6 +2,7 @@ package com.bit.datainkback.controller;
 
 import com.bit.datainkback.dto.ProjectDto;
 import com.bit.datainkback.dto.ResponseDto;
+import com.bit.datainkback.dto.UserDto;
 import com.bit.datainkback.dto.UserProjectDto;
 import com.bit.datainkback.entity.CustomUserDetails;
 import com.bit.datainkback.entity.Project;
@@ -55,6 +56,28 @@ public class UserProjectController {
             responseDto.setStatusCode(HttpStatus.OK.value());
             responseDto.setStatusMessage("사용자의 프로젝트 상세 목록 조회 성공.");
             responseDto.setItem(responseData);
+
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            // 예외 처리
+            log.error("사용자 프로젝트 상세 조회 중 오류 발생: {}", e.getMessage());
+            responseDto.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            responseDto.setStatusMessage("사용자 프로젝트 상세를 조회하는 동안 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+        }
+    }
+
+    @GetMapping("/members/{projectId}")
+    public ResponseEntity<?> getUserProjectMembers(@PathVariable Long projectId) {
+        ResponseDto<UserDto> responseDto = new ResponseDto<>();
+        try {
+            // Project ID로 참여한 해당 프로젝트의 참여자들 목록 조회
+            List<UserDto> joinntedUserDtos = userProjectService.getMembersByProjectId(projectId);
+
+            // 성공적인 응답 설정
+            responseDto.setStatusCode(HttpStatus.OK.value());
+            responseDto.setStatusMessage("프로젝트 참여자 상세 목록 조회 성공.");
+            responseDto.setItems(joinntedUserDtos);
 
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {

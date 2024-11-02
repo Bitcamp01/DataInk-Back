@@ -42,6 +42,8 @@ public class NoticeFile {
     private String filePath;
     @Column(name = "file_type")
     private String fileType;
+    @Column(name = "file_size")
+    private Long fileSize;
     @Transient
     private String fileStatus;
     @Transient
@@ -57,6 +59,7 @@ public class NoticeFile {
                 .fileType(fileType)
                 .fileStatus(fileStatus)
                 .fileNewName(fileNewName)
+                .fileSize(fileSize)
                 .build();
     }
 

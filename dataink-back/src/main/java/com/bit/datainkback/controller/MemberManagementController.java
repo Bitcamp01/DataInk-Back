@@ -105,16 +105,18 @@ public class MemberManagementController {
     }
 
 
-
+    //모달에서 모든 멤버 가져오기
+    //            @PageableDefault(page = 0, size = 10) Pageable pageable
     @GetMapping("/modal")
-    public ResponseEntity<?> getUsersForModal(
-            @PageableDefault(page = 0, size = 10) Pageable pageable
-    ) {
+    public ResponseEntity<?> getUsersForModal(Pageable pageable) {
         ResponseDto<UserDto> responseDto = new ResponseDto<>();
 
         try {
             // UserDto 페이지 가져오기
             Page<UserDto> userDtoPage = memberManagementService.getAllUsers(pageable);
+            System.out.println(userDtoPage.getContent().size());
+            userDtoPage.getContent().forEach(user -> System.out.println(user));
+
 
             // ResponseDto에 데이터 세팅
             responseDto.setPageItems(userDtoPage); // Page에서 리스트를 가져옴
