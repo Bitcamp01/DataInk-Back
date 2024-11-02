@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findById(String id);  // String 타입의 id로 검색
 
+    Optional<User> findByEmail(String email);
+
     Long countById(String id);
     long countByTel(String tel);
     Long findByTel(String tel);
@@ -23,4 +25,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<Long> findAllUserIds();
 
     User findByUserId(Long userId);
+
 }

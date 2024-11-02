@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +29,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, String> idCheck(String id) {
         Map<String, String> userCheckMsgMap = new HashMap<>();
-
         long usernameCheck = userRepository.countById(id);
 
         if (usernameCheck == 0)
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String, String> telCheck(String tel) {
         Map<String, String> telCheckMsgMap = new HashMap<>();
-        long telCheck = userRepository.countByTel(tel); // 수정된 부분: findByTel -> countByTel
+        long telCheck = userRepository.countByTel(tel);
 
         if(telCheck == 0)
             telCheckMsgMap.put("telCheckMsg", "available tel");
@@ -54,34 +54,44 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto join(UserDto userDto) {
-        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+            userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        }
         userDto.setRegdate(new Timestamp(System.currentTimeMillis()));
         userDto.setStatus("active");
 
-        // User 엔티티 생성
         User user = userDto.toEntity();
-
-        // UserDetail을 user_id만 설정한 상태로 생성
         UserDetail userDetail = new UserDetail();
-        userDetail.setUser(user);  // User와 연관 설정
-        user.setUserDetail(userDetail);  // User에 UserDetail 설정
+        userDetail.setUser(user);
+        user.setUserDetail(userDetail);
 
-        // User 엔티티 저장 (UserDetail도 같이 저장됨)
         UserDto joinedUserDto = userRepository.save(user).toDto();
-
-        joinedUserDto.setPassword("");
+        joinedUserDto.setPassword(""); // 비밀번호는 클라이언트로 반환하지 않음
 
         return joinedUserDto;
     }
 
     @Override
     public UserDto login(UserDto userDto) {
-        User user = userRepository.findById(userDto.getId()).orElseThrow(
-                () -> new RuntimeException("id not exist")
-        );
+        // 소셜 로그인 처리
+        Optional<User> optionalUser = userRepository.findByEmail(userDto.getEmail());
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            // 비밀번호 검증을 하지 않고 로그인 처리
+            UserDto loginUserDto = user.toDto();
+            loginUserDto.setPassword("");
+            loginUserDto.setToken(jwtProvider.createJwt(user));
+            return loginUserDto;
+        }
+
+        // 일반 로그인 처리
+        User user = userRepository.findById(userDto.getId())
+                .orElseThrow(() -> new RuntimeException("User ID does not exist"));
 
         if (!passwordEncoder.matches(userDto.getPassword(), user.getPassword())) {
-            throw new RuntimeException("wrong password");
+            throw new RuntimeException("Incorrect password");
         }
 
         UserDto loginUserDto = user.toDto();
@@ -96,13 +106,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found for userId: " + userId));
     }
+
     public void changePassword(Long loggedInUserId, String currentPassword, String newPassword) {
         User user = userRepository.findById(loggedInUserId)
-                .orElseThrow(() -> new RuntimeException("User not found")
-                );
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            throw new RuntimeException("기존 비밀번호와 일치하지 않습니다.");
+            throw new RuntimeException("Current password does not match");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -110,25 +120,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveUsers(List<User> users){
+    public void saveUsers(List<User> users) {
         userRepository.saveAll(users);
     }
-
-//    @Override
-//    public WorkoutPlanDto addWorkoutPlan(List<WorkoutRoutineDto> workoutRoutineDtoList) {
-//        // set루틴리스트 할건데 매개변수가 루틴Dto리스트라 엔터티로 변환 해줘서 담아야함.
-//        // 하나씩 변환하고 루틴리스트에 add해서 -> set루틴리스트 하기
-//        WorkoutPlanDto workoutPlanDto = new WorkoutPlanDto();
-//        List<WorkoutRoutine> workoutRoutineList = new ArrayList<>();
-//
-//        for (WorkoutRoutineDto workoutRoutineDto : workoutRoutineDtoList) {
-//            workoutRoutineRepository.save(workoutRoutineDto.toEntity(workoutRepository.findByWorkoutId(workoutRoutineDto.getWorkoutId()).toEntity())); // 루틴 DB에 저장 //
-//            workoutRoutineList.add(workoutRoutineDto.toEntity(workoutRepository.findByWorkoutId(workoutRoutineDto.getWorkoutId()).toEntity())); // 값 찍어보기
-//        }
-//        workoutPlanDto.setWorkoutRoutineList(workoutRoutineList);
-//        workoutPlanRepository.save(workoutPlanDto.toEntity(userRepository.findByUserId(workoutPlanDto.getUser_id()))); // 플랜 DB에 저장 //
-//
-//        return workoutPlanDto;
-//    }
-//}
 }
