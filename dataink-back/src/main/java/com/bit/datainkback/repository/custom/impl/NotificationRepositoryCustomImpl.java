@@ -42,6 +42,7 @@ public class NotificationRepositoryCustomImpl implements NotificationRepositoryC
 
         List<Notification> notificationList = jpaQueryFactory.selectFrom(notification)
                 .where(booleanBuilder)
+                .orderBy(notification.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
